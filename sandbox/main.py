@@ -35,10 +35,11 @@ class SearchSpace:
         discrete_args = []
 
         for control in self.controls:
+            name = type(control).__name__
             for continous_arg in control.continuous_dims:
-                continuous_args.append((control, continous_arg))
+                continuous_args.append((name, continous_arg))
             for k, v in control.discrete_dims.items():
-                discrete_args.append((control, k, v))
+                discrete_args.append((name, k, v))
 
         self.continuous_args = continuous_args
         self.discrete_args = discrete_args
@@ -50,7 +51,15 @@ class SearchSpace:
         pass
 
     def unpack(self, packed_continuous, packed_discrete):
-        pass
+        result = {}
+        for (control_name, attr_name), value in zip(self.continuous_args, packed_continuous):
+            result[f'{control_name}.{attr_name}'] = value
+
+        for (control_name, attr_name, _), value in zip(self.discrete_args, packed_discrete):
+            result[f'{control_name}.{attr_name}'] = value
+
+        return result
+
 
 
 if __name__ == '__main__':
@@ -74,10 +83,11 @@ if __name__ == '__main__':
             env = env.split('/')[-1]
             for model in all_models:
                 model = model.split('/')[-1]
-                policy_controllers.append(PolicyController(env, model, {
-                    'continuous_dim': continuous_dim,
-                    'discrete_sizes': discrete_sizes,
-                    **config['policy']}))
+                policy_controllers.append(
+                    PolicyController(env, search_space, model, {
+                        'continuous_dim': continuous_dim,
+                        'discrete_sizes': discrete_sizes,
+                        **config['policy']}))
 
         schedule_work(policy_controllers, args.port)
 
