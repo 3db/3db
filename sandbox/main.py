@@ -71,7 +71,9 @@ if __name__ == '__main__':
         policy_controllers = []
 
         for env in all_envs:
+            env = env.split('/')[-1]
             for model in all_models:
+                model = model.split('/')[-1]
                 policy_controllers.append(PolicyController(env, model, {
                     'continuous_dim': continuous_dim,
                     'discrete_sizes': discrete_sizes,

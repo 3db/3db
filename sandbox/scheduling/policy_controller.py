@@ -17,7 +17,7 @@ class PolicyController(threading.Thread):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()
-        self.env_file = env_file,
+        self.env_file = env_file
         self.model_name = model_name
         self.policy_args = policy_args
 

@@ -19,6 +19,13 @@ socket.send_pyobj({
     'worker_id': worker_id
 })
 
-message = socket.recv_pyobj()
-print(message)
+assignment = socket.recv_pyobj()
+
+assert assignment['kind'] == 'assignment'
+env = assignment['environment']
+model = assignment['model']
+
+print(env, model)
+
+
 
