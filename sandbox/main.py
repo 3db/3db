@@ -1,9 +1,13 @@
 import argparse
 
+
 import yaml
 from glob import glob
 from os import path
-import importlib
+
+from scheduling.dynamic_scheduler import schedule_work
+from scheduling.policy_controller import PolicyController
+from utils import init_module
 
 
 parser = argparse.ArgumentParser(
@@ -18,15 +22,8 @@ parser.add_argument('model_folder', type=str,
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
 
-
-def init_module(description):
-    args = {k: v for (k, v) in description.items() if k != 'module'}
-    module = importlib.import_module(description['module'])
-    try:
-        return module.Control(**args)
-    except AttributeError:
-        return module.Policy(**args)
-
+parser.add_argument('port', type=int,
+                    help='The port used to listen for rendering workers')
 
 
 class SearchSpace:
@@ -56,14 +53,6 @@ class SearchSpace:
         pass
 
 
-class PolicyController:
-
-    def __init__(self, env_file, model_name, policy_args):
-        self.env_file = env_file,
-        self.model_name = model_name
-        self.policy = init_module(policy_args)
-
-
 if __name__ == '__main__':
     args = parser.parse_args()
 
@@ -75,7 +64,6 @@ if __name__ == '__main__':
         print(config)
         assert 'policy' in config, 'Missing policy in config file'
         assert 'controls' in config, 'Missing control list in config file'
-        # policy_module = importlib.import_module(config['policy']['module'])
         controls = [init_module(x) for x in config['controls']]
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
@@ -88,4 +76,6 @@ if __name__ == '__main__':
                     'continuous_dim': continuous_dim,
                     'discrete_sizes': discrete_sizes,
                     **config['policy']}))
+
+        schedule_work(policy_controllers, args.port)
 
