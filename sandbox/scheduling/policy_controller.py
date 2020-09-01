@@ -40,7 +40,7 @@ class PolicyController(threading.Thread):
 
                 argument_dict = self.search_space.unpack(continuous_args,
                                                          discrete_args)
-                descriptor = JobDescriptor(order=i, id=uuid4(),
+                descriptor = JobDescriptor(order=i, id=str(uuid4()),
                                            render_args=argument_dict,
                                            environment=self.env_file,
                                            model=self.model_name)
