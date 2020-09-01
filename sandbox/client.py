@@ -23,23 +23,30 @@ def query(kind, **args):
     })
     return socket.recv_pyobj()
 
-assignment = query('connect')
-
-print(assignment)
-
-assert assignment['kind'] == 'assignment'
-env = assignment['environment']
-model = assignment['model']
-
 while True:
-    print("starting to pull")
-    job_description = query('pull', batch_size=120)
-    print("pull done")
-    paramters = job_description['params_to_render']
-    if len(paramters) == 0:
-        print("Nothing to do!", 'sleeping')
-        time.sleep(1)
-    print(job_description)
+    assignment = query('connect')
+
+    assert assignment['kind'] == 'assignment'
+    env = assignment['environment']
+    model = assignment['model']
+
+    while True:
+        print("starting to pull")
+        job_description = query('pull', batch_size=120)
+        if job_description['kind'] == 'done':  # Configuration is done, reconnect
+            print("This configuration is done")
+            break
+        print("pull done")
+        paramters = job_description['params_to_render']
+        if len(paramters) == 0:
+            print("Nothing to do!", 'sleeping')
+            time.sleep(1)
+        else:
+            print("do some work")
+            for job in paramters:
+                print(job.id)
+                query('push', job=job, result=job.order)
+        print(job_description)
 
 print(env, model)
 

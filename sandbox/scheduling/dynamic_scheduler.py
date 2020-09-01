@@ -38,23 +38,30 @@ def schedule_work(policy_controllers, port):
 
         elif message['kind'] == 'pull':
             selected_policy = workers[wid]
-            bs = message['batch_size']
-            result = []
-            for _ in range(bs):
-                pulled = selected_policy.pull_work(wid)
-                if pulled is None:
-                    break
-                result.append(pulled)
+            if selected_policy in done_policies:
+                del workers[wid]
+                socket.send_pyobj({
+                    'kind': 'done'
+                })
+            else:
+                bs = message['batch_size']
+                result = []
+                for _ in range(bs):
+                    pulled = selected_policy.pull_work(wid)
+                    if pulled is None:
+                        break
+                    result.append(pulled)
 
-            socket.send_pyobj({
-                'environment': selected_policy.env_file,
-                'model': selected_policy.model_name,
-                'params_to_render': result
-            })
+                socket.send_pyobj({
+                    'kind': 'work',
+                    'environment': selected_policy.env_file,
+                    'model': selected_policy.model_name,
+                    'params_to_render': result
+                })
 
         elif message['kind'] == 'push':
             selected_policy = workers[wid]
-            selected_policy.push_result((message['job'], message['result']))
+            selected_policy.push_result(message['job'], message['result'])
             socket.send_pyobj({
                 'kind': 'ack'
             })

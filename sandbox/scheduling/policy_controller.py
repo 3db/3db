@@ -23,9 +23,7 @@ class PolicyController(threading.Thread):
         self.search_space = search_space
 
     def pull_work(self, worker_id):
-        print("pulling")
         try:
-            print((self.work_queue.qsize()))
             return self.work_queue.get(block=False)
         except Empty:
             return None
@@ -45,7 +43,6 @@ class PolicyController(threading.Thread):
                                            environment=self.env_file,
                                            model=self.model_name)
                 self.work_queue.put(descriptor, block=True)
-            print("everything is in the queue")
 
             result = [None] * len(args)
 
@@ -56,6 +53,5 @@ class PolicyController(threading.Thread):
             return result
 
         policy = init_module(self.policy_args)
-        print("About to start")
         policy.run(render)
 
