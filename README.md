@@ -14,7 +14,7 @@ We assume that the blender environments are in `$BLENDER_ENVS` and models are in
 
 - `docker build -t ./docker`
 - `bash ./docker/run_renderer.sh $BLENDER_ENVS $BLENDER_MODELS`
-- `/blender/blender --python-use-system-env -b -P sandbox/client.py -- /data/environments/ /data/models/`
+- `/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/environments/ /data/models/`
 
 #### Wihtout docker
 

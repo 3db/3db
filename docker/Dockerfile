@@ -20,4 +20,4 @@ RUN mkdir /data; \
     rm -rf Python-3.7.7;\
     ./2.90/python/bin/python3.7m -m ensurepip; \
     ./2.90/python/bin/python3.7m -m pip install --upgrade pip; \
-    ./2.90/python/bin/python3.7m -m pip install numpy pandas opencv-python git+https://github.com/GuillaumeLeclerc/bpycv
+    ./2.90/python/bin/python3.7m -m pip install numpy pandas opencv-python git+https://github.com/GuillaumeLeclerc/bpycv pyzmq
