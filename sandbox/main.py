@@ -5,9 +5,9 @@ import yaml
 from glob import glob
 from os import path
 
-from scheduling.dynamic_scheduler import schedule_work
-from scheduling.policy_controller import PolicyController
-from utils import init_module
+from sandbox.scheduling.dynamic_scheduler import schedule_work
+from sandbox.scheduling.policy_controller import PolicyController
+from sandbox.utils import init_module
 
 
 parser = argparse.ArgumentParser(

@@ -4,9 +4,6 @@ import sys
 import time
 
 port = "5555"
-if len(sys.argv) > 1:
-    port =  sys.argv[1]
-    int(port)
 
 context = zmq.Context()
 print("Connecting to server...")
@@ -44,7 +41,6 @@ while True:
         else:
             print("do some work")
             for job in paramters:
-                print(job.id)
                 query('push', job=job, result=job.order)
         print(job_description)
 

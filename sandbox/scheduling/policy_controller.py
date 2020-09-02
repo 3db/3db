@@ -3,7 +3,8 @@ from queue import Queue, Empty
 from collections import namedtuple
 
 from uuid import uuid4
-from utils import init_module
+
+from sandbox.utils import init_module
 
 
 
