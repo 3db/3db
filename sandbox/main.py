@@ -64,8 +64,8 @@ class SearchSpace:
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    all_envs = glob(path.join(args.environment_folder, '*.blend'))
-    all_models = glob(path.join(args.model_folder, '*.blend'))
+    all_envs = [path.basename(x) for x in glob(path.join(args.environment_folder, '*.blend'))]
+    all_models = [path.basename(x) for x in glob(path.join(args.model_folder, '*.blend'))]
 
     with open(args.config_file) as handle:
         config = yaml.load(handle, Loader=yaml.FullLoader)

@@ -7,6 +7,16 @@ import argparse
 import sandbox
 from glob import glob
 
+
+print(sys.argv)
+arguments = sys.argv[1:]
+try:
+    index = arguments.index('--')
+    arguments = arguments[index + 1:]
+except ValueError:
+    pass
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
@@ -23,7 +33,8 @@ if __name__ == '__main__':
                         default='localhost:5555')
 
 
-    args = parser.parse_args()
+    args = parser.parse_args(arguments)
+    print(args)
 
     context = zmq.Context()
     print("Connecting to server...")
@@ -41,10 +52,11 @@ if __name__ == '__main__':
         return socket.recv_pyobj()
 
     while True:
-        all_envs = glob(path.join(args.environment_folder, '*.blend'))
-        all_models = glob(path.join(args.model_folder, '*.blend'))
+        all_envs = [path.basename(x) for x in glob(path.join(args.environment_folder, '*.blend'))]
+        all_models = [path.basename(x) for x in glob(path.join(args.model_folder, '*.blend'))]
 
         infos = query('info')
+        print(all_models)
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
 
