@@ -1,7 +1,7 @@
 import zmq
 import random
 
-def schedule_work(policy_controllers, port):
+def schedule_work(policy_controllers, port, list_envs, list_models):
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
@@ -20,7 +20,13 @@ def schedule_work(policy_controllers, port):
 
         wid = message['worker_id']
 
-        if message['kind'] == 'connect':
+        if message['kind'] == 'info':
+            socket.send_pyobj({
+                'kind': 'info',
+                'environments': list_envs,
+                'models': list_models
+            })
+        elif message['kind'] == 'connect':
             if len(controllers_to_start):
                 selected_policy = controllers_to_start.pop()
                 selected_policy.start()

@@ -1,10 +1,9 @@
 import argparse
-
-
 import yaml
 from glob import glob
 from os import path
 
+import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.utils import init_module
@@ -89,5 +88,5 @@ if __name__ == '__main__':
                         'discrete_sizes': discrete_sizes,
                         **config['policy']}))
 
-        schedule_work(policy_controllers, args.port)
+        schedule_work(policy_controllers, args.port, all_envs, all_models)
 
