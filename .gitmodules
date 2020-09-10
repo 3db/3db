@@ -1,0 +1,3 @@
+[submodule "serving/serve"]
+	path = serving/serve
+	url = git@github.com:pytorch/serve.git
