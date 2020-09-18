@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <style>
+            h1 {
+                width: 100%;
+                text-align: center;
+            }
+
+            #container{
+                width: 80%;
+            }
+
+            img {
+                margin: 20px;
+                image-rendering: pixelated;
+                width: 20%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <img src="${image-0}.png" />
+            <img src="${image-1}.png" />
+            <img src="${image-2}.png" />
+            <img src="${image-3}.png" />
+            <h1>Class: ${class}</h1>
+            <img src="${image-4}.png" />
+            <img src="${image-5}.png" />
+            <img src="${image-6}.png" />
+            <img src="${image-7}.png" />
+        </div>
+        <button type="submit" data-key='y' name="label" value="good">Good (y)</button>
+        <button type="submit" data-key='n' name="label" value="bad">Bad (n)</button>
+    </form>
+        <form action="/delete-last" method="POST" style="display: inline-block">
+            <input type="submit" id="undo-button" data-key="z" value="Undo Last (z)">
+        </form>
+    </body>
+</html>
