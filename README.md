@@ -39,7 +39,7 @@ This shows you how to collect a dataset using blender to analyze the quality of 
 
 - `docker build -t ./docker`
 - `bash ./docker/run_renderer.sh $BLENDER_ENVS $BLENDER_MODELS $OUTDIR`
-- `/blender/blender -b -P /code/rendering/render.py -- --output=/output/ --models=/data/models/ --log=/output/log.log --metadata=/code/data_collection/output.csv --env=/data/environments/white_background.blend --samples=128 --gpu-id=-1 --samples=128 --resolution=64 --cpu-cores=1 --random-background`
+- `/blender/blender -b -P /code/rendering/render.py -- --output=/output/ --models=/data/models/ --log=/output/log.log --metadata=/code/data_collection/output.csv --env=/data/environments/white_background.blend --samples=128 --gpu-id=0 --resolution=256 --resume`
 
 ### Wihtout docker
 Follow the instruction inside the [Dockerfile](./docker/Dockerfile) to setup things locally, and run the above commands without running docker.
