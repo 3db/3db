@@ -25,7 +25,8 @@ parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
 
 
-import collections
+from ast import literal_eval
+
 class SearchSpace:
 
     def __init__(self, controls):
@@ -38,6 +39,8 @@ class SearchSpace:
         for control in self.controls:
             name = type(control).__name__
             for continous_arg, value_range in control.continuous_dims.items():
+                if isinstance(value_range, str):
+                    value_range = literal_eval(value_range)
                 try:
                     if len(value_range) != 2:
                         raise ValueError(
@@ -53,6 +56,7 @@ class SearchSpace:
         self.continuous_args = continuous_args
         self.discrete_args = discrete_args
         self.set_args = set_args
+        print(continuous_args)
 
     def generate_description(self):
         return len(self.continuous_args), [x[2] for x in self.discrete_args]

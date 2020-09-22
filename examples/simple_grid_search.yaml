@@ -6,7 +6,7 @@ controls:
 
   - module: "sandbox.controls.pose"
     rotation_X: 0
-    rotation_Y: 0
+    rotation_Y: (0, 0.5)
 
   - module: "sandbox.controls.exposition"
 
