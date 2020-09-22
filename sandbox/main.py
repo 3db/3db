@@ -66,10 +66,13 @@ class SearchSpace:
 
     def unpack(self, packed_continuous, packed_discrete):
         result = {}
-        for (control_name, attr_name), value in zip(self.continuous_args, packed_continuous):
+        for (control_name, attr_name, _), value in zip(self.continuous_args, packed_continuous):
             result[f'{control_name}.{attr_name}'] = value
 
         for (control_name, attr_name, _), value in zip(self.discrete_args, packed_discrete):
+            result[f'{control_name}.{attr_name}'] = value
+
+        for (control_name, attr_name, value) in self.set_args:
             result[f'{control_name}.{attr_name}'] = value
 
         return result
