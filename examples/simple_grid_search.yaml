@@ -1,7 +1,6 @@
 policy:
   module: "sandbox.policies.grid_search"
-  args:
-    samples_per_dim: 5
+  samples_per_dim: 2
 controls:
 
   - module: "sandbox.controls.pose"

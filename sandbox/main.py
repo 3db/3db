@@ -7,11 +7,11 @@ import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.SearchSpace import SearchSpace
-from sandbox.utils import init_module
+from sandbox.utils import init_control
 
 
 parser = argparse.ArgumentParser(
-    description='Run a synthetic-sandbox experiment') 
+    description='Run a synthetic-sandbox experiment')
 parser.add_argument('environment_folder', type=str,
                     help='folder containing all the environment (.blend)')
 
@@ -38,7 +38,7 @@ if __name__ == '__main__':
         print(config)
         assert 'policy' in config, 'Missing policy in config file'
         assert 'controls' in config, 'Missing control list in config file'
-        controls = [init_module(x) for x in config['controls']]
+        controls = [init_control(x) for x in config['controls']]
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
 

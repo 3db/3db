@@ -4,7 +4,7 @@ from collections import namedtuple
 
 from uuid import uuid4
 
-from sandbox.utils import init_module
+from sandbox.utils import init_policy
 
 
 
@@ -53,6 +53,6 @@ class PolicyController(threading.Thread):
                 result[descriptor.order] = job_result
             return result
 
-        policy = init_module(self.policy_args)
+        policy = init_policy(self.policy_args)
         policy.run(render)
 

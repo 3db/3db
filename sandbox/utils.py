@@ -17,16 +17,18 @@ def overwrite_control(control, data):
                 f"Attribute {k} unknown in {type(control).__name}")
 
 
-def init_module(description):
+def init_control(description):
     args = {}
     if 'args' in description:
         args = description['args']
     module = importlib.import_module(description['module'])
-    try:
-        control = module.Control(**args)
-        d = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
-        overwrite_control(control,  d)
-        return control
-    except AttributeError:
-        return module.Policy(**args)
+    control = module.Control(**args)
+    d = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
+    overwrite_control(control,  d)
+    return control
+
+
+def init_policy(description):
+    module = importlib.import_module(description['module'])
+    return module.Policy(**{k: v for (k, v) in description.items() if k != 'module'})
 
