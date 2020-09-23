@@ -1,0 +1,10 @@
+policy:
+  module: "sandbox.policies.grid_search"
+  samples_per_dim: 2
+controls:
+
+  - module: "sandbox.controls.pose"
+    rotation_X: 0
+    rotation_Y: 0
+
+  - module: "sandbox.controls.exposition"
