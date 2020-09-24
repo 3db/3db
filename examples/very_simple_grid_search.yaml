@@ -1,0 +1,9 @@
+policy:
+  module: "sandbox.policies.grid_search"
+  samples_per_dim: 2
+controls:
+
+  - module: "sandbox.controls.camera"
+    zoom_factor: (1.2, 1.4)
+    aperture: 8
+    focal_length: 50

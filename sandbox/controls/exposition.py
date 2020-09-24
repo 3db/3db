@@ -1,10 +1,10 @@
 
 class ExpositionControl:
     kind = 'post'
-    continuous_dims = [
-        'range_width',
-        'range_offset'
-    ]
+    continuous_dims = {
+        'range_width': (-1, 1),
+        'range_offset': (-1, 1)
+    }
 
     discrete_dims = {}
 
