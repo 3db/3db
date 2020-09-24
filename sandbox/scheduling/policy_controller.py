@@ -9,7 +9,8 @@ from sandbox.utils import init_policy
 
 
 JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
-                                             'model', 'render_args'])
+                                             'model', 'render_args',
+                                             'control_order'])
 
 
 class PolicyController(threading.Thread):
@@ -37,10 +38,11 @@ class PolicyController(threading.Thread):
             # Posting the jobs to the queue
             for i, (continuous_args, discrete_args) in enumerate(args):
 
-                argument_dict = self.search_space.unpack(continuous_args,
-                                                         discrete_args)
+                argument_dict, ctrl_list = self.search_space.unpack(continuous_args,
+                                                                    discrete_args)
                 descriptor = JobDescriptor(order=i, id=str(uuid4()),
                                            render_args=argument_dict,
+                                           control_order=ctrl_list,
                                            environment=self.env_file,
                                            model=self.model_name)
                 self.work_queue.put(descriptor, block=True)

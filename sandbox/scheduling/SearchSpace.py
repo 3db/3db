@@ -10,7 +10,8 @@ class SearchSpace:
         set_args = []
 
         for control in self.controls:
-            name = type(control).__name__
+            tpe = type(control)
+            name = f"{tpe.__name__}"
             for continous_arg, value_range in control.continuous_dims.items():
                 if isinstance(value_range, str):
                     value_range = literal_eval(value_range)
@@ -39,13 +40,15 @@ class SearchSpace:
 
     def unpack(self, packed_continuous, packed_discrete):
         result = {}
-        for (control_name, attr_name, _), value in zip(self.continuous_args, packed_continuous):
-            result[f'{control_name}.{attr_name}'] = value
+        for (control_name, attr_name, (start, end)), value in zip(self.continuous_args, packed_continuous):
+            result[(control_name, attr_name)] = value * (end - start) + start
 
         for (control_name, attr_name, _), value in zip(self.discrete_args, packed_discrete):
-            result[f'{control_name}.{attr_name}'] = value
+            result[(control_name, attr_name)] = value
 
         for (control_name, attr_name, value) in self.set_args:
-            result[f'{control_name}.{attr_name}'] = value
+            result[(control_name, attr_name)] = value
 
-        return result
+        order_controls = [(type(x).__module__, type(x).__name__) for x in self.controls]
+
+        return result, order_controls

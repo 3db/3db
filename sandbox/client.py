@@ -7,8 +7,9 @@ import argparse
 import sandbox
 from glob import glob
 
+from sandbox.rendering.render import render, load_model, load_env
 
-print(sys.argv)
+
 arguments = sys.argv[1:]
 try:
     index = arguments.index('--')
@@ -63,8 +64,11 @@ if __name__ == '__main__':
         assignment = query('connect')
 
         assert assignment['kind'] == 'assignment'
-        env = assignment['environment']
-        model = assignment['model']
+        env = path.join(args.environment_folder, assignment['environment'])
+        model = path.join(args.model_folder, assignment['model'])
+
+        load_env(env)
+        model_uid = load_model(model)
 
         while True:
             print("starting to pull")
@@ -80,7 +84,8 @@ if __name__ == '__main__':
             else:
                 print("do some work")
                 for job in paramters:
-                    query('push', job=job, result=job.order)
+                    result = render(model_uid, job)
+                    query('push', job=job, result=result)
             print(job_description)
 
     print(env, model)

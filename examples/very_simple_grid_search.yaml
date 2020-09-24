@@ -3,8 +3,7 @@ policy:
   samples_per_dim: 2
 controls:
 
-  - module: "sandbox.controls.pose"
-    rotation_X: 0
-    rotation_Y: 0
-
-  - module: "sandbox.controls.exposition"
+  - module: "sandbox.controls.camera"
+    zoom_factor: (1.2, 1.4)
+    aperture: 8
+    focal_length: 50
