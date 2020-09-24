@@ -25,6 +25,11 @@ parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
 
 
+DEFAULT_RENDER_ARGS = {
+    'resolution': 256,
+    'samples': 256,
+    'image_format': 'png'
+}
 
 
 if __name__ == '__main__':
@@ -38,6 +43,11 @@ if __name__ == '__main__':
         print(config)
         assert 'policy' in config, 'Missing policy in config file'
         assert 'controls' in config, 'Missing control list in config file'
+        render_args = DEFAULT_RENDER_ARGS
+        if 'render_args' in config:
+            render_args.update(config['render_args'])
+
+        print("ARGS", render_args)
         controls = [init_control(x) for x in config['controls']]
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
@@ -54,5 +64,6 @@ if __name__ == '__main__':
                         'discrete_sizes': discrete_sizes,
                         **config['policy']}))
 
-        schedule_work(policy_controllers, args.port, all_envs, all_models)
+        schedule_work(policy_controllers, args.port, all_envs, all_models,
+                      render_args)
 

@@ -32,6 +32,12 @@ if __name__ == '__main__':
     parser.add_argument('--master-address', '-a', type=str,
                         help='How to contact the master node',
                         default='localhost:5555')
+    parser.add_argument('--gpu-id', help='The GPU to use to render (-1 for cpu)', 
+                        default=-1, type=int,)
+    parser.add_argument('--cpu-cores', help='number of cpu cores to use (default uses all)', 
+                        default=None, type=int,)
+    parser.add_argument('--tile-size', help='The size of tiles used for GPU rendering',
+                        default=256, type=int)
 
 
     args = parser.parse_args(arguments)
@@ -78,13 +84,14 @@ if __name__ == '__main__':
                 break
             print("pull done")
             paramters = job_description['params_to_render']
+            render_args = job_description['render_args']
             if len(paramters) == 0:
                 print("Nothing to do!", 'sleeping')
                 time.sleep(1)
             else:
                 print("do some work")
                 for job in paramters:
-                    result = render(model_uid, job)
+                    result = render(model_uid, job, args, render_args)
                     query('push', job=job, result=result)
             print(job_description)
 
