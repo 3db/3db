@@ -1,7 +1,7 @@
 
 class MaterialSwitch:
     kind = 'pre'
-    continuous_dims = []
+    continuous_dims = {}
 
     discrete_dims = {'material': 7}
 

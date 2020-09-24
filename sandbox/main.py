@@ -6,12 +6,12 @@ from os import path
 import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
-from sandbox.utils import init_module
+from sandbox.scheduling.SearchSpace import SearchSpace
+from sandbox.utils import init_control
 
 
 parser = argparse.ArgumentParser(
     description='Run a synthetic-sandbox experiment')
-
 parser.add_argument('environment_folder', type=str,
                     help='folder containing all the environment (.blend)')
 
@@ -25,40 +25,11 @@ parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
 
 
-class SearchSpace:
-
-    def __init__(self, controls):
-        self.controls = controls
-
-        continuous_args = []
-        discrete_args = []
-
-        for control in self.controls:
-            name = type(control).__name__
-            for continous_arg in control.continuous_dims:
-                continuous_args.append((name, continous_arg))
-            for k, v in control.discrete_dims.items():
-                discrete_args.append((name, k, v))
-
-        self.continuous_args = continuous_args
-        self.discrete_args = discrete_args
-
-    def generate_description(self):
-        return len(self.continuous_args), [x[2] for x in self.discrete_args]
-
-    def generate_log(self, packed_continuous, packed_discrete):
-        pass
-
-    def unpack(self, packed_continuous, packed_discrete):
-        result = {}
-        for (control_name, attr_name), value in zip(self.continuous_args, packed_continuous):
-            result[f'{control_name}.{attr_name}'] = value
-
-        for (control_name, attr_name, _), value in zip(self.discrete_args, packed_discrete):
-            result[f'{control_name}.{attr_name}'] = value
-
-        return result
-
+DEFAULT_RENDER_ARGS = {
+    'resolution': 256,
+    'samples': 256,
+    'image_format': 'png'
+}
 
 
 if __name__ == '__main__':
@@ -72,7 +43,12 @@ if __name__ == '__main__':
         print(config)
         assert 'policy' in config, 'Missing policy in config file'
         assert 'controls' in config, 'Missing control list in config file'
-        controls = [init_module(x) for x in config['controls']]
+        render_args = DEFAULT_RENDER_ARGS
+        if 'render_args' in config:
+            render_args.update(config['render_args'])
+
+        print("ARGS", render_args)
+        controls = [init_control(x) for x in config['controls']]
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
 
@@ -88,5 +64,6 @@ if __name__ == '__main__':
                         'discrete_sizes': discrete_sizes,
                         **config['policy']}))
 
-        schedule_work(policy_controllers, args.port, all_envs, all_models)
+        schedule_work(policy_controllers, args.port, all_envs, all_models,
+                      render_args)
 
