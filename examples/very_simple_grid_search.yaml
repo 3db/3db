@@ -1,7 +1,6 @@
 render_args:
   resolution: 256
   samples: 256
-  image_format: 'jpeg'
 policy:
   module: "sandbox.policies.grid_search"
   samples_per_dim: 2

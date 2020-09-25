@@ -1,11 +1,13 @@
 import bpy
 import importlib
 from collections import defaultdict
-from os import path
+from os import path, remove
 from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
+
+IMAGE_FORMAT = 'png'
 
 def load_env(env):
     bpy.ops.wm.open_mainfile(filepath=env)
@@ -97,20 +99,22 @@ def render(uid, job, cli_args, renderer_settings):
         args = groupped_args[type(control_class).__name__]
         control_class.apply(context=context, **args)
 
-    img_extension = f".{renderer_settings.image_format}"
+
+    img_extension = f".{IMAGE_FORMAT}"
 
     with NamedTemporaryFile(suffix=img_extension) as temp_file:
         temp_filename = temp_file.name
         temp_file.close()
         print("FNAME", temp_filename)
         bpy.context.scene.render.filepath = temp_filename
-        bpy.context.scene.render.image_settings.file_format = renderer_settings.image_format.upper()
+        bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
         img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
-        if img.shape[2] == 4:
-            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-        else:
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+        remove(temp_filename) 
 
-        return img
+    # TODO post processing controls
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+    return img
 

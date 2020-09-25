@@ -28,7 +28,6 @@ parser.add_argument('port', type=int,
 DEFAULT_RENDER_ARGS = {
     'resolution': 256,
     'samples': 256,
-    'image_format': 'png'
 }
 
 
