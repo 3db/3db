@@ -5,6 +5,7 @@ from os import path
 from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
+import cv2
 
 def load_env(env):
     bpy.ops.wm.open_mainfile(filepath=env)
@@ -105,4 +106,8 @@ def render(uid, job, cli_args, renderer_settings):
         bpy.context.scene.render.filepath = temp_filename
         bpy.context.scene.render.image_settings.file_format = renderer_settings.image_format.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
+        img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+        return img
 

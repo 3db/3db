@@ -17,7 +17,6 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
         if len(done_policies) == len(policy_controllers):
             break  # We finished all the policies
         message = socket.recv_pyobj()
-        print(message)
 
         wid = message['worker_id']
 
