@@ -107,7 +107,10 @@ def render(uid, job, cli_args, renderer_settings):
         bpy.context.scene.render.image_settings.file_format = renderer_settings.image_format.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
         img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if img.shape[2] == 4:
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+        else:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         return img
 
