@@ -72,8 +72,9 @@ def load_object_info(args, available_models):
     object_to_class = {}
     class_to_object = defaultdict(list)
 
-    for pkl_file in glob(path.join(args.labels_folder, '*')):
-        clazz = pkl_file.replace('.pkl', '').split('-')[1]
+    for pkl_file in glob(path.join(args.metadata, '*')):
+        clazz = pkl_file.replace('.pkl', '').split('class-')[1]
+
         try:
             with open(pkl_file, 'rb') as handle:
                 result = pickle.load(handle)
@@ -263,15 +264,9 @@ if __name__ == '__main__':
     args = parse_arguments()
     available_models = set([path.basename(x).replace('.gltf', '') for x in glob(path.join(args.models, '*'))])
 
-    metadata = pd.read_csv(args.metadata)[['uid', 'class']].set_index('uid', drop=True)['class']
-    classes = list(set(metadata.values))
-    object_to_class = metadata.to_dict()
-
-    class_to_object = defaultdict(list)
-    for k, v in object_to_class.items():
-        if k in available_models:
-            class_to_object[v].append(k)
-
+    classes, object_to_class, class_to_object = load_object_info(args, available_models)
+    with open('uid_to_class.json', 'w') as f:
+        json.dump(object_to_class, f, indent=4)
 
     bpy.ops.wm.open_mainfile(filepath=args.env)
 
