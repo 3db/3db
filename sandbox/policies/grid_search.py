@@ -27,7 +27,8 @@ class GridSearchPolicy:
             for discrete_instance in product(*discrete_spaces):
                 result.append((continuous_instance, discrete_instance))
 
-        render(result)
+        images = render(result)
+        print(images.shape)
 
 
 Policy = GridSearchPolicy

@@ -1,8 +1,8 @@
 import threading
 from queue import Queue, Empty
 from collections import namedtuple
-
 from uuid import uuid4
+import numpy as np
 
 from sandbox.utils import init_policy
 
@@ -53,8 +53,9 @@ class PolicyController(threading.Thread):
             for _ in range(len(args)):
                 descriptor, job_result = self.result_queue.get(block=True)
                 result[descriptor.order] = job_result
+
+            result = np.stack(result)
             return result
 
         policy = init_policy(self.policy_args)
         policy.run(render)
-
