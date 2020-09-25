@@ -98,7 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('--out-path', required=True)
     parser.add_argument('--model-filter')
     parser.add_argument('--num-examples', type=int, default=10000)
-    parser.add_argument('--threads', type=int, default=10)
+    parser.add_argument('--threads', type=int, default=6)
     parser.add_argument('--granularity', type=int, default=10)
     args = parser.parse_args()
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     ds.custom_class = ModelDataset
     ds.custom_class_args = {
         'subset': args.num_examples,
-        'model_filter': model_filter
+        #'model_filter': model_filter
     }
 
     all_dfs = []
