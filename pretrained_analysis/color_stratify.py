@@ -88,9 +88,9 @@ def eval_hsv(data):
         res['hue'] = h
         res['saturation'] = s
         res['value'] = v
-        grp_keys = ['labs', 'preds', 'hue', 'saturation', 'value']
+        #grp_keys = ['labs', 'preds', 'hue', 'saturation', 'value']
         all_res.append(res)
-    return pd.concat(all_res).groupby(grp_keys).agg(num=('uids', 'count')).reset_index()
+    return pd.concat(all_res) #.groupby(grp_keys).agg(num=('uids', 'count')).reset_index()
 
 if __name__ == '__main__':
     parser = ArgumentParser()
