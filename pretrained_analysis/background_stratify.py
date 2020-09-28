@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     ds_path = Path(args.dataset_path)
     root_df = details_df(ds_path)
-    ds = datasets.CIFAR((ds_path, root_df))
+    ds = datasets.ImageNet((ds_path, root_df))
 
     b_path = Path(args.background_path)
     bimages = ch.load(f'{b_path}/background_images.pt')

@@ -15,7 +15,10 @@ def make_predictions(model, ds, map_dict, mode='restrict',
                                 batch_size=batch_size, 
                                 only_val=True)
     
-    in_classes = list(set(map_dict.values()))
+    in_classes = [] 
+    for v in map_dict.values():
+        in_classes.extend(v)
+    in_classes = list(set(in_classes))
     
     dfs = []
     with ch.no_grad():
@@ -29,10 +32,10 @@ def make_predictions(model, ds, map_dict, mode='restrict',
                 preds = ch.argmax(op, dim=1).cpu()
                 preds = ch.tensor([in_classes[int(p)] for p in preds])
             
-            labs = ch.tensor([map_dict[int(l)] for l in labs.cpu()])
+            labs = [map_dict[int(l)] for l in labs.cpu()]
             dfs.append(pd.DataFrame({'uids': uids,
                                     'preds': preds.cpu().numpy(),
-                                    'labs': labs.numpy()}))
+                                    'labs': labs}))
 
     return pd.concat(dfs)
 

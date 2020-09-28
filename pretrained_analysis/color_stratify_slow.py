@@ -13,16 +13,12 @@ import torch as ch
 import pandas as pd
 import numpy as np
 
-# For parallelism
-import multiprocessing as mp
-from multiprocessing import Pool
-
 # For plotting
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns
-import sys
+import sys, os
 from IPython import embed
 
 def vis_stratification(results_path, mode=['hue', 'value']):
@@ -65,49 +61,23 @@ def vis_stratification(results_path, mode=['hue', 'value']):
         plt.savefig(f"color_stratify_results/2d_stratify_{f_col}_{f_val:.2f}.png")
         plt.close()
 
-def eval_hsv(data):
-    cfgs, device, ds = data
-    with ch.cuda.device(device):
-        m, _ = model_utils.make_and_restore_model(arch='resnet50', 
-                                                  dataset=ds,
-                                                  pytorch_pretrained=True)
-        m.eval().cuda()
-
-    all_res = []
-    for h, s, v in cfgs:
-        ds.transform_test = transforms.Compose([
-            RGBAToRGB(hsv_to_rgb(h, s, v)),
-            transforms.CenterCrop(224),
-            transforms.ToTensor()
-        ])
-        with ch.cuda.device(device):
-            res = make_predictions(m, ds, OBJN_TO_IN_MAP,
-                                   mode='restrict',
-                                   workers=0, batch_size=100)
-
-        res['hue'] = h
-        res['saturation'] = s
-        res['value'] = v
-        #grp_keys = ['labs', 'preds', 'hue', 'saturation', 'value']
-        all_res.append(res)
-    return pd.concat(all_res) #.groupby(grp_keys).agg(num=('uids', 'count')).reset_index()
-
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--dataset-path')
     parser.add_argument('--out-path', required=True)
     parser.add_argument('--model-filter')
     parser.add_argument('--num-examples', type=int, default=10000)
-    parser.add_argument('--threads', type=int, default=6)
     parser.add_argument('--granularity', type=int, default=10)
     args = parser.parse_args()
 
-    if path.exists(args.out_path):
-        print("Path already exists, only visualizing...")
-        vis_stratification(args.out_path)
-        sys.exit(0)
-    else:
-        assert args.dataset_path is not None
+    #if path.exists(args.out_path):
+    #    print("Path already exists, only visualizing...")
+    #    vis_stratification(args.out_path)
+    #    sys.exit(0)
+    #else:
+    if not os.path.exists(args.out_path):
+        os.makedirs(args.out_path)
+    assert args.dataset_path is not None
 
     print("Preparing dataset...")
     ds_path = Path(args.dataset_path)
@@ -119,20 +89,48 @@ if __name__ == '__main__':
     ds.custom_class = ModelDataset
     ds.custom_class_args = {
         'subset': args.num_examples,
-        #'model_filter': model_filter
+        'model_filter': model_filter
     }
+
+    m, _ = model_utils.make_and_restore_model(arch='resnet50', 
+                                                  dataset=ds,
+                                                  pytorch_pretrained=True)
+    m.eval().cuda()
+    m = ch.nn.DataParallel(m)
 
     all_dfs = []
     prev_transforms = ds.transform_test
-    cfgs = product(*[np.linspace(0, 1, args.granularity + 1) for _ in range(3)])
-    cfgs = np.array_split(list(cfgs), args.threads)
-    cfgs = zip(cfgs, cycle(range(ch.cuda.device_count())), cycle([ds]))
-    
-    print("Start multi...")
-    mp.set_start_method('spawn') 
-    with Pool(args.threads) as p:
-        all_dfs = p.map(eval_hsv, cfgs)
-    print(f"Done {len(all_dfs)} models...")
+    prim = np.linspace(0, 1, args.granularity + 1)
+    cfgs = product(*[prim for _ in range(3)])
+    #cfgs = np.array_split(list(cfgs), args.threads)
+    #cfgs = zip(cfgs, cycle(range(ch.cuda.device_count())), cycle([ds]))
+    print("Starting data generation...")
 
-    final_df = pd.concat(all_dfs)
-    final_df.to_csv(args.out_path)
+    for bi, (h, s, v) in enumerate(cfgs):
+        print(f"Config: {bi} / {len(prim) ** 3}")
+        ds.transform_test = transforms.Compose([
+            RGBAToRGB(hsv_to_rgb(h, s, v)),
+            transforms.CenterCrop(224),
+            transforms.ToTensor()
+        ])
+        res = make_predictions(m, ds, OBJN_TO_IN_MAP,
+                                   mode='restrict', 
+                                   batch_size=1000,
+                                   workers=12)
+
+        res['hue'] = h
+        res['saturation'] = s
+        res['value'] = v
+        grp_keys = ['labs', 'preds', 'hue', 'saturation', 'value']
+        all_dfs.append(res)
+    final_df = pd.concat(all_dfs) 
+    #.groupby(grp_keys).agg(num=('uids', 'count')).reset_index()
+
+    #print("Start multi...")
+    #mp.set_start_method('spawn') 
+    #with Pool(args.threads) as p:
+    #    all_dfs = p.map(eval_hsv, cfgs)
+    #print(f"Done {len(all_dfs)} models...")
+
+    #final_df = pd.concat(all_dfs)
+    final_df.to_csv(os.path.join(args.out_path, 'output.csv'))
