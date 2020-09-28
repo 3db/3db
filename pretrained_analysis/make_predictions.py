@@ -10,10 +10,12 @@ from utils import ModelDataset, RGBAToRGB
 from torchvision import transforms
 
 def make_predictions(model, ds, map_dict, mode='restrict',
-                     workers=10, batch_size=500):
-    _, loader = ds.make_loaders(workers=workers, 
-                                batch_size=batch_size, 
-                                only_val=True)
+                     workers=10, batch_size=500, loader=None):
+    
+    if loader is None:
+        _, loader = ds.make_loaders(workers=workers, 
+                                    batch_size=batch_size, 
+                                    only_val=True)
     
     in_classes = [] 
     for v in map_dict.values():

@@ -66,7 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset-path')
     parser.add_argument('--out-path', required=True)
     parser.add_argument('--model-filter')
-    parser.add_argument('--num-examples', type=int, default=10000)
+    parser.add_argument('--num-examples', type=int, default=50000)
     parser.add_argument('--granularity', type=int, default=10)
     args = parser.parse_args()
 
