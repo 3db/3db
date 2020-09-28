@@ -14,7 +14,8 @@ echo "[Cleaning previous runs]"
 rm -rf $TEMP_FOLDER
 
 echo "[Building torchserve]"
-DOCKER_BUILDKIT=1 docker build --file Dockerfile --network=host --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest . 2> /dev/null
+cd "$DIR/serve/docker"
+DOCKER_BUILDKIT=1 docker build --file Dockerfile --network=host --build-arg BASE_IMAGE=nvidia/cuda:10.1-cudnn7-runtime-ubuntu18.04 -t torchserve:latest .
 
 mkdir -p $TEMP_FOLDER
 
