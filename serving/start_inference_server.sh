@@ -1,6 +1,7 @@
-
-MODEL_WEIGHTS_PATH="$1"
-MODEL_CODE_PATH="$2"
+#!/bin/sh
+MODEL_WEIGHTS_PATH=$(realpath "$1")
+MODEL_CODE_PATH=$(realpath "$2")
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 TEMP_FOLDER="/tmp/synthetic-sandbox/serve"
 CONTAINER_MODEL_NAME="sandbox-model"
@@ -8,7 +9,20 @@ CONTAINER_MODEL_WEIGHTS_PATH="/home/model-server/examples/image_classifier/weigh
 CONTAINER_CODE_PATH="/home/model-server/examples/image_classifier/code.py"
 CONTAINER_STORE_PATH="/home/model-server/model-store"
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+if [[ ! -f "$MODEL_WEIGHTS_PATH" ]]
+then
+    echo "[ERROR: $MODEL_WEIGHTS_PATH not found]";
+    exit 1;
+else
+    echo "[Using weights: $MODEL_WEIGHTS_PATH]";
+fi
+
+if [[ ! -f "$MODEL_CODE_PATH" ]]; then
+    echo "[ERROR: $MODEL_CODE_PATH not found]";
+    exit 1;
+else
+    echo "[Using architecture: $MODEL_CODE_PATH]";
+fi
 
 echo "[Cleaning previous runs]"
 rm -rf $TEMP_FOLDER
