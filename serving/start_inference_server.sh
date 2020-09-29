@@ -19,7 +19,7 @@ DOCKER_BUILDKIT=1 docker build --file Dockerfile --network=host --build-arg BASE
 
 mkdir -p $TEMP_FOLDER
 
-CONTAINER_ID=$(docker run -d --rm -p 8080:8080 -p 8081:8081 --network=host -v $TEMP_FOLDER:/home/model-server/model-store -v $DIR/serve/examples:/home/model-server/examples  torchserve:latest)
+CONTAINER_ID=$(docker run -d --rm -p 8080:8080 -p 8081:8081 --user $(id -u):$(id -g) --network=host -v $TEMP_FOLDER:/home/model-server/model-store -v $DIR/serve/examples:/home/model-server/examples  torchserve:latest)
 
 
 echo "[Copying model weights+code]"
@@ -48,7 +48,8 @@ docker run --rm -it \
     --network=host \
     --ipc=host \
     -v $TEMP_FOLDER:$CONTAINER_STORE_PATH \
-    -v $DIR/serve/examples:/home/model-server/examples torchserve:latest torchserve --start --ncs --model-store $CONTAINER_STORE_PATH --models $CONTAINER_MODEL_NAME.mar
+    -v $DIR/serve/examples:/home/model-server/examples \
+    torchserve:latest torchserve --start --ncs --model-store $CONTAINER_STORE_PATH --models $CONTAINER_MODEL_NAME.mar
 
 echo "[Cleaning up]"
 
