@@ -13,7 +13,6 @@ CONTAINER_MODEL_NAME="sandbox-model"
 CONTAINER_MODEL_WEIGHTS_PATH="/home/model-server/examples/image_classifier/weights.pth"
 CONTAINER_CODE_PATH="/home/model-server/examples/image_classifier/code.py"
 CONTAINER_STORE_PATH="/home/model-server/model-store"
-MAX_CLASSES=10000
 
 
 # Checking arguments and environment
@@ -64,12 +63,6 @@ echo "[INFO] Copying model weights+code"
 docker cp $MODEL_WEIGHTS_PATH $CONTAINER_ID:$CONTAINER_MODEL_WEIGHTS_PATH
 docker cp $MODEL_CODE_PATH $CONTAINER_ID:$CONTAINER_CODE_PATH
 
-echo "[INFO] Generating class file"
-
-CODE="import json;print(json.dumps({str(v):str(v) for v in range($MAX_CLASSES)}))"
-
-docker exec $CONTAINER_ID \
-    bash -c "python -c \"$CODE\" > /tmp/index_to_name.json"
 
 echo "[INFO] Compiling model"
 docker exec $CONTAINER_ID \
@@ -79,7 +72,6 @@ docker exec $CONTAINER_ID \
         --model-file $CONTAINER_CODE_PATH \
         --serialized-file $CONTAINER_MODEL_WEIGHTS_PATH \
         --export-path $CONTAINER_STORE_PATH \
-        --extra-files /tmp/index_to_name.json \
         --handler image_classifier
 
 echo "[INFO] Stopping conversion container"
