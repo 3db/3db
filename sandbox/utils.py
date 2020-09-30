@@ -1,4 +1,8 @@
 import importlib
+import cv2
+import requests
+import io
+from urllib.parse import urljoin
 from copy import deepcopy
 
 def overwrite_control(control, data):
@@ -32,3 +36,21 @@ def init_policy(description):
     module = importlib.import_module(description['module'])
     return module.Policy(**{k: v for (k, v) in description.items() if k != 'module'})
 
+
+def obtain_prediction(url, img, repeats=10):
+    full_url = urljoin(url, "/predictions/sandbox-model")
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    is_success, buffer = cv2.imencode(".png", img)
+    io_buf = io.BytesIO(buffer)
+
+    for _ in range(repeats):
+        try:
+            result = requests.post(full_url, data=io_buf)
+            if result.status_code == 200:
+                predictions = result.json()
+                ordered_prediction = sorted([(v, k) for (k, v) in predictions.items()])
+                final_prediction = int(ordered_prediction[-1][1])
+                return final_prediction
+        except:
+            raise
+    return -1

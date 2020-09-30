@@ -42,6 +42,7 @@ if __name__ == '__main__':
         print(config)
         assert 'policy' in config, 'Missing policy in config file'
         assert 'controls' in config, 'Missing control list in config file'
+        assert 'inference_server' in config, 'Missing inference_server in config file'
         render_args = DEFAULT_RENDER_ARGS
         if 'render_args' in config:
             render_args.update(config['render_args'])
@@ -61,7 +62,8 @@ if __name__ == '__main__':
                     PolicyController(env, search_space, model, {
                         'continuous_dim': continuous_dim,
                         'discrete_sizes': discrete_sizes,
-                        **config['policy']}))
+                        **config['policy']},
+                                     config['inference_server']))
 
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args)
