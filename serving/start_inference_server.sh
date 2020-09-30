@@ -3,8 +3,10 @@
 # Reading arguments
 MODEL_WEIGHTS_PATH=$(realpath "$1")
 MODEL_CODE_PATH=$(realpath "$2")
+DEVICES=$3
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TORCHSERVER_FOLDER="$DIR/serve/docker"
+EXTRA_RUN_ARGS=""
 
 TEMP_FOLDER="/tmp/synthetic-sandbox/serve"
 CONTAINER_MODEL_NAME="sandbox-model"
@@ -36,6 +38,12 @@ if [[ ! -d "$TORCHSERVER_FOLDER" ]]; then
     exit 1;
 else
     echo "[INFO] Using torchserve docker folder: $TORCHSERVER_FOLDER";
+fi
+
+if [[ ! -z $DEVICES ]]; then
+    echo "[INFO] using GPU devices $DEVICES"
+    EXTRA_RUN_ARGS="--gpus \"device=$DEVICES\""
+    echo $EXTRA_RUN_ARGS
 fi
 
 echo "[INFO] Cleaning previous runs"
@@ -74,6 +82,7 @@ docker run --rm -it \
     -p 8080:8080 \
     -p 8081:8081 \
     --network=host \
+    $EXTRA_RUN_ARGS \
     --ipc=host \
     -v $TEMP_FOLDER:$CONTAINER_STORE_PATH \
     -v $DIR/serve/examples:/home/model-server/examples \
