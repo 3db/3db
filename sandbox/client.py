@@ -7,7 +7,10 @@ import argparse
 import sandbox
 from glob import glob
 
+
 from sandbox.rendering.render import render, load_model, load_env
+
+from sandbox.utils import load_inference_model
 
 
 arguments = sys.argv[1:]
@@ -72,6 +75,8 @@ if __name__ == '__main__':
         assert assignment['kind'] == 'assignment'
         env = path.join(args.environment_folder, assignment['environment'])
         model = path.join(args.model_folder, assignment['model'])
+        inference_args = assignment['inference']
+        inference_model = load_inference_model(inference_args)
 
         load_env(env)
         model_uid = load_model(model)
@@ -92,7 +97,8 @@ if __name__ == '__main__':
                 print("do some work")
                 for job in paramters:
                     result = render(model_uid, job, args, render_args)
-                    query('push', job=job, result=result)
+                    prediction = inference_model(result)
+                    query('push', job=job, result=(result, prediction))
             print(job_description)
 
     print(env, model)

@@ -2,7 +2,7 @@ import zmq
 import random
 
 def schedule_work(policy_controllers, port, list_envs, list_models,
-                  render_args):
+                  render_args, inference_args):
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
@@ -39,7 +39,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             socket.send_pyobj({
                 'kind': 'assignment',
                 'environment': selected_policy.env_file,
-                'model': selected_policy.model_name
+                'model': selected_policy.model_name,
+                'inference': inference_args
             })
 
         elif message['kind'] == 'pull':
