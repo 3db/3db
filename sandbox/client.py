@@ -66,7 +66,7 @@ if __name__ == '__main__':
         all_models = [path.basename(x) for x in glob(path.join(args.model_folder, '*.blend'))]
 
         infos = query('info')
-        print(all_models)
+        # print(all_models)
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
 
@@ -75,6 +75,7 @@ if __name__ == '__main__':
         assert assignment['kind'] == 'assignment'
         env = path.join(args.environment_folder, assignment['environment'])
         model = path.join(args.model_folder, assignment['model'])
+        uid_to_logits = assignment['uid_to_logits']
         inference_args = assignment['inference']
         inference_model = load_inference_model(inference_args)
 
@@ -98,7 +99,8 @@ if __name__ == '__main__':
                 for job in paramters:
                     result = render(model_uid, job, args, render_args)
                     prediction = inference_model(result)
-                    query('push', job=job, result=(result, prediction))
+                    is_correct = prediction.argmax() in uid_to_logits[model_uid]
+                    query('push', job=job, result=(result, prediction, is_correct))
             print(job_description)
 
     print(env, model)

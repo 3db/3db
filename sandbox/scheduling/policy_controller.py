@@ -49,16 +49,19 @@ class PolicyController(threading.Thread):
 
             images = [None] * len(args)
             logits = [None] * len(args)
+            is_correct = [None] * len(args)
 
             # Waiting and reordering the results
             for _ in range(len(args)):
                 descriptor, job_result = self.result_queue.get(block=True)
                 images[descriptor.order] = job_result[0]
                 logits[descriptor.order] = job_result[1]
+                is_correct[descriptor.order] = job_result[2]
 
             images = np.stack(images)
             logits = np.stack(logits)
-            return images, logits
+            is_correct = np.stack(is_correct)
+            return images, logits, is_correct
 
         policy = init_policy(self.policy_args)
         policy.run(render)

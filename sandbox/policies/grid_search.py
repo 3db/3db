@@ -27,9 +27,11 @@ class GridSearchPolicy:
             for discrete_instance in product(*discrete_spaces):
                 result.append((continuous_instance, discrete_instance))
 
-        images, logits = render(result)
+        images, logits, is_correct = render(result)
         print(images.shape)
         print(logits.shape)
+        print(f'Correct Prediction? {is_correct}')
+
 
 
 Policy = GridSearchPolicy

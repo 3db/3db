@@ -1,5 +1,7 @@
 import zmq
 import random
+import json
+
 
 def schedule_work(policy_controllers, port, list_envs, list_models,
                   render_args, inference_args):
@@ -12,6 +14,10 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
     controllers_to_start = policy_controllers[:]
     running_policies = set()
     done_policies = set()
+
+    # Load the mapping for UIDs to logits indices
+    with open(inference_args['uid_to_logit'], 'r') as f:
+        uid_to_logits = json.load(f)
 
     while True:
         if len(done_policies) == len(policy_controllers):
@@ -40,6 +46,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 'kind': 'assignment',
                 'environment': selected_policy.env_file,
                 'model': selected_policy.model_name,
+                'uid_to_logits': uid_to_logits,
                 'inference': inference_args
             })
 
