@@ -16,7 +16,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
     done_policies = set()
 
     # Load the mapping for UIDs to logits indices
-    with open(inference_args['uid_to_logit'], 'r') as f:
+    with open(inference_args['uid_to_logits'], 'r') as f:
         uid_to_logits = json.load(f)
 
     while True:
