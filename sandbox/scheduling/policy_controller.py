@@ -15,7 +15,7 @@ JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
 class PolicyController(threading.Thread):
 
     def __init__(self, env_file, search_space, model_name, policy_args,
-                 max_batch_size=100):
+                 logger, max_batch_size=100):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()
@@ -23,6 +23,7 @@ class PolicyController(threading.Thread):
         self.model_name = model_name
         self.policy_args = policy_args
         self.search_space = search_space
+        self.logger = logger
 
     def pull_work(self, worker_id):
         try:
@@ -54,6 +55,11 @@ class PolicyController(threading.Thread):
             # Waiting and reordering the results
             for _ in range(len(args)):
                 descriptor, job_result = self.result_queue.get(block=True)
+                self.logger.log({
+                    **descriptor._asdict(),
+                    'prediction': job_result[1],
+                    'is_correct': job_result[2]
+                })
                 images[descriptor.order] = job_result[0]
                 logits[descriptor.order] = job_result[1]
                 is_correct[descriptor.order] = job_result[2]

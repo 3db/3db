@@ -42,14 +42,13 @@ if __name__ == '__main__':
     parser.add_argument('--tile-size', help='The size of tiles used for GPU rendering',
                         default=256, type=int)
 
-
     args = parser.parse_args(arguments)
     print(args)
 
     context = zmq.Context()
     print("Connecting to server...")
     socket = context.socket(zmq.REQ)
-    socket.connect ("tcp://" + args.master_address)
+    socket.connect("tcp://" + args.master_address)
 
     worker_id = str(uuid4())
 
@@ -66,7 +65,6 @@ if __name__ == '__main__':
         all_models = [path.basename(x) for x in glob(path.join(args.model_folder, '*.blend'))]
 
         infos = query('info')
-        # print(all_models)
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
 

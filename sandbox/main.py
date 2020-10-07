@@ -8,6 +8,7 @@ from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.SearchSpace import SearchSpace
 from sandbox.utils import init_control
+from sandbox.log import Logger
 
 
 parser = argparse.ArgumentParser(
@@ -20,6 +21,9 @@ parser.add_argument('model_folder', type=str,
 
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
+
+parser.add_argument('--log', type=str, default=None,
+                    help='Log information about each sample into a file')
 
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
@@ -54,6 +58,9 @@ if __name__ == '__main__':
 
         policy_controllers = []
 
+        logger = Logger(args.log)
+        logger.start()
+
         for env in all_envs:
             env = env.split('/')[-1]
             for model in all_models:
@@ -62,7 +69,7 @@ if __name__ == '__main__':
                     PolicyController(env, search_space, model, {
                         'continuous_dim': continuous_dim,
                         'discrete_sizes': discrete_sizes,
-                        **config['policy']}))
+                        **config['policy']}, logger))
 
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'])
