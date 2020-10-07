@@ -4,6 +4,9 @@ class CameraControl:
     kind = 'pre'
 
     continuous_dims = {
+        'view_point_x': (-1, 1),
+        'view_point_y': (-1, 1),
+        'view_point_z': (0, 1),
         'zoom_factor': (-np.pi, np.pi),
         'aperture': (1, 32),
         'focal_length': (10, 400),
@@ -11,8 +14,10 @@ class CameraControl:
 
     discrete_dims = {}
 
-    def apply(self, context, zoom_factor, aperture, focal_length):
+    def apply(self, context, view_point_x, view_point_y, view_point_z,
+              zoom_factor, aperture, focal_length):
         import bpy
+        from mathutils import Vector
         from sandbox.rendering.utils import (sample_upper_sphere,
                                              lookat_viewport)
 
@@ -40,7 +45,7 @@ class CameraControl:
                 r.view_distance = 2
                 previous_lens = space.lens
                 space.lens = camera.data.lens * zoomout_factor
-                direction = sample_upper_sphere()
+                direction = Vector((view_point_x, view_point_y, view_point_z))
                 r.view_rotation = lookat_viewport(r.view_location,
                                                   r.view_location + direction)
                 bpy.ops.view3d.view_selected(ctx)

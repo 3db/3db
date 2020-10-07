@@ -20,7 +20,7 @@ def overwrite_control(control, data):
             control.discrete_dims[k] = v
         else:
             raise AttributeError(
-                f"Attribute {k} unknown in {type(control).__name}")
+                f"Attribute {k} unknown in {type(control).__name__}")
 
 
 def init_control(description):
