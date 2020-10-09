@@ -8,7 +8,7 @@ from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.SearchSpace import SearchSpace
 from sandbox.utils import init_control
-from sandbox.log import Logger
+from sandbox.log import JSONLogger, TbLogger, ImageLogger
 
 
 parser = argparse.ArgumentParser(
@@ -22,7 +22,7 @@ parser.add_argument('model_folder', type=str,
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
 
-parser.add_argument('--log', type=str, default=None,
+parser.add_argument('--logdir', type=str, default=None,
                     help='Log information about each sample into a file')
 
 parser.add_argument('port', type=int,
@@ -58,8 +58,13 @@ if __name__ == '__main__':
 
         policy_controllers = []
 
-        logger = Logger(args.log)
-        logger.start()
+        json_logger = JSONLogger(path.join(args.logdir, 'details.log'))
+        tb_logger = TbLogger(args.logdir)
+        image_logger = ImageLogger(path.join(args.logdir, 'images'))
+        
+        json_logger.start()
+        tb_logger.start()
+        image_logger.start()
 
         for env in all_envs:
             env = env.split('/')[-1]
@@ -69,7 +74,7 @@ if __name__ == '__main__':
                     PolicyController(env, search_space, model, {
                         'continuous_dim': continuous_dim,
                         'discrete_sizes': discrete_sizes,
-                        **config['policy']}, logger))
+                        **config['policy']}, json_logger, tb_logger, image_logger))
 
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'])

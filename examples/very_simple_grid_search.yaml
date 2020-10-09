@@ -10,7 +10,7 @@ inference:
     pretrained: True
 render_args:
   resolution: 256
-  samples: 256
+  samples: 128
 policy:
   module: "sandbox.policies.grid_search"
   samples_per_dim: 2
