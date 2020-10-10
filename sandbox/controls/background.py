@@ -18,8 +18,6 @@ class BackgroundControl:
                         int(G * 255),
                         int(B * 255))
 
-        if type(img) == tuple:
-            img = img[0]
         bg = Image.new('RGBA', img.size, fill_colour)
         return Image.alpha_composite(bg, img)
 
