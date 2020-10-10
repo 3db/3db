@@ -67,13 +67,15 @@ class TbLogger(Logger):
         self.numeric_data = []
         self.images = {}
         self.count = 0
+        self.PIL_TO_IMAGE = torchvision.transforms.ToTensor()
+
 
     def write(self):
         df = pd.DataFrame(self.numeric_data)
         self.writer.add_scalar('Accuracy', df.is_correct.mean(), self.count)
         for uid in df.model.unique():
             id = df[df.model == uid].id.sample(1).item()
-            grid = torchvision.utils.make_grid(torch.tensor(self.images[id].transpose((2,0,1)) ))
+            grid = torchvision.utils.make_grid(self.PIL_TO_IMAGE(self.images[id]))
             self.writer.add_image(uid, grid, self.count)
 
     def run(self):
@@ -100,4 +102,4 @@ class ImageLogger(Logger):
             if item is None:
                 break
             img_path = path.join(self.dir, item['id'] + '.png')
-            cv2.imwrite(img_path, item['image'])
+            item['image'].save(img_path)

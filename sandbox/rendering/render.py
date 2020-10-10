@@ -6,6 +6,9 @@ from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
+from PIL import Image
+from IPython import embed
+import numpy as np
 
 IMAGE_FORMAT = 'png'
 
@@ -95,7 +98,10 @@ def render(uid, job, cli_args, renderer_settings):
         groupped_args[classname][attribute] = value
 
     for control_class in control_classes:
+        if control_class.kind != 'pre':
+            continue
         classname = type(control_class).__name__
+        print(classname)
         args = groupped_args[type(control_class).__name__]
         control_class.apply(context=context, **args)
 
@@ -109,12 +115,17 @@ def render(uid, job, cli_args, renderer_settings):
         bpy.context.scene.render.filepath = temp_filename
         bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
-        img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
-        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+        img = Image.open(temp_filename).convert("RGBA")
         remove(temp_filename) 
 
-    # TODO post processing controls
-
-    img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+    # post-processing controls
+    for control_class in control_classes:
+        if control_class.kind != 'post':
+            continue
+        classname = type(control_class).__name__
+        args = groupped_args[type(control_class).__name__]
+        img = control_class.apply(img=img, **args)
+    
+    img = img.convert("RGB")
     return img
 

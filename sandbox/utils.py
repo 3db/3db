@@ -58,7 +58,6 @@ def load_inference_model(args):
     ssl._create_default_https_context = previous_context
 
     my_preprocess = transforms.Compose([
-        transforms.ToPILImage(),
         transforms.Resize(args['resolution']),
         transforms.ToTensor(),
         transforms.Normalize(mean=args['normalization']['mean'],
@@ -66,7 +65,6 @@ def load_inference_model(args):
     ])
 
     def inference_function(image):
-        image = ch.from_numpy(image)
         image = my_preprocess(image)
         image = image.unsqueeze(0)
         return model(image).data.numpy()[0]
