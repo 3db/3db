@@ -7,6 +7,8 @@ from IPython import embed
 import cv2
 from os import path
 import pandas as pd
+import torch
+import torchvision
 
 def clean_key(k):
     if isinstance(k, str):
@@ -60,18 +62,19 @@ class TbLogger(Logger):
     def __init__(self, dir):
         super().__init__()
         self.dir = dir
-        print(f'==>[Loggint to tensorboard at {dir}]')
-        self.writer = SummaryWriter()
-        self.df = None
+        print(f'==>[Loggint tensorboard to {dir}]')
+        self.writer = SummaryWriter(log_dir=dir)
         self.numeric_data = []
-        self.images = []
+        self.images = {}
         self.count = 0
 
     def write(self):
-        self.df = pd.DataFrame(self.numeric_data)
-        
-        # 
-        self.writer.add_scalar('Accuracy', self.df.is_correct.mean(), self.count)
+        df = pd.DataFrame(self.numeric_data)
+        self.writer.add_scalar('Accuracy', df.is_correct.mean(), self.count)
+        for uid in df.model.unique():
+            id = df[df.model == uid].id.sample(1).item()
+            grid = torchvision.utils.make_grid(torch.tensor(self.images[id].transpose((2,0,1)) ))
+            self.writer.add_image(uid, grid, self.count)
 
     def run(self):
         while True:
@@ -79,8 +82,8 @@ class TbLogger(Logger):
             item = self.queue.get()
             if item is None:
                 break
-            self.numeric_data.append({k:v for k, v in item if k!='image'})
-            self.images.append({item['id']: item['image']})
+            self.numeric_data.append({k: v for k, v in item.items() if k!='image'})
+            self.images[item['id']]= item['image']
             if self.count % 1 == 0:
                 self.write()
 
