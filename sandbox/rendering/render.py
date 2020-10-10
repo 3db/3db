@@ -7,7 +7,6 @@ from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
 from PIL import Image
-from IPython import embed
 import numpy as np
 
 IMAGE_FORMAT = 'png'

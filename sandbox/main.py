@@ -23,7 +23,7 @@ parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
 
 parser.add_argument('--logdir', type=str, default=None,
-                    help='Log information about each sample into a file')
+                    help='Log information about each sample into a folder')
 
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
