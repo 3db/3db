@@ -11,8 +11,10 @@ class PoseControl:
 
     discrete_dims = {}
 
-    def apply(self, continuous_args, discrete_args):
-        pass
+    def apply(self, context, rotation_X, rotation_Y, rotation_Z):
+
+        ob = context['object']
+        ob.rotation_euler = (rotation_X, rotation_Y, rotation_Z)
 
 
 Control = PoseControl
