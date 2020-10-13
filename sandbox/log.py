@@ -81,7 +81,7 @@ class TbLogger():
     def log(self, item):
         self.count += 1
         self.numeric_data.append({k: v for k, v in item.items() if k!='image'})
-        self.images[item['id']]= item['image']/255.
+        self.images[item['id']]= item['image']
         if self.count % 1 == 0:
             self.write()
 

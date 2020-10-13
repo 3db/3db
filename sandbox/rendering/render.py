@@ -99,7 +99,6 @@ def render(uid, job, cli_args, renderer_settings):
         if control_class.kind != 'pre':
             continue
         classname = type(control_class).__name__
-        print(classname)
         args = groupped_args[type(control_class).__name__]
         control_class.apply(context=context, **args)
 
