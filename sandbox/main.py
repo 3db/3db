@@ -8,7 +8,7 @@ from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.SearchSpace import SearchSpace
 from sandbox.utils import init_control
-from sandbox.log import Logger
+from sandbox.log import JSONLogger, TbLogger, ImageLogger, LoggerManager
 
 
 parser = argparse.ArgumentParser(
@@ -22,11 +22,14 @@ parser.add_argument('model_folder', type=str,
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
 
-parser.add_argument('--log', type=str, default=None,
-                    help='Log information about each sample into a file')
+parser.add_argument('--logdir', type=str, default=None,
+                    help='Log information about each sample into a folder')
 
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
+
+parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
+                    help='Which loggers to use. Comma dilimited list. e.g. JSONLogger,TbLogger,ImageLogger')
 
 
 DEFAULT_RENDER_ARGS = {
@@ -58,9 +61,17 @@ if __name__ == '__main__':
 
         policy_controllers = []
 
-        logger = Logger(args.log)
-        logger.start()
-
+        logger_manager = LoggerManager()
+        loggers_list = [logger for logger in args.loggers.split(',')]
+        if "JSONLogger" in loggers_list:
+            logger_manager.append(JSONLogger(path.join(args.logdir, 'details.log')))
+        if "TbLogger" in loggers_list:
+            logger_manager.append(TbLogger(args.logdir))
+        if "ImageLogger" in loggers_list:
+            logger_manager.append(ImageLogger(path.join(args.logdir, 'images')))
+        
+        logger_manager.start()
+    
         for env in all_envs:
             env = env.split('/')[-1]
             for model in all_models:
@@ -69,7 +80,7 @@ if __name__ == '__main__':
                     PolicyController(env, search_space, model, {
                         'continuous_dim': continuous_dim,
                         'discrete_sizes': discrete_sizes,
-                        **config['policy']}, logger))
+                        **config['policy']}, logger_manager))
 
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'])

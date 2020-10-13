@@ -10,12 +10,20 @@ inference:
     pretrained: True
 render_args:
   resolution: 256
-  samples: 256
+  samples: 64
 policy:
   module: "sandbox.policies.grid_search"
   samples_per_dim: 2
 controls:
+  - module: "sandbox.controls.background"
+    R: 1.
+    G: 1.
+    B: 1.
+  - module: "sandbox.controls.pose"
   - module: "sandbox.controls.camera"
-    zoom_factor: (1.2, 1.4)
+    view_point_x: 1
+    view_point_y: 1
+    view_point_z: 1
+    zoom_factor: 1.2
     aperture: 8
     focal_length: 50
