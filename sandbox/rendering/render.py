@@ -6,7 +6,6 @@ from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
-from PIL import Image
 import numpy as np
 
 IMAGE_FORMAT = 'png'
@@ -114,7 +113,8 @@ def render(uid, job, cli_args, renderer_settings):
         bpy.context.scene.render.filepath = temp_filename
         bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
-        img = Image.open(temp_filename).convert("RGBA")
+        img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
         remove(temp_filename) 
 
     # post-processing controls
@@ -125,6 +125,6 @@ def render(uid, job, cli_args, renderer_settings):
         args = groupped_args[type(control_class).__name__]
         img = control_class.apply(img=img, **args)
     
-    img = img.convert("RGB")
+    img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
     return img
 

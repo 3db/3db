@@ -1,5 +1,4 @@
 import numpy as np
-from PIL import Image
 
 class BackgroundControl:
     kind = 'post'
@@ -14,12 +13,9 @@ class BackgroundControl:
 
     def apply(self, img, R, G, B):
 
-        fill_colour = (int(R * 255),
-                        int(G * 255),
-                        int(B * 255))
-
-        bg = Image.new('RGBA', img.size, fill_colour)
-        return Image.alpha_composite(bg, img)
-
+        alpha = img[:, :, 3:].astype(float) / 255
+        img = img[:, :, :3] * alpha + 255 * (1 - alpha) * np.array([R, G, B])[None, None]
+        return np.uint8(img)
+        
 
 Control = BackgroundControl

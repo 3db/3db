@@ -3,11 +3,10 @@ import numpy as np
 from queue import Queue, Empty
 import json
 from torch.utils.tensorboard import SummaryWriter
-from IPython import embed
 import cv2
 from os import path
 import pandas as pd
-import torch
+import torch as ch
 import torchvision
 
 def clean_key(k):
@@ -67,16 +66,14 @@ class TbLogger(Logger):
         self.numeric_data = []
         self.images = {}
         self.count = 0
-        self.PIL_TO_IMAGE = torchvision.transforms.ToTensor()
-
+        self.to_tensor = torchvision.transforms.ToTensor()
 
     def write(self):
         df = pd.DataFrame(self.numeric_data)
         self.writer.add_scalar('Accuracy', df.is_correct.mean(), self.count)
         for uid in df.model.unique():
             id = df[df.model == uid].id.sample(1).item()
-            grid = torchvision.utils.make_grid(self.PIL_TO_IMAGE(self.images[id]))
-            self.writer.add_image(uid, grid, self.count)
+            self.writer.add_image(uid, self.to_tensor(self.images[id]), self.count)
 
     def run(self):
         while True:
@@ -85,7 +82,7 @@ class TbLogger(Logger):
             if item is None:
                 break
             self.numeric_data.append({k: v for k, v in item.items() if k!='image'})
-            self.images[item['id']]= item['image']
+            self.images[item['id']]= item['image']/255.
             if self.count % 1 == 0:
                 self.write()
 
@@ -102,4 +99,4 @@ class ImageLogger(Logger):
             if item is None:
                 break
             img_path = path.join(self.dir, item['id'] + '.png')
-            item['image'].save(img_path)
+            cv2.imwrite(img_path, cv2.cvtColor(item['image'], cv2.COLOR_RGB2BGR)) 
