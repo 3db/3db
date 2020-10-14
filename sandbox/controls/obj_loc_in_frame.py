@@ -22,8 +22,8 @@ class ObjLocInFrameControl:
         fov = camera.data.angle_y
         z_obj_wrt_camera = np.linalg.norm(camera.location - ob.location)
 
-        x_limit = tan(fov/2) * z_obj_wrt_camera
-        y_limit = x_limit * aspect
+        y_limit = tan(fov/2) * z_obj_wrt_camera
+        x_limit = y_limit * aspect
 
         camera_matrix = np.array(C.scene.camera.matrix_world)
         shift = np.matmul(camera_matrix, np.array([[x_limit*x_shift, y_limit*y_shift, -z_obj_wrt_camera, 1]]).T)
@@ -31,3 +31,4 @@ class ObjLocInFrameControl:
 
 
 Control = ObjLocInFrameControl
+
