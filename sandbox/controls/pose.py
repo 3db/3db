@@ -5,7 +5,7 @@ class PoseControl:
     kind = 'pre'
 
     continuous_dims = {
-        'rotation_X': (-np.pi/2, np.pi/2),
+        'rotation_X': (-np.pi, np.pi),
         'rotation_Y': (-np.pi, np.pi),
         'rotation_Z': (-np.pi, np.pi),
     }
