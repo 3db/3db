@@ -13,17 +13,24 @@ render_args:
   samples: 64
 policy:
   module: "sandbox.policies.grid_search"
-  samples_per_dim: 2
+  samples_per_dim: 4
 controls:
   - module: "sandbox.controls.background"
     R: 1.
     G: 1.
     B: 1.
   - module: "sandbox.controls.pose"
+    rotation_X: 0
+    rotation_Y: 0
+    rotation_Z: 0
   - module: "sandbox.controls.camera"
     view_point_x: 1
     view_point_y: 1
     view_point_z: 1
-    zoom_factor: 1.2
+    zoom_factor: .6
     aperture: 8
     focal_length: 50
+  - module: "sandbox.controls.obj_loc_in_frame"
+    x_shift: (-1, 1)   
+    y_shift: (-1, 1)  
+  
