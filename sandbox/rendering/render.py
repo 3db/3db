@@ -7,7 +7,6 @@ from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
 import numpy as np
-from IPython import embed
 
 IMAGE_FORMAT = 'png'
 
@@ -95,12 +94,13 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
     for (classname, attribute), value in render_args.items():
         groupped_args[classname][attribute] = value
 
+    results = []
     for control_class in control_classes:
         if control_class.kind != 'pre':
             continue
         classname = type(control_class).__name__
         control_params = groupped_args[type(control_class).__name__]
-        control_class.apply(context=context, **control_params, **vars(cli_args))
+        results.append(control_class.apply(context=context, **control_params, **vars(cli_args)))
 
 
     img_extension = f".{IMAGE_FORMAT}"
@@ -115,6 +115,11 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
         img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
         remove(temp_filename) 
+
+    # Use the ouput from render (e.g. delete occlusion objects)
+    for r in results:
+        if type(r) == bpy.types.Object:
+            bpy.ops.object.delete({"selected_objects": [r]})
 
     # post-processing controls
     for control_class in control_classes:

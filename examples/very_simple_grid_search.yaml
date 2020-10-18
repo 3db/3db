@@ -34,8 +34,9 @@ controls:
     x_shift: 0   
     y_shift: 0  
   - module: "sandbox.controls.occlusion"
-    occlusion_ratio: 0.2
+    occlusion_ratio: 0.5
     direction: 8
-    occluder: 8
+    occluder: 2
+    zoom: 0.2
     args:
       ood_models_dir: '/mnt/ssd/sandbox_data/ood_objects'

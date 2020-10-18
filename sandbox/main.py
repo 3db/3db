@@ -11,7 +11,6 @@ from sandbox.scheduling.SearchSpace import SearchSpace
 from sandbox.utils import init_control
 from sandbox.log import JSONLogger, TbLogger, ImageLogger, LoggerManager
 
-from IPython import embed
 
 parser = argparse.ArgumentParser(
     description='Run a synthetic-sandbox experiment')
@@ -43,7 +42,7 @@ if __name__ == '__main__':
 
     all_envs = [path.basename(x) for x in glob(path.join(args.root_folder, 'environments', '*.blend'))]
     all_models = [path.basename(x) for x in glob(path.join(args.root_folder, '3Dmodels', '*.blend'))]
-    # embed()
+
     with open(args.config_file) as handle:
         config = yaml.load(handle, Loader=yaml.FullLoader)
         print(config)
