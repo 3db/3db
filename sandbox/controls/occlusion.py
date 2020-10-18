@@ -1,19 +1,29 @@
 import numpy as np
 import mathutils
-
+from os import path
+from glob import glob
 
 class OcclusionControl:
     kind = "pre"
 
     continuous_dims = {
         "occlusion_ratio": (0.1, 1.0),
-        "x_dir": (-1, 1),
-        "y_dir": (-1, 1),
     }
 
-    discrete_dims = {}
+    discrete_dims = {
+        "direction": 8,
+        "occluder": 0
+    }
 
-    def move_in_plane(self, b, x_shift, y_shift):
+    DIRECTIONS = [(1,0), (0,1), (-1,0), (0,-1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+
+    def __init__(self, ood_models_dir):
+        self.occluders_uids = [path.basename(x) for x in glob(path.join(ood_models_dir, '*.blend'))]
+        self.discrete_dims['occluder'] = len(self.occluders_uids)
+        assert self.discrete_dims['occluder'] >= 1
+
+
+    def move_in_plane(self, ob, x_shift, y_shift):
         from bpy import context as C
         from math import tan
 
@@ -58,19 +68,19 @@ class OcclusionControl:
 
         return (x_out, y_out)
 
-    def apply(self, context, x_dir, y_dir, occlusion_ratio):
+    def apply(self, context, direction, occlusion_ratio, occluder, root_folder, **kwargs):
 
-        from blender_utils import camera_view_bounds_2d
+        from .blender_utils import camera_view_bounds_2d, load_model
         from bpy import context as C
 
         ob = context["object"]
-        occluder = context["occluder"]
+        # occluder = load_model(path.join(root_folder, 'ood_objects', self.occluders_uids[occluder]))
 
-        bb = camera_view_bounds_2d(C.scene, C.scene.camera, ob)
-        bb_occ = camera_view_bounds_2d(C.scene, C.scene.camera, occluder)
+        # bb = camera_view_bounds_2d(C.scene, C.scene.camera, ob)
+        # bb_occ = camera_view_bounds_2d(C.scene, C.scene.camera, occluder)
 
-        x_shift, y_shift = find_center(bb, bb_occ, direction, occlusion_ratio)
-        move_in_plane(occluder, x_shift, y_shift)
+        # x_shift, y_shift = find_center(bb, bb_occ, self.DIRECTIONS[direction], occlusion_ratio)
+        # move_in_plane(occluder, x_shift, y_shift)
 
 
 Control = OcclusionControl

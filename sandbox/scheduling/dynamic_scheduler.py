@@ -4,7 +4,7 @@ import json
 
 
 def schedule_work(policy_controllers, port, list_envs, list_models,
-                  render_args, inference_args):
+                  render_args, inference_args, controls_args):
     context = zmq.Context()
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
@@ -71,7 +71,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                     'environment': selected_policy.env_file,
                     'model': selected_policy.model_name,
                     'params_to_render': result,
-                    'render_args': render_args
+                    'render_args': render_args,
+                    'controls_args': controls_args
                 })
 
         elif message['kind'] == 'push':

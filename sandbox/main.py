@@ -2,6 +2,7 @@ import argparse
 import yaml
 from glob import glob
 from os import path
+from collections import defaultdict
 
 import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
@@ -10,14 +11,13 @@ from sandbox.scheduling.SearchSpace import SearchSpace
 from sandbox.utils import init_control
 from sandbox.log import JSONLogger, TbLogger, ImageLogger, LoggerManager
 
+from IPython import embed
 
 parser = argparse.ArgumentParser(
     description='Run a synthetic-sandbox experiment')
-parser.add_argument('environment_folder', type=str,
-                    help='folder containing all the environment (.blend)')
 
-parser.add_argument('model_folder', type=str,
-                    help='folder containing all models (.blend files)')
+parser.add_argument('root_folder', type=str,
+                    help='folder containing all data (models, environments, etc)')
 
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
@@ -41,9 +41,9 @@ DEFAULT_RENDER_ARGS = {
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    all_envs = [path.basename(x) for x in glob(path.join(args.environment_folder, '*.blend'))]
-    all_models = [path.basename(x) for x in glob(path.join(args.model_folder, '*.blend'))]
-
+    all_envs = [path.basename(x) for x in glob(path.join(args.root_folder, 'environments', '*.blend'))]
+    all_models = [path.basename(x) for x in glob(path.join(args.root_folder, '3Dmodels', '*.blend'))]
+    # embed()
     with open(args.config_file) as handle:
         config = yaml.load(handle, Loader=yaml.FullLoader)
         print(config)
@@ -56,6 +56,16 @@ if __name__ == '__main__':
 
         print("ARGS", render_args)
         controls = [init_control(x) for x in config['controls']]
+        controls_args = defaultdict(dict)
+        for i,control in enumerate(controls):
+            tpe = type(control)
+            name = f"{tpe.__name__}"
+            control_config = config['controls'][i]
+            if 'args' not in control_config:
+                controls_args[name] = {} 
+            else:
+                controls_args[name] = control_config['args']
+
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
 
@@ -83,5 +93,5 @@ if __name__ == '__main__':
                         **config['policy']}, logger_manager))
 
         schedule_work(policy_controllers, args.port, all_envs, all_models,
-                      render_args, config['inference'])
+                      render_args, config['inference'], controls_args)
 

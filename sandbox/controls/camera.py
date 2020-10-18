@@ -15,7 +15,7 @@ class CameraControl:
     discrete_dims = {}
 
     def apply(self, context, view_point_x, view_point_y, view_point_z,
-              zoom_factor, aperture, focal_length):
+              zoom_factor, aperture, focal_length, **kwargs):
         import bpy
         from mathutils import Vector
         from sandbox.rendering.utils import (sample_upper_sphere,

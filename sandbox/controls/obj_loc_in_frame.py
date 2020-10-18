@@ -10,7 +10,7 @@ class ObjLocInFrameControl:
 
     discrete_dims = {}
 
-    def apply(self, context, x_shift, y_shift):
+    def apply(self, context, x_shift, y_shift, **kwargs):
         from bpy import context as C
         from math import tan
         import numpy as np

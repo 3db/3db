@@ -7,6 +7,7 @@ from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
 import numpy as np
+from IPython import embed
 
 IMAGE_FORMAT = 'png'
 
@@ -71,13 +72,12 @@ def setup_render(args):
     bpy.context.scene.render.use_persistent_data = True
 
 
-def render(uid, job, cli_args, renderer_settings):
+def render(uid, job, cli_args, renderer_settings, controls_args):
 
     control_list = job.control_order
     render_args = job.render_args
     renderer_settings = SimpleNamespace(**vars(cli_args),
                                         **renderer_settings)
-
     setup_render(renderer_settings)
 
     control_classes = []
@@ -88,7 +88,7 @@ def render(uid, job, cli_args, renderer_settings):
 
     for module, classname in control_list:
         imported = importlib.import_module(f'{module}')
-        control_classes.append(getattr(imported, classname)())
+        control_classes.append(getattr(imported, classname)(**controls_args[classname]))
 
     groupped_args = defaultdict(dict)
 
@@ -99,8 +99,8 @@ def render(uid, job, cli_args, renderer_settings):
         if control_class.kind != 'pre':
             continue
         classname = type(control_class).__name__
-        args = groupped_args[type(control_class).__name__]
-        control_class.apply(context=context, **args)
+        control_params = groupped_args[type(control_class).__name__]
+        control_class.apply(context=context, **control_params, **vars(cli_args))
 
 
     img_extension = f".{IMAGE_FORMAT}"
@@ -121,8 +121,8 @@ def render(uid, job, cli_args, renderer_settings):
         if control_class.kind != 'post':
             continue
         classname = type(control_class).__name__
-        args = groupped_args[type(control_class).__name__]
-        img = control_class.apply(img=img, **args)
+        control_params = groupped_args[type(control_class).__name__]
+        img = control_class.apply(img=img, **control_params, **vars(cli_args))
     
     img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
     return img

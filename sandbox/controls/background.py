@@ -11,7 +11,7 @@ class BackgroundControl:
 
     discrete_dims = {}
 
-    def apply(self, img, R, G, B):
+    def apply(self, img, R, G, B, **kwargs):
 
         alpha = img[:, :, 3:].astype(float) / 255
         img = img[:, :, :3] * alpha + 255 * (1 - alpha) * np.array([R, G, B])[None, None]

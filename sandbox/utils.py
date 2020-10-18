@@ -6,7 +6,7 @@ from urllib.parse import urljoin
 from copy import deepcopy
 import torch as ch
 from torchvision import transforms
-
+from IPython import embed
 def overwrite_control(control, data):
 
     # Make sure we are not overriding the dict containing the default values
@@ -28,6 +28,7 @@ def init_control(description):
     if 'args' in description:
         args = description['args']
     module = importlib.import_module(description['module'])
+    # embed()
     control = module.Control(**args)
     d = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
     overwrite_control(control,  d)

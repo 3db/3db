@@ -26,11 +26,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Render worker for the robustness sandbox')
 
-    parser.add_argument('environment_folder', type=str,
-                        help='folder containing all the environment (.blend)')
-
-    parser.add_argument('model_folder', type=str,
-                        help='folder containing all models (.blend files)')
+    parser.add_argument('root_folder', type=str,
+                        help='folder containing all data (models, environments, etc)')
 
     parser.add_argument('--master-address', '-a', type=str,
                         help='How to contact the master node',
@@ -61,8 +58,8 @@ if __name__ == '__main__':
         return socket.recv_pyobj()
 
     while True:
-        all_envs = [path.basename(x) for x in glob(path.join(args.environment_folder, '*.blend'))]
-        all_models = [path.basename(x) for x in glob(path.join(args.model_folder, '*.blend'))]
+        all_envs = [path.basename(x) for x in glob(path.join(args.root_folder, 'environments', '*.blend'))]
+        all_models = [path.basename(x) for x in glob(path.join(args.root_folder, '3Dmodels', '*.blend'))]
 
         infos = query('info')
         assert set(infos['models']) == set(all_models)
@@ -71,8 +68,8 @@ if __name__ == '__main__':
         assignment = query('connect')
 
         assert assignment['kind'] == 'assignment'
-        env = path.join(args.environment_folder, assignment['environment'])
-        model = path.join(args.model_folder, assignment['model'])
+        env = path.join(args.root_folder, 'environments', assignment['environment'])
+        model = path.join(args.root_folder, '3Dmodels', assignment['model'])
         uid_to_logits = assignment['uid_to_logits']
         inference_args = assignment['inference']
         inference_model = load_inference_model(inference_args)
@@ -89,13 +86,14 @@ if __name__ == '__main__':
             print("pull done")
             paramters = job_description['params_to_render']
             render_args = job_description['render_args']
+            controls_args = job_description['controls_args']
             if len(paramters) == 0:
                 print("Nothing to do!", 'sleeping')
                 time.sleep(1)
             else:
                 print("do some work")
                 for job in paramters:
-                    result = render(model_uid, job, args, render_args)
+                    result = render(model_uid, job, args, render_args, controls_args)
                     prediction = inference_model(result)
                     is_correct = prediction.argmax() in uid_to_logits[model_uid]
                     query('push', job=job, result=(result, prediction, is_correct))

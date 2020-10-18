@@ -12,7 +12,7 @@ class PoseControl:
 
     discrete_dims = {}
 
-    def apply(self, context, rotation_X, rotation_Y, rotation_Z):
+    def apply(self, context, rotation_X, rotation_Y, rotation_Z, **kwargs):
 
         eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
         ob = context['object']

@@ -2,6 +2,26 @@ import bpy
 from bpy import context as C
 from math import tan
 import numpy as np
+from os import path
+
+def load_model(model):
+    basename, filename = path.split(model)
+    uid = filename.replace('.blend', '')
+    blendfile = path.join(basename, uid + '.blend')
+    section = "\\Object\\"
+    object = uid
+
+    filepath = uid + '.blend'
+    directory = blendfile + section
+    filename = object
+
+    bpy.ops.wm.append(
+        filepath=filepath,
+        filename=filename,
+        directory=directory)
+
+    return uid
+
 
 
 def clamp(x, minimum, maximum):

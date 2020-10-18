@@ -31,6 +31,11 @@ controls:
     aperture: 8
     focal_length: 50
   - module: "sandbox.controls.obj_loc_in_frame"
-    x_shift: (-1, 1)   
-    y_shift: (-1, 1)  
-  
+    x_shift: 0   
+    y_shift: 0  
+  - module: "sandbox.controls.occlusion"
+    occlusion_ratio: 0.2
+    direction: 8
+    occluder: 8
+    args:
+      ood_models_dir: '/mnt/ssd/sandbox_data/ood_objects'
