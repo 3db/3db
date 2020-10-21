@@ -2,8 +2,9 @@ import numpy as np
 import mathutils
 from os import path
 from glob import glob
+from .base_control import BaseControl
 
-class OcclusionControl:
+class OcclusionControl(BaseControl):
     kind = "pre"
 
     continuous_dims = {
@@ -13,16 +14,18 @@ class OcclusionControl:
 
     discrete_dims = {
         "direction": 8,
-        "occluder": 0
+        "occluder": None
     }
 
-    DIRECTIONS = [(1,0), (0,1), (-1,0), (0,-1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
+    DIRECTIONS = [( 1, -1), ( 1, 0), ( 1, 1),
+                  ( 0, -1),          ( 0, 1),
+                  (-1, -1), (-1, 0), (-1, 1)]
 
-    def __init__(self, ood_models_dir):
-        self.occluders_uids = [path.basename(x) for x in glob(path.join(ood_models_dir, '*.blend'))]
-        self.discrete_dims['occluder'] = len(self.occluders_uids)
+    def __init__(self, root_folder):
+        super().__init__(root_folder)
+        self.occluders_paths = [x for x in glob(path.join(root_folder, 'ood_objects', '*.blend'))]
+        self.discrete_dims['occluder'] = len(self.occluders_paths)
         assert self.discrete_dims['occluder'] >= 1
-
 
     def move_in_plane(self, ob, x_shift, y_shift):
         from bpy import context as C
@@ -69,13 +72,13 @@ class OcclusionControl:
 
         return (x_out, y_out)
 
-    def apply(self, context, direction, zoom, occlusion_ratio, occluder, root_folder, **kwargs):
+    def apply(self, context, direction, zoom, occlusion_ratio, occluder):
 
         from .blender_utils import camera_view_bounds_2d, load_model
         from bpy import context as C
 
         ob = context["object"]
-        occluder = load_model(path.join(root_folder, 'ood_objects', self.occluders_uids[occluder]))
+        occluder = load_model(self.occluders_paths[occluder])
         occluder = C.scene.objects[occluder]
         occluder.location = ob.location + zoom * (C.scene.camera.location - ob.location)
 

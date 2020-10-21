@@ -1,6 +1,7 @@
 import numpy as np
+from .base_control import BaseControl
 
-class ObjLocInFrameControl:
+class ObjLocInFrameControl(BaseControl):
     kind = 'pre'
 
     continuous_dims = {
@@ -10,7 +11,7 @@ class ObjLocInFrameControl:
 
     discrete_dims = {}
 
-    def apply(self, context, x_shift, y_shift, **kwargs):
+    def apply(self, context, x_shift, y_shift):
         from bpy import context as C
         from math import tan
         import numpy as np

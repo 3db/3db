@@ -1,7 +1,8 @@
 import numpy as np
 import mathutils
+from .base_control import BaseControl
 
-class PoseControl:
+class PoseControl(BaseControl):
     kind = 'pre'
 
     continuous_dims = {
@@ -12,7 +13,7 @@ class PoseControl:
 
     discrete_dims = {}
 
-    def apply(self, context, rotation_X, rotation_Y, rotation_Z, **kwargs):
+    def apply(self, context, rotation_X, rotation_Y, rotation_Z):
 
         eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
         ob = context['object']

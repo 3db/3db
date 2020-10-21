@@ -1,6 +1,7 @@
 import numpy as np
+from .base_control import BaseControl
 
-class BackgroundControl:
+class BackgroundControl(BaseControl):
     kind = 'post'
 
     continuous_dims = {
@@ -11,7 +12,7 @@ class BackgroundControl:
 
     discrete_dims = {}
 
-    def apply(self, img, R, G, B, **kwargs):
+    def apply(self, img, R, G, B):
 
         alpha = img[:, :, 3:].astype(float) / 255
         img = img[:, :, :3] * alpha + 255 * (1 - alpha) * np.array([R, G, B])[None, None]

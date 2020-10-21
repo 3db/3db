@@ -87,7 +87,7 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
 
     for module, classname in control_list:
         imported = importlib.import_module(f'{module}')
-        control_classes.append(getattr(imported, classname)(**controls_args[classname]))
+        control_classes.append(getattr(imported, classname)(root_folder=cli_args.root_folder, **controls_args[classname]))
 
     groupped_args = defaultdict(dict)
 
@@ -100,7 +100,7 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
             continue
         classname = type(control_class).__name__
         control_params = groupped_args[type(control_class).__name__]
-        results.append(control_class.apply(context=context, **control_params, **vars(cli_args)))
+        results.append(control_class.apply(context=context, **control_params))
 
 
     img_extension = f".{IMAGE_FORMAT}"
@@ -127,7 +127,7 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
             continue
         classname = type(control_class).__name__
         control_params = groupped_args[type(control_class).__name__]
-        img = control_class.apply(img=img, **control_params, **vars(cli_args))
+        img = control_class.apply(img=img, **control_params)
     
     img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
     return img

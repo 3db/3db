@@ -54,7 +54,7 @@ if __name__ == '__main__':
             render_args.update(config['render_args'])
 
         print("ARGS", render_args)
-        controls = [init_control(x) for x in config['controls']]
+        controls = [init_control(x, args.root_folder) for x in config['controls']]
         controls_args = defaultdict(dict)
         for i,control in enumerate(controls):
             tpe = type(control)

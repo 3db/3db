@@ -1,6 +1,7 @@
 import numpy as np
+from .base_control import BaseControl
 
-class CameraControl:
+class CameraControl(BaseControl):
     kind = 'pre'
 
     continuous_dims = {
@@ -15,7 +16,7 @@ class CameraControl:
     discrete_dims = {}
 
     def apply(self, context, view_point_x, view_point_y, view_point_z,
-              zoom_factor, aperture, focal_length, **kwargs):
+              zoom_factor, aperture, focal_length):
         import bpy
         from mathutils import Vector
         from sandbox.rendering.utils import (sample_upper_sphere,

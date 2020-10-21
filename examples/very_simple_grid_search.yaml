@@ -38,5 +38,3 @@ controls:
     direction: 8
     occluder: 2
     zoom: 0.2
-    args:
-      ood_models_dir: '/mnt/ssd/sandbox_data/ood_objects'

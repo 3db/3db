@@ -23,12 +23,12 @@ def overwrite_control(control, data):
                 f"Attribute {k} unknown in {type(control).__name__}")
 
 
-def init_control(description):
+def init_control(description, root_folder):
     args = {}
     if 'args' in description:
         args = description['args']
     module = importlib.import_module(description['module'])
-    control = module.Control(**args)
+    control = module.Control(**args, root_folder=root_folder)
     d = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
     overwrite_control(control,  d)
     return control
