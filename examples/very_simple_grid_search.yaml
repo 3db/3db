@@ -13,7 +13,7 @@ render_args:
   samples: 64
 policy:
   module: "sandbox.policies.grid_search"
-  samples_per_dim: 4
+  samples_per_dim: 100
 controls:
   - module: "sandbox.controls.background"
     R: 1.
@@ -30,11 +30,26 @@ controls:
     zoom_factor: .6
     aperture: 8
     focal_length: 50
-  - module: "sandbox.controls.obj_loc_in_frame"
-    x_shift: 0   
-    y_shift: 0  
-  - module: "sandbox.controls.occlusion"
-    occlusion_ratio: 0.5
-    direction: 8
-    occluder: 2
-    zoom: 0.2
+  - module: "sandbox.controls.scale"
+    scale: (0.25, 1)
+  # - module: "sandbox.controls.obj_loc_in_frame"
+  #   x_shift: 0   
+  #   y_shift: 0  
+  # - module: "sandbox.controls.occlusion"
+  #   occlusion_ratio: 0.5
+  #   direction: 8
+  #   occluder: 2
+  #   zoom: 0.2
+  #   scale: (0.25, .5)
+  # - module: "sandbox.controls.pointlight"
+  #   intensity: 10000
+  #   distance: 5
+  #   dir_x: 1
+  #   dir_y: 1
+  #   dir_z: 1
+  #   # H: 0
+  #   # S: 0
+  #   V: 1
+
+
+
