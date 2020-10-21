@@ -4,14 +4,14 @@ class ObjScaleControl(BaseControl):
     kind = 'pre'
 
     continuous_dims = {
-        'scale': (0.25, 1),
+        'factor': (0.25, 1),
     }
 
     discrete_dims = {}
 
-    def apply(self, context, scale):
+    def apply(self, context, factor):
         self.ob = context['object']
-        self.ob.scale = (scale,) * 3
+        self.ob.scale = (factor,) * 3
 
     def unapply(self):
         self.ob.scale = (1.,) * 3
