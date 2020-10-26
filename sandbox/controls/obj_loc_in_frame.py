@@ -1,6 +1,7 @@
 import numpy as np
+from .base_control import BaseControl
 
-class ObjLocInFrameControl:
+class ObjLocInFrameControl(BaseControl):
     kind = 'pre'
 
     continuous_dims = {

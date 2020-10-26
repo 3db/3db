@@ -1,6 +1,7 @@
 import numpy as np
+from .base_control import BaseControl
 
-class BackgroundControl:
+class BackgroundControl(BaseControl):
     kind = 'post'
 
     continuous_dims = {

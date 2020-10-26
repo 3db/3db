@@ -1,4 +1,6 @@
 from ast import literal_eval
+import numpy as np
+
 
 class SearchSpace:
 
@@ -44,7 +46,7 @@ class SearchSpace:
             result[(control_name, attr_name)] = value * (end - start) + start
 
         for (control_name, attr_name, _), value in zip(self.discrete_args, packed_discrete):
-            result[(control_name, attr_name)] = value
+            result[(control_name, attr_name)] = int(value)
 
         for (control_name, attr_name, value) in self.set_args:
             result[(control_name, attr_name)] = value

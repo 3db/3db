@@ -9,6 +9,7 @@ import pandas as pd
 import torch as ch
 import torchvision
 
+
 def clean_key(k):
     if isinstance(k, str):
         return k

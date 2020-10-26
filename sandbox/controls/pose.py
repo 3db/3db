@@ -1,7 +1,8 @@
 import numpy as np
 import mathutils
+from .base_control import BaseControl
 
-class PoseControl:
+class PoseControl(BaseControl):
     kind = 'pre'
 
     continuous_dims = {
