@@ -57,9 +57,11 @@ if __name__ == '__main__':
 
         all_models = rendering_engine.enumerate_models(args.root_folder)
         all_envs = rendering_engine.enumerate_environments(args.root_folder)
-        print(all_models)
 
-        controls = [init_control(x, args.root_folder) for x in config['controls']]
+        if config['controls']:
+            controls = [init_control(x, args.root_folder) for x in config['controls']]
+        else:
+            controls = []
         controls_args = defaultdict(dict)
         for i,control in enumerate(controls):
             tpe = type(control)

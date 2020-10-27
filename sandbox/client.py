@@ -57,7 +57,6 @@ if __name__ == '__main__':
         return socket.recv_pyobj()
 
     while True:
-
         infos = query('info')
         render_args = infos['render_args']
 
@@ -68,6 +67,7 @@ if __name__ == '__main__':
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
 
+        print("INFO gotten")
         assignment = query('connect')
 
         assert assignment['kind'] == 'assignment'
@@ -75,7 +75,8 @@ if __name__ == '__main__':
         inference_args = assignment['inference']
         inference_model = load_inference_model(inference_args)
 
-        rendering_engine.load_env(args.root_folder, assignment['environment'])
+        loaded_env = rendering_engine.load_env(args.root_folder,
+                                             assignment['environment'])
         loaded_model = rendering_engine.load_model(args.root_folder,
                                                    assignment['model'])
 
@@ -103,7 +104,10 @@ if __name__ == '__main__':
 
                     result = rendering_engine.render(model_uid, job, args,
                                                      render_args,
-                                                     controls_applier)
+                                                     controls_applier,
+                                                     loaded_model,
+                                                     loaded_env
+                                                     )
                     result = controls_applier.apply_post_controls(result)
                     result = cv2.cvtColor(result, cv2.COLOR_RGBA2RGB)
 

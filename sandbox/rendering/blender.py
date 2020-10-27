@@ -94,7 +94,8 @@ def setup_render(args):
     bpy.context.scene.render.use_persistent_data = True
 
 
-def render(uid, job, cli_args, renderer_settings, applier):
+def render(uid, job, cli_args, renderer_settings, applier,
+           loaded_model=None, loaded_env=None):
 
     renderer_settings = SimpleNamespace(**vars(cli_args),
                                         **renderer_settings)
