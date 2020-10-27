@@ -1,5 +1,5 @@
 import numpy as np
-from .base_control import BaseControl
+from sandbox.controls.base_control import BaseControl
 
 class CameraControl(BaseControl):
     kind = 'pre'
@@ -54,9 +54,4 @@ class CameraControl(BaseControl):
                 space.lens = previous_lens
                 camera.data.dof.focus_object = ob
 
-
-
-
-
-
-ControlBlender = CameraControl
+BlenderControl = CameraControl

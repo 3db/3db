@@ -1,5 +1,5 @@
 import numpy as np
-from .base_control import BaseControl
+from sandbox.controls.base_control import BaseControl
 
 class PoseControl(BaseControl):
     kind = 'pre'
@@ -19,4 +19,4 @@ class PoseControl(BaseControl):
         ob = context['object']
         ob.rotation_quaternion = eul.to_quaternion()
 
-ControlBlender = PoseControl
+BlenderControl = PoseControl

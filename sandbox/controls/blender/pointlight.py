@@ -1,6 +1,6 @@
 import numpy as np
 from colorsys import hsv_to_rgb
-from .base_control import BaseControl
+from sandbox.controls.base_control import BaseControl
 
 class PointLightControl(BaseControl):
     kind = 'pre'
@@ -43,4 +43,4 @@ class PointLightControl(BaseControl):
 
         return light_object
 
-ControlBlender = PointLightControl
+BlenderControl = PointLightControl

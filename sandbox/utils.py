@@ -27,9 +27,16 @@ def init_control(description, root_folder, engine_name):
     args = {}
     if 'args' in description:
         args = description['args']
-    module = importlib.import_module(description['module'])
-    className = f"Control{engine_name}"
-    control = getattr(module, className)(**args, root_folder=root_folder)
+    full_module_path = description['module']
+
+    try:
+        module = importlib.import_module(full_module_path)
+    except ModuleNotFoundError:
+        full_module_path = f"sandbox.controls.{engine_name.lower()}.{full_module_path}"
+        module = importlib.import_module(full_module_path)
+
+    Control = getattr(module, f"{engine_name.capitalize()}Control")
+    control = Control(**args, root_folder=root_folder)
     d = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
     overwrite_control(control,  d)
     return control
