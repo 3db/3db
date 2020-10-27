@@ -100,7 +100,7 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
             continue
         classname = type(control_class).__name__
         control_params = groupped_args[type(control_class).__name__]
-        results.append(control_class.apply(context=context, **control_params))
+        control_class.apply(context=context, **control_params)
 
 
     img_extension = f".{IMAGE_FORMAT}"
@@ -116,10 +116,13 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
         remove(temp_filename) 
 
-    # Use the ouput from render (e.g. delete occlusion objects)
-    for r in results:
-        if type(r) == bpy.types.Object:
-            bpy.ops.object.delete({"selected_objects": [r]})
+    # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
+    for control_class in control_classes:
+        if control_class.kind != 'pre':
+            continue
+        classname = type(control_class).__name__
+        control_params = groupped_args[type(control_class).__name__]
+        control_class.unapply()
 
     # post-processing controls
     for control_class in control_classes:

@@ -5,3 +5,6 @@ class BaseControl:
 
     def apply(self):
         raise NotImplementedError
+
+    def unapply(self):
+        pass

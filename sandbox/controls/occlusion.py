@@ -10,6 +10,7 @@ class OcclusionControl(BaseControl):
     continuous_dims = {
         "occlusion_ratio": (0.1, 1.0),
         "zoom": (0.1, 0.4),
+        "scale": (0.25, 1),
     }
 
     discrete_dims = {
@@ -72,18 +73,18 @@ class OcclusionControl(BaseControl):
 
         return (x_out, y_out)
 
-    def apply(self, context, direction, zoom, occlusion_ratio, occluder):
+    def apply(self, context, direction, zoom, occlusion_ratio, occluder, scale):
 
         from .blender_utils import camera_view_bounds_2d, load_model
         from bpy import context as C
 
         ob = context["object"]
         occluder = load_model(self.occluders_paths[occluder])
-        occluder = C.scene.objects[occluder]
-        occluder.location = ob.location + zoom * (C.scene.camera.location - ob.location)
+        self.occluder = C.scene.objects[occluder]
+        self.occluder.location = ob.location + zoom * (C.scene.camera.location - ob.location)
 
         bb = camera_view_bounds_2d(C.scene, C.scene.camera, ob)
-        bb_occ = camera_view_bounds_2d(C.scene, C.scene.camera, occluder)
+        bb_occ = camera_view_bounds_2d(C.scene, C.scene.camera, self.occluder)
         x_shift, y_shift = self.find_center(bb, bb_occ, self.DIRECTIONS[direction], occlusion_ratio)
         x_shift = (x_shift - C.scene.render.resolution_x / 2) / (
             C.scene.render.resolution_x / 2
@@ -91,7 +92,12 @@ class OcclusionControl(BaseControl):
         y_shift = (y_shift - C.scene.render.resolution_y / 2) / (
             C.scene.render.resolution_y / 2
         )
-        self.move_in_plane(occluder, x_shift, y_shift)
-        return occluder
+        self.move_in_plane(self.occluder, x_shift, y_shift)
+        self.occluder.scale = (scale,) * 3
+
+    def unapply(self):
+        import bpy
+        bpy.ops.object.delete({"selected_objects": [self.occluder]})
+
 
 Control = OcclusionControl
