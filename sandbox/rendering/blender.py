@@ -17,6 +17,8 @@ except:
 
 IMAGE_FORMAT = 'png'
 
+NAME = "Blender"
+
 def get_model_path(root_folder, model):
     return path.join(root_folder, 'blender_models', model)
 

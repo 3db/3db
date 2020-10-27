@@ -13,4 +13,4 @@ class ExpositionControl:
 
 
 
-Control = ExpositionControl
+ControlBlender = ExpositionControl

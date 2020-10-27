@@ -9,4 +9,4 @@ class MaterialSwitch:
         pass
 
 
-Control = MaterialSwitch
+ControlBlender = MaterialSwitch

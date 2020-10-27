@@ -9,6 +9,8 @@ from types import SimpleNamespace
 import cv2
 import numpy as np
 
+NAME = 'Mitsuba'
+
 try: # Do not fail if missing package for the master node
     import mitsuba
     import torch

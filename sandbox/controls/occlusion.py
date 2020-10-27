@@ -100,4 +100,4 @@ class OcclusionControl(BaseControl):
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
 
-Control = OcclusionControl
+ControlBlender = OcclusionControl

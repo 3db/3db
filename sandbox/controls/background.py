@@ -20,4 +20,4 @@ class BackgroundControl(BaseControl):
         return np.uint8(img)
         
 
-Control = BackgroundControl
+ControlBlender = BackgroundControl

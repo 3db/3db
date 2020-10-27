@@ -59,4 +59,4 @@ class CameraControl(BaseControl):
 
 
 
-Control = CameraControl
+ControlBlender = CameraControl

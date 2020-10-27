@@ -59,7 +59,8 @@ if __name__ == '__main__':
         all_envs = rendering_engine.enumerate_environments(args.root_folder)
 
         if config['controls']:
-            controls = [init_control(x, args.root_folder) for x in config['controls']]
+            controls = [init_control(x, args.root_folder, rendering_engine.NAME)
+                        for x in config['controls']]
         else:
             controls = []
         controls_args = defaultdict(dict)

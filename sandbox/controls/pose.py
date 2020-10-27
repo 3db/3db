@@ -19,4 +19,4 @@ class PoseControl(BaseControl):
         ob = context['object']
         ob.rotation_quaternion = eul.to_quaternion()
 
-Control = PoseControl
+ControlBlender = PoseControl
