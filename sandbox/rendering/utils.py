@@ -38,20 +38,20 @@ class ControlsApplier:
                     **controls_args[classname])
             )
 
-        groupped_args = defaultdict(dict)
+        grouped_args = defaultdict(dict)
 
         for (classname, attribute), value in render_args.items():
-            groupped_args[classname][attribute] = value
+            grouped_args[classname][attribute] = value
 
         self.control_classes = control_classes
-        self.groupped_args = groupped_args
+        self.grouped_args = grouped_args
 
     def apply_pre_controls(self, context):
 
         for control_class in self.control_classes:
             if control_class.kind == 'pre':
                 classname = type(control_class).__name__
-                control_params = self.groupped_args[classname]
+                control_params = self.grouped_args[classname]
                 control_class.apply(context=context, **control_params)
 
     # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
@@ -64,6 +64,6 @@ class ControlsApplier:
         for control_class in self.control_classes:
             if control_class.kind == 'post':
                 classname = type(control_class).__name__
-                control_params = self.groupped_args[classname]
+                control_params = self.grouped_args[classname]
                 img = control_class.apply(img=img, **control_params)
         return img

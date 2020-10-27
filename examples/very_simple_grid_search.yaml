@@ -16,57 +16,38 @@ policy:
   module: "sandbox.policies.grid_search"
   samples_per_dim: 5
 controls:
-  #- module: "sandbox.controls.background"
-    # H: 1.
-    # S: 1.
-    #   V: 1.
+  - module: "sandbox.controls.background"
+    H: 0.
+    S: 0.
+    V: 1.
   - module: "sandbox.controls.pose"
     rotation_X: 0
     rotation_Y: 0
     rotation_Z: 0
-  # - module: "sandbox.controls.camera"
-  #   view_point_x: 1
-  #   view_point_y: 1
-  #   view_point_z: 1
-  #   zoom_factor: .6
-  #   aperture: 8
-  #   focal_length: 50
+  - module: "sandbox.controls.camera"
+    view_point_x: 1
+    view_point_y: 1
+    view_point_z: 1
+    zoom_factor: .6
+    aperture: 8
+    focal_length: 50
   # - module: "sandbox.controls.scale"
-  #   factor: (0.5, 1)
-  # - module: "sandbox.controls.obj_loc_in_frame"
-  #   x_shift: 0   
-  #   y_shift: 0  
+    # factor: (0.25, 1)
+  - module: "sandbox.controls.obj_loc_in_frame"
+    x_shift: 0   
+    y_shift: 0  
   # - module: "sandbox.controls.occlusion"
   #   occlusion_ratio: 0.5
   #   direction: 8
   #   occluder: 2
   #   zoom: 0.2
   #   scale: (0.25, .5)
-  # - module: "sandbox.controls.pointlight"
-  #   intensity: 10000
-  #   distance: 5
-  #   dir_x: 1
-  #   dir_y: 1
-  #   dir_z: 1
-  #   # H: 0
-  #   # S: 0
-  #   V: 1
-  #   - module: "sandbox.controls.pose"
-  #     rotation_X: 0
-  #     rotation_Y: 0
-  #     rotation_Z: 0
-  #   - module: "sandbox.controls.camera"
-  #     view_point_x: 1
-  #     view_point_y: 1
-  #     view_point_z: 1
-  #     zoom_factor: .6
-  #     aperture: 8
-  #     focal_length: 50
-  #   - module: "sandbox.controls.obj_loc_in_frame"
-  #     x_shift: 0
-  #     y_shift: 0
-  #   - module: "sandbox.controls.occlusion"
-  #     occlusion_ratio: 0.5
-  #     direction: 8
-  #     occluder: 2
-  #     zoom: 0.2
+  - module: "sandbox.controls.pointlight"
+    intensity: 10000
+    distance: 5
+    dir_x: 1
+    dir_y: 1
+    dir_z: 1
+    # H: 0
+    # S: 0
+    V: 1
