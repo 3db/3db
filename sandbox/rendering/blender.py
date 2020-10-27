@@ -8,6 +8,8 @@ from types import SimpleNamespace
 import cv2
 import numpy as np
 
+from sandbox.rendering.utils import ControlsApplier
+
 try:
     import bpy  # blender is not required in the master node
 except:
@@ -92,46 +94,23 @@ def setup_render(args):
     bpy.context.scene.render.use_persistent_data = True
 
 
-def render(uid, job, cli_args, renderer_settings, controls_args):
+def render(uid, job, cli_args, renderer_settings, applier):
 
-    control_list = job.control_order
-    render_args = job.render_args
     renderer_settings = SimpleNamespace(**vars(cli_args),
                                         **renderer_settings)
     setup_render(renderer_settings)
-
-    control_classes = []
 
     context = {
         'object': bpy.context.scene.objects[uid]
     }
 
-    for module, classname in control_list:
-        imported = importlib.import_module(f'{module}')
-        control_classes.append(
-            getattr(imported, classname)(
-                root_folder=cli_args.root_folder,
-                **controls_args[classname])
-        )
-
-    groupped_args = defaultdict(dict)
-
-    for (classname, attribute), value in render_args.items():
-        groupped_args[classname][attribute] = value
-
-    for control_class in control_classes:
-        if control_class.kind != 'pre':
-            continue
-        classname = type(control_class).__name__
-        control_params = groupped_args[type(control_class).__name__]
-        control_class.apply(context=context, **control_params)
+    applier.apply_pre_controls(context)
 
     img_extension = f".{IMAGE_FORMAT}"
 
     with NamedTemporaryFile(suffix=img_extension) as temp_file:
         temp_filename = temp_file.name
         temp_file.close()
-        print("FNAME", temp_filename)
         bpy.context.scene.render.filepath = temp_filename
         bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
@@ -139,21 +118,6 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
         remove(temp_filename) 
 
-    # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
-    for control_class in control_classes:
-        if control_class.kind != 'pre':
-            continue
-        classname = type(control_class).__name__
-        control_params = groupped_args[type(control_class).__name__]
-        control_class.unapply()
+    applier.unapply()
 
-    # post-processing controls
-    for control_class in control_classes:
-        if control_class.kind != 'post':
-            continue
-        classname = type(control_class).__name__
-        control_params = groupped_args[type(control_class).__name__]
-        img = control_class.apply(img=img, **control_params)
-
-    img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
     return img

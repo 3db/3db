@@ -17,7 +17,6 @@ policy:
   samples_per_dim: 5
 controls:
   - module: "sandbox.controls.background"
-<<<<<<< HEAD
     # H: 1.
     # S: 1.
     V: 1.
@@ -52,30 +51,22 @@ controls:
   #   # H: 0
   #   # S: 0
   #   V: 1
-
-
-
-=======
-    R: 1.
-    G: 1.
-    B: 1.
-    #   - module: "sandbox.controls.pose"
-    #     rotation_X: 0
-    #     rotation_Y: 0
-    #     rotation_Z: 0
-    #   - module: "sandbox.controls.camera"
-    #     view_point_x: 1
-    #     view_point_y: 1
-    #     view_point_z: 1
-    #     zoom_factor: .6
-    #     aperture: 8
-    #     focal_length: 50
-    #   - module: "sandbox.controls.obj_loc_in_frame"
-    #     x_shift: 0
-    #     y_shift: 0
-    #   - module: "sandbox.controls.occlusion"
-    #     occlusion_ratio: 0.5
-    #     direction: 8
-    #     occluder: 2
-    #     zoom: 0.2
->>>>>>> 978854d... Refactor to allow integrating new renderers in the future
+  #   - module: "sandbox.controls.pose"
+  #     rotation_X: 0
+  #     rotation_Y: 0
+  #     rotation_Z: 0
+  #   - module: "sandbox.controls.camera"
+  #     view_point_x: 1
+  #     view_point_y: 1
+  #     view_point_z: 1
+  #     zoom_factor: .6
+  #     aperture: 8
+  #     focal_length: 50
+  #   - module: "sandbox.controls.obj_loc_in_frame"
+  #     x_shift: 0
+  #     y_shift: 0
+  #   - module: "sandbox.controls.occlusion"
+  #     occlusion_ratio: 0.5
+  #     direction: 8
+  #     occluder: 2
+  #     zoom: 0.2

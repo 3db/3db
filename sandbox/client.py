@@ -4,11 +4,13 @@ import sys
 import time
 from os import path
 import importlib
+import cv2
 import argparse
 import sandbox
 from glob import glob
 
 from sandbox.utils import load_inference_model
+from sandbox.rendering.utils import ControlsApplier
 
 arguments = sys.argv[1:]
 try:
@@ -94,7 +96,17 @@ if __name__ == '__main__':
             else:
                 print("do some work")
                 for job in paramters:
-                    result = rendering_engine.render(model_uid, job, args, render_args, controls_args)
+                    controls_applier = ControlsApplier(job.control_order,
+                                                       job.render_args,
+                                                       controls_args,
+                                                       args.root_folder)
+
+                    result = rendering_engine.render(model_uid, job, args,
+                                                     render_args,
+                                                     controls_applier)
+                    result = controls_applier.apply_post_controls(result)
+                    result = cv2.cvtColor(result, cv2.COLOR_RGBA2RGB)
+
                     prediction = inference_model(result)
                     is_correct = prediction.argmax() in uid_to_logits[model_uid]
                     query('push', job=job, result=(result, prediction, is_correct))
