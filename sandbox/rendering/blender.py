@@ -1,20 +1,43 @@
-import bpy
 import importlib
 from collections import defaultdict
 from os import path, remove
+from glob import glob
 from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
 from types import SimpleNamespace
 import cv2
 import numpy as np
 
+from sandbox.rendering.utils import ControlsApplier
+
+try:
+    import bpy  # blender is not required in the master node
+except:
+    pass
+
 IMAGE_FORMAT = 'png'
 
-def load_env(env):
-    bpy.ops.wm.open_mainfile(filepath=env)
+NAME = "Blender"
 
-def load_model(model):
-    basename, filename = path.split(model)
+def get_model_path(root_folder, model):
+    return path.join(root_folder, 'blender_models', model)
+
+def get_env_path(root_folder, env):
+    return path.join(root_folder, 'blender_environments', env)
+
+def enumerate_models(root_folder):
+    return [path.basename(x) for x in glob(get_model_path(root_folder,
+                                                          '*.blend'))]
+
+def enumerate_environments(root_folder):
+    return [path.basename(x) for x in glob(get_env_path(root_folder,
+                                                        '*.blend'))]
+
+def load_env(root_folder, env):
+    bpy.ops.wm.open_mainfile(filepath=get_env_path(root_folder, env))
+
+def load_model(root_folder, model):
+    basename, filename = path.split(get_model_path(root_folder, model))
     uid = filename.replace('.blend', '')
     blendfile = path.join(basename, uid + '.blend')
     section = "\\Object\\"
@@ -29,15 +52,17 @@ def load_model(model):
         filename=filename,
         directory=directory)
 
-    return uid
+    return bpy.data.objects[uid]
 
+def get_model_uid(loaded_model):
+    return loaded_model.name
 
 def setup_render(args):
     scene = bpy.context.scene
     bpy.context.scene.render.engine = 'CYCLES'
     prefs = bpy.context.preferences
     cprefs = prefs.addons['cycles'].preferences
-    cprefs.get_devices() #important to update the list of devices
+    cprefs.get_devices()  # important to update the list of devices
     bpy.context.scene.cycles.samples = args.samples
     bpy.context.scene.render.tile_x = args.tile_size
     bpy.context.scene.render.tile_y = args.tile_size
@@ -71,44 +96,24 @@ def setup_render(args):
     bpy.context.scene.render.use_persistent_data = True
 
 
-def render(uid, job, cli_args, renderer_settings, controls_args):
+def render(uid, job, cli_args, renderer_settings, applier,
+           loaded_model=None, loaded_env=None):
 
-    control_list = job.control_order
-    render_args = job.render_args
     renderer_settings = SimpleNamespace(**vars(cli_args),
                                         **renderer_settings)
     setup_render(renderer_settings)
-
-    control_classes = []
 
     context = {
         'object': bpy.context.scene.objects[uid]
     }
 
-    for module, classname in control_list:
-        imported = importlib.import_module(f'{module}')
-        control_classes.append(getattr(imported, classname)(root_folder=cli_args.root_folder, **controls_args[classname]))
-
-    groupped_args = defaultdict(dict)
-
-    for (classname, attribute), value in render_args.items():
-        groupped_args[classname][attribute] = value
-
-    results = []
-    for control_class in control_classes:
-        if control_class.kind != 'pre':
-            continue
-        classname = type(control_class).__name__
-        control_params = groupped_args[type(control_class).__name__]
-        control_class.apply(context=context, **control_params)
-
+    applier.apply_pre_controls(context)
 
     img_extension = f".{IMAGE_FORMAT}"
 
     with NamedTemporaryFile(suffix=img_extension) as temp_file:
         temp_filename = temp_file.name
         temp_file.close()
-        print("FNAME", temp_filename)
         bpy.context.scene.render.filepath = temp_filename
         bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
@@ -116,22 +121,6 @@ def render(uid, job, cli_args, renderer_settings, controls_args):
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
         remove(temp_filename) 
 
-    # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
-    for control_class in control_classes:
-        if control_class.kind != 'pre':
-            continue
-        classname = type(control_class).__name__
-        control_params = groupped_args[type(control_class).__name__]
-        control_class.unapply()
+    applier.unapply()
 
-    # post-processing controls
-    for control_class in control_classes:
-        if control_class.kind != 'post':
-            continue
-        classname = type(control_class).__name__
-        control_params = groupped_args[type(control_class).__name__]
-        img = control_class.apply(img=img, **control_params)
-    
-    img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
     return img
-

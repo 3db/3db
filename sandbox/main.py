@@ -3,6 +3,7 @@ import yaml
 from glob import glob
 from os import path
 from collections import defaultdict
+import importlib
 
 import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
@@ -32,6 +33,7 @@ parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
 
 
 DEFAULT_RENDER_ARGS = {
+    'engine': 'sandbox.rendering.blender',
     'resolution': 256,
     'samples': 256,
 }
@@ -39,9 +41,6 @@ DEFAULT_RENDER_ARGS = {
 
 if __name__ == '__main__':
     args = parser.parse_args()
-
-    all_envs = [path.basename(x) for x in glob(path.join(args.root_folder, 'environments', '*.blend'))]
-    all_models = [path.basename(x) for x in glob(path.join(args.root_folder, '3Dmodels', '*.blend'))]
 
     with open(args.config_file) as handle:
         config = yaml.load(handle, Loader=yaml.FullLoader)
@@ -54,7 +53,16 @@ if __name__ == '__main__':
             render_args.update(config['render_args'])
 
         print("ARGS", render_args)
-        controls = [init_control(x, args.root_folder) for x in config['controls']]
+        rendering_engine = importlib.import_module(render_args['engine'])
+
+        all_models = rendering_engine.enumerate_models(args.root_folder)
+        all_envs = rendering_engine.enumerate_environments(args.root_folder)
+
+        if config['controls']:
+            controls = [init_control(x, args.root_folder, rendering_engine.NAME)
+                        for x in config['controls']]
+        else:
+            controls = []
         controls_args = defaultdict(dict)
         for i,control in enumerate(controls):
             tpe = type(control)
@@ -78,9 +86,7 @@ if __name__ == '__main__':
             logger_manager.append(TbLogger(args.logdir))
         if "ImageLogger" in loggers_list:
             logger_manager.append(ImageLogger(path.join(args.logdir, 'images')))
-        
         logger_manager.start()
-    
         for env in all_envs:
             env = env.split('/')[-1]
             for model in all_models:

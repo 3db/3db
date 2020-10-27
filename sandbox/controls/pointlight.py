@@ -43,5 +43,4 @@ class PointLightControl(BaseControl):
 
         return light_object
 
-Control = PointLightControl
-
+ControlBlender = PointLightControl

@@ -30,7 +30,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             socket.send_pyobj({
                 'kind': 'info',
                 'environments': list_envs,
-                'models': list_models
+                'models': list_models,
+                'render_args': render_args,
             })
         elif message['kind'] == 'connect':
             if len(controllers_to_start):
@@ -71,7 +72,6 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                     'environment': selected_policy.env_file,
                     'model': selected_policy.model_name,
                     'params_to_render': result,
-                    'render_args': render_args,
                     'controls_args': controls_args
                 })
 

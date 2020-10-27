@@ -17,5 +17,4 @@ class ObjScaleControl(BaseControl):
         self.ob.scale = (1.,) * 3
 
 
-Control = ObjScaleControl
-
+ControlBlender = ObjScaleControl

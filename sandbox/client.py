@@ -3,15 +3,14 @@ from uuid import uuid4
 import sys
 import time
 from os import path
+import importlib
+import cv2
 import argparse
 import sandbox
 from glob import glob
 
-
-from sandbox.rendering.render import render, load_model, load_env
-
 from sandbox.utils import load_inference_model
-
+from sandbox.rendering.utils import ControlsApplier
 
 arguments = sys.argv[1:]
 try:
@@ -58,24 +57,30 @@ if __name__ == '__main__':
         return socket.recv_pyobj()
 
     while True:
-        all_envs = [path.basename(x) for x in glob(path.join(args.root_folder, 'environments', '*.blend'))]
-        all_models = [path.basename(x) for x in glob(path.join(args.root_folder, '3Dmodels', '*.blend'))]
-
         infos = query('info')
+        render_args = infos['render_args']
+
+        rendering_engine = importlib.import_module(render_args['engine'])
+        all_models = rendering_engine.enumerate_models(args.root_folder)
+        all_envs = rendering_engine.enumerate_environments(args.root_folder)
+
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
 
+        print("INFO gotten")
         assignment = query('connect')
 
         assert assignment['kind'] == 'assignment'
-        env = path.join(args.root_folder, 'environments', assignment['environment'])
-        model = path.join(args.root_folder, '3Dmodels', assignment['model'])
         uid_to_logits = assignment['uid_to_logits']
         inference_args = assignment['inference']
         inference_model = load_inference_model(inference_args)
 
-        load_env(env)
-        model_uid = load_model(model)
+        loaded_env = rendering_engine.load_env(args.root_folder,
+                                             assignment['environment'])
+        loaded_model = rendering_engine.load_model(args.root_folder,
+                                                   assignment['model'])
+
+        model_uid = rendering_engine.get_model_uid(loaded_model)
 
         while True:
             print("starting to pull")
@@ -85,7 +90,6 @@ if __name__ == '__main__':
                 break
             print("pull done")
             paramters = job_description['params_to_render']
-            render_args = job_description['render_args']
             controls_args = job_description['controls_args']
             if len(paramters) == 0:
                 print("Nothing to do!", 'sleeping')
@@ -93,13 +97,21 @@ if __name__ == '__main__':
             else:
                 print("do some work")
                 for job in paramters:
-                    result = render(model_uid, job, args, render_args, controls_args)
+                    controls_applier = ControlsApplier(job.control_order,
+                                                       job.render_args,
+                                                       controls_args,
+                                                       args.root_folder)
+
+                    result = rendering_engine.render(model_uid, job, args,
+                                                     render_args,
+                                                     controls_applier,
+                                                     loaded_model,
+                                                     loaded_env
+                                                     )
+                    result = controls_applier.apply_post_controls(result)
+                    result = cv2.cvtColor(result, cv2.COLOR_RGBA2RGB)
+
                     prediction = inference_model(result)
                     is_correct = prediction.argmax() in uid_to_logits[model_uid]
                     query('push', job=job, result=(result, prediction, is_correct))
             print(job_description)
-
-    print(env, model)
-
-
-

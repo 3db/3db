@@ -31,5 +31,4 @@ class ObjLocInFrameControl(BaseControl):
         ob.location = shift[:3]
 
 
-Control = ObjLocInFrameControl
-
+ControlBlender = ObjLocInFrameControl

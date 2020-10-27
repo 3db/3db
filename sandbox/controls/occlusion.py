@@ -1,5 +1,4 @@
 import numpy as np
-import mathutils
 from os import path
 from glob import glob
 from .base_control import BaseControl
@@ -76,6 +75,7 @@ class OcclusionControl(BaseControl):
     def apply(self, context, direction, zoom, occlusion_ratio, occluder, scale):
 
         from .blender_utils import camera_view_bounds_2d, load_model
+        import mathutils
         from bpy import context as C
 
         ob = context["object"]
@@ -100,4 +100,4 @@ class OcclusionControl(BaseControl):
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
 
-Control = OcclusionControl
+ControlBlender = OcclusionControl
