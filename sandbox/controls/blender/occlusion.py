@@ -1,7 +1,7 @@
 import numpy as np
 from os import path
 from glob import glob
-from .base_control import BaseControl
+from sandbox.controls.base_control import BaseControl
 
 class OcclusionControl(BaseControl):
     kind = "pre"
@@ -99,5 +99,4 @@ class OcclusionControl(BaseControl):
         import bpy
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
-
-ControlBlender = OcclusionControl
+BlenderControl = OcclusionControl

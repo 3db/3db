@@ -1,4 +1,4 @@
-from .base_control import BaseControl
+from sandbox.controls.base_control import BaseControl
 
 class ObjScaleControl(BaseControl):
     kind = 'pre'
@@ -16,5 +16,4 @@ class ObjScaleControl(BaseControl):
     def unapply(self):
         self.ob.scale = (1.,) * 3
 
-
-ControlBlender = ObjScaleControl
+BlenderControl = ObjScaleControl
