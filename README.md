@@ -33,7 +33,7 @@ This shows you how to collect a dataset using blender to analyze the quality of 
         ```
     - Run the following command to download the models:
         ```
-        azcopy cp 'https://objectsim.blob.core.windows.net/sandbox/models?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-09-04T17:58:15Z&st=2020-09-04T09:58:15Z&spr=https,http&sig=CPuCBI%2FtMrSlzytVt7UioVkyKC9%2Fetp5XqTC2rtjino%3D' '/models' --recursive
+        azcopy cp 'https://objectsim.blob.core.windows.net/sandbox/blender_models?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-09-04T17:58:15Z&st=2020-09-04T09:58:15Z&spr=https,http&sig=CPuCBI%2FtMrSlzytVt7UioVkyKC9%2Fetp5XqTC2rtjino%3D' '/models' --recursive
         ```
 ### With docker
 
