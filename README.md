@@ -12,7 +12,7 @@ We assume that the blender environments and models are in `$BLENDER_DATA/blender
 ### Render node
 #### With docker
 
-- `docker build -t ./docker`
+- `docker build -t sandbox ./docker`
 - `bash ./docker/run_renderer.sh $BLENDER_DATA/blender_environments $BLENDER_DATA/blender_models`
 - `/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/ --master-address localhost:5555`
 
