@@ -2,19 +2,19 @@
 
 ## Running
 
-We assume that the blender environments are in `$BLENDER_ENVS` and models are in `$BLENDER_MODELS`
+We assume that the blender environments and models are in `$BLENDER_DATA/blender_models` and `$BLENDER_DATA/blender_environments` 
 
 ### Master node
 
 - `export PYTHONPATH=$(pwd)`
-- `python sandbox/main.py $BLENDER_ENVS $BLENDER_MODELS examples/simple_grid_search.yaml 5555`
+- python sandbox/main.py $BLENDER_DATA examples/very_simple_grid_search.yaml 5555 --logdir logs/ --loggers JSONLogger,TbLogger
 
 ### Render node
 #### With docker
 
 - `docker build -t ./docker`
-- `bash ./docker/run_renderer.sh $BLENDER_ENVS $BLENDER_MODELS`
-- `/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/environments/ /data/models/`
+- `bash ./docker/run_renderer.sh $BLENDER_DATA/blender_environments $BLENDER_DATA/blender_models`
+- `/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/ --master-address localhost:5555`
 
 #### Wihtout docker
 
