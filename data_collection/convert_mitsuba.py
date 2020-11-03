@@ -211,8 +211,8 @@ def inspect_object(object, output_dir):
     context = OutputContext(output_dir, ob_id)
     mat_count = len(object.material_slots)
 
-    dimensions = object.dimensions
-    object.scale /= max(dimensions)
+    max_dim = max([x.co.length for x in object.data.vertices])
+    object.scale /= max_dim * 2
     apply_transformations(object)
 
     if mat_count > 1:
