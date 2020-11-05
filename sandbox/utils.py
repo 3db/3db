@@ -78,7 +78,6 @@ def load_inference_model(args):
     ])
 
     def inference_function(image):
-        print(image.min(), image.max())
         image = my_preprocess(image)
         image = image.unsqueeze(0)
         return model(image).data.numpy()[0]
