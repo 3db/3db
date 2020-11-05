@@ -65,16 +65,19 @@ def load_inference_model(args):
 
     ssl._create_default_https_context = previous_context
 
+    def resize(x):
+        x = x.unsqueeze(0)
+        x = ch.nn.functional.interpolate(x, size=args['resolution'], mode='bilinear')
+        return x[0]
+
     my_preprocess = transforms.Compose([
-        transforms.ToPILImage(),
-        transforms.Resize(args['resolution']),
-        transforms.ToTensor(),
+        # lambda x: ch.nn.functional.interpolate(x, new_shape, mode='linear'),
+        resize,
         transforms.Normalize(mean=args['normalization']['mean'],
                              std=args['normalization']['std'])
     ])
 
     def inference_function(image):
-        image = ch.from_numpy(image)
         image = my_preprocess(image)
         image = image.unsqueeze(0)
         return model(image).data.numpy()[0]

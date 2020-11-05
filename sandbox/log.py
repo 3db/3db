@@ -70,14 +70,13 @@ class TbLogger():
         self.numeric_data = []
         self.images = {}
         self.count = 0
-        self.to_tensor = torchvision.transforms.ToTensor()
 
     def write(self):
         df = pd.DataFrame(self.numeric_data)
         self.writer.add_scalar('Accuracy', df.is_correct.mean(), self.count)
         for uid in df.model.unique():
             id = df[df.model == uid].id.sample(1).item()
-            self.writer.add_image(uid, self.to_tensor(self.images[id]), self.count)
+            self.writer.add_image(uid, self.images[id], self.count)
 
     def log(self, item):
         self.count += 1
