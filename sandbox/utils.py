@@ -71,7 +71,6 @@ def load_inference_model(args):
         return x[0]
 
     my_preprocess = transforms.Compose([
-        # lambda x: ch.nn.functional.interpolate(x, new_shape, mode='linear'),
         resize,
         transforms.Normalize(mean=args['normalization']['mean'],
                              std=args['normalization']['std'])
