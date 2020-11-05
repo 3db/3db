@@ -16,7 +16,7 @@ class BackgroundControl(BaseControl):
     def apply(self, img, H, S, V):
 
         alpha = img[3:, :, :]
-        img = img[:3, :, :] * alpha + (1 - alpha) * (ch.tensor(hsv_to_rgb(H, S, V)) / 255.0)[:, None, None]
+        img = img[:3, :, :] * alpha + (1 - alpha) * (ch.tensor(hsv_to_rgb(H, S, V)))[:, None, None]
         return img
 
 
