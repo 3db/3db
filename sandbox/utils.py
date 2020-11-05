@@ -62,6 +62,7 @@ def load_inference_model(args):
     model_args = args['args']
 
     model = getattr(loaded_module, args['class'])(**model_args)
+    model.eval()
 
     ssl._create_default_https_context = previous_context
 
