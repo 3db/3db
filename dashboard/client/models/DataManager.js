@@ -12,7 +12,8 @@ class DataManager {
       currentUrl: observable,
       data: observable.ref,
       possibleValues: computed,
-      fetchUrl: action
+      fetchUrl: action,
+      setLoaded: action
     });
   }
 
@@ -27,11 +28,15 @@ class DataManager {
     try {
       await new Promise(r => setTimeout(r, 2000));
       const request = await fetch(newUrl);
-      this.data = await request.json();
-      this.loaded = true;
+      this.setLoaded(await request.json());
     } catch(e) {
       console.log(e);
     }
+  }
+
+  setLoaded(data) {
+      this.data = data;
+      this.loaded = true;
   }
 
   get possibleValues() {

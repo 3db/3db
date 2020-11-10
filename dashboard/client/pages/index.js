@@ -91,7 +91,7 @@ export default observer(() => {
         <Menu style={{ display:'inline-block' }}theme="dark" mode="horizontal" defaultSelectedKeys={['details']}>
           <Menu.Item key="home">Summary</Menu.Item>
           <Menu.Item key="details">Detail view</Menu.Item>
-          <Menu.Item key="stratified">Stratified</Menu.Item>
+          <Menu.Item key="stratified">Analytics</Menu.Item>
         </Menu>
         <div style={{position: 'absolute', right: '12px', top:0, color: 'white'}}>
           <ServerSelector setServer={setServer} loading={!dm.loaded} startValue={currentServer}/>
