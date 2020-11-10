@@ -18,8 +18,6 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('logdir', type=str,
                     help='where to find the log information')
 
-
-
 class DataReader():
 
     def __init__(self, fname):
