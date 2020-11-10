@@ -91,12 +91,13 @@ if __name__ == '__main__':
             env = env.split('/')[-1]
             for model in all_models:
                 model = model.split('/')[-1]
+                # model = 'ba705749a39d4f5382b265c7b157e962.blend'
                 policy_controllers.append(
                     PolicyController(env, search_space, model, {
                         'continuous_dim': continuous_dim,
                         'discrete_sizes': discrete_sizes,
                         **config['policy']}, logger_manager))
-
+                # break
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'], controls_args)
 

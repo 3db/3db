@@ -4,7 +4,6 @@ from os import path, remove
 from glob import glob
 from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
-from types import SimpleNamespace
 import cv2
 import numpy as np
 
@@ -52,6 +51,8 @@ def load_model(root_folder, model):
         filename=filename,
         directory=directory)
 
+    bpy.data.objects[uid].location = (0, 0.3, 0.4)
+
     return bpy.data.objects[uid]
 
 def get_model_uid(loaded_model):
@@ -98,10 +99,6 @@ def setup_render(args):
 
 def render(uid, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
-
-    renderer_settings = SimpleNamespace(**vars(cli_args),
-                                        **renderer_settings)
-    setup_render(renderer_settings)
 
     context = {
         'object': bpy.context.scene.objects[uid]

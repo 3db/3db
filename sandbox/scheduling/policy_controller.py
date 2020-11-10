@@ -35,6 +35,7 @@ class PolicyController(threading.Thread):
         self.result_queue.put((descriptor, result))
 
     def run(self):
+        print(self.model_name)
         def render(args):
             # Posting the jobs to the queue
             for i, (continuous_args, discrete_args) in enumerate(args):

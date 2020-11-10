@@ -11,6 +11,7 @@ from glob import glob
 
 from sandbox.utils import load_inference_model
 from sandbox.rendering.utils import ControlsApplier
+from types import SimpleNamespace
 
 arguments = sys.argv[1:]
 try:
@@ -81,6 +82,9 @@ if __name__ == '__main__':
                                                    assignment['model'])
 
         model_uid = rendering_engine.get_model_uid(loaded_model)
+        renderer_settings = SimpleNamespace(**vars(args),
+                                            **render_args)
+        rendering_engine.setup_render(renderer_settings)
 
         while True:
             print("starting to pull")
