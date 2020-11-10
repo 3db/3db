@@ -18,8 +18,6 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('logdir', type=str,
                     help='where to find the log information')
 
-args = parser.parse_args()
-
 
 class DataReader():
 
@@ -117,7 +115,8 @@ def gzipped(f):
     return view_func
 
 if __name__ == '__main__':
-
+    
+    args = parser.parse_args()
     app = Flask(__name__,)
     CORS(app)
 
