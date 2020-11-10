@@ -76,7 +76,9 @@ class TbLogger():
         df = pd.DataFrame(self.numeric_data)
         self.writer.add_scalar('Accuracy', df.is_correct.iloc[-1], self.count)
         for uid in df.model.unique():
-            id = df[df.model == uid].id.sample(1).item()
+            from IPython import embed
+            # embed()
+            id = df[df.model == uid].id.iloc[-1]
             self.writer.add_image(uid, self.to_tensor(self.images[id]), self.count)
 
     def log(self, item):
