@@ -109,7 +109,7 @@ if __name__ == '__main__':
                                                      loaded_env
                                                      )
                     result = controls_applier.apply_post_controls(result)
-                    result = cv2.cvtColor(result, cv2.COLOR_RGBA2RGB)
+                    result = result[:3]
 
                     prediction = inference_model(result)
                     is_correct = prediction.argmax() in uid_to_logits[model_uid]
