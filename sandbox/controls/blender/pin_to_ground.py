@@ -16,9 +16,7 @@ class PinToGroundControl(BaseControl):
         from bpy import context as C
         from mathutils import Vector
         ob = context["object"]
-        bbox_corners = [ob.matrix_world @ Vector(corner) for corner in ob.bound_box]
-        obj_min_z = min((bbc[2] for bbc in bbox_corners))
-        # embed()
+        obj_min_z = min((ob.matrix_world @ x.co)[2] for x in ob.data.vertices)
         ob.location.z += z_ground - obj_min_z
 
 BlenderControl = PinToGroundControl
