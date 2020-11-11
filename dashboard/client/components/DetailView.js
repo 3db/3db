@@ -352,7 +352,7 @@ const HeatMap = observer(({ currentState }) => {
 
                       </>}>
                   <td
-                    style={{backgroundColor: colors[Math.round(accuracy * colors.length)]}}
+                    style={{backgroundColor: colors[Math.round(accuracy * (colors.length - 1))]}}
                     key={`col${x}`}
                     width={`${100/x_bins.length}%`}
                     onMouseLeave={action(() => currentState.selectedHeatMapCell = null)}
