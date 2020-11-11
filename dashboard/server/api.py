@@ -145,11 +145,9 @@ if __name__ == '__main__':
         if is_safe_path(args.logdir, full_path):
             img = cv2.imread(full_path)
             canny = compute_overlay(img)
-            print(canny.shape)
             is_success, buffer = cv2.imencode(".png", canny)
             io_buf = io.BytesIO(buffer)
             if not is_success:
-                print("BAD")
                 return abort(500)
             return send_file(io_buf, mimetype='image/png')
 
