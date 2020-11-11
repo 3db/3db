@@ -1,9 +1,13 @@
+import io
 from flask import Flask
-from flask import Response
+import cv2
+from flask import Response, abort, send_file
 import numpy as np
 from tqdm import tqdm
 import json
 from os import path
+import os
+import sys
 import argparse
 import gzip, functools
 from io import BytesIO as IO
@@ -17,6 +21,18 @@ from flask import send_from_directory
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('logdir', type=str,
                     help='where to find the log information')
+
+def is_safe_path(basedir, path, follow_symlinks=True):
+  if follow_symlinks:
+    return os.path.realpath(path).startswith(basedir)
+  return os.path.abspath(path).startswith(basedir)
+
+def compute_overlay(img):
+    img = cv2.Canny(img, 200, 200)
+    img *= img > 0
+    alpha = (img * 0 + 255) * (img > 0)
+    img = np.stack([img * 0, img* 0, img*1, alpha], 2)
+    return img
 
 class DataReader():
 
@@ -121,6 +137,24 @@ if __name__ == '__main__':
 
     print("STARTING")
     reader = DataReader(path.join(args.logdir, 'details.log'))
+
+
+    @app.route('/canny/<imid>')
+    def send_canny(imid):
+        full_path = path.join(args.logdir, 'images', imid + '.png')
+        if is_safe_path(args.logdir, full_path):
+            img = cv2.imread(full_path)
+            canny = compute_overlay(img)
+            print(canny.shape)
+            is_success, buffer = cv2.imencode(".png", canny)
+            io_buf = io.BytesIO(buffer)
+            if not is_success:
+                print("BAD")
+                return abort(500)
+            return send_file(io_buf, mimetype='image/png')
+
+        else:
+            return abort(400)
 
     @app.route('/images/<imid>')
     def send_js(imid):
