@@ -1,7 +1,7 @@
 import argparse
 import yaml
 from glob import glob
-from os import path
+from os import path, makedirs
 from collections import defaultdict
 import importlib
 
@@ -85,7 +85,10 @@ if __name__ == '__main__':
         if "TbLogger" in loggers_list:
             logger_manager.append(TbLogger(args.logdir))
         if "ImageLogger" in loggers_list:
-            logger_manager.append(ImageLogger(path.join(args.logdir, 'images')))
+            imgdir = path.join(args.logdir, 'images')
+            if not path.exists(imgdir):
+                makedirs(imgdir)
+            logger_manager.append(ImageLogger(imgdir))
         logger_manager.start()
         for env in all_envs:
             env = env.split('/')[-1]
