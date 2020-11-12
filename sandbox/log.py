@@ -93,4 +93,4 @@ class ImageLogger():
 
     def log(self, item):
         img_path = path.join(self.dir, item['id'] + '.png')
-        cv2.imwrite(img_path, cv2.cvtColor(item['image'], cv2.COLOR_RGB2BGR)) 
+        cv2.imwrite(img_path, cv2.cvtColor(item['image'].permute(1,2,0).numpy()*255.0, cv2.COLOR_RGB2BGR)) 
