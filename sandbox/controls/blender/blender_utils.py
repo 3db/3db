@@ -23,6 +23,20 @@ def load_model(model):
     return uid
 
 
+TRANSLATE_PREFIX = 'translation_control_'
+
+
+def post_translate(object, offset):
+    import bpy
+    if (object.parent is None
+            or not object.parent.name.startswith(TRANSLATE_PREFIX)):
+        bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD',
+                                 location=(0, 0, 0), scale=(1, 1, 1))
+        container = bpy.context.object
+        container.name = TRANSLATE_PREFIX + object.name
+        object.parent = container
+    object.parent.location = offset
+
 
 def clamp(x, minimum, maximum):
     return max(minimum, min(x, maximum))
