@@ -1,0 +1,49 @@
+description: Run clients
+target:
+  service: aml
+  subscription_id: f4a777ae-540c-4214-ac89-6806513322a7
+  resource_group: hadisalman
+  workspace_name: objectsim-ws
+  cluster: cpu-4core
+
+environment:
+  image: hadisalman/sandbox:latest
+
+# # azure storage configuration
+storage:
+  my_output:
+    storage_account_name: objectsim
+    container_name: sandbox
+    mount_dir: /mnt/my_output
+    is_output: True
+  my_data:
+    storage_account_name: objectsim
+    container_name: sandbox
+    mount_dir: /mnt/my_data
+code:
+  # upload the code
+  local_dir: $CONFIG_DIR/../
+data:
+  storage_id: my_data
+
+search:
+  job_template:
+    name: search_{experiment_name:s}_{id}
+    sku: G1
+    # submit_args:
+    #   container_args:
+    #     shm_size: 64gb  
+    command:
+      - ls {id}
+      - PYTHONPATH="$$(PYTHONPATH):sandbox" /blender/blender --python-use-system-env -b -P sandbox/client.py 
+          -- /mnt/my_data/ycb_data/ --master-address 52.229.63.209:5555 & 
+        PYTHONPATH="$$(PYTHONPATH):sandbox" /blender/blender --python-use-system-env -b -P sandbox/client.py 
+          -- /mnt/my_data/ycb_data/ --master-address 52.229.63.209:5555 & 
+        PYTHONPATH="$$(PYTHONPATH):sandbox" /blender/blender --python-use-system-env -b -P sandbox/client.py 
+          -- /mnt/my_data/ycb_data/ --master-address 52.229.63.209:5555 
+  type: grid
+  max_trials: 100000
+  params:
+    - name: id
+      spec: discrete
+      values: '[i for i in range(10)]'
