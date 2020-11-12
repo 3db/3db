@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 from copy import deepcopy
 import torch as ch
 from torchvision import transforms
-from PIL import Image
 
 def overwrite_control(control, data):
 
@@ -67,15 +66,18 @@ def load_inference_model(args):
 
     ssl._create_default_https_context = previous_context
 
+    def resize(x):
+        x = x.unsqueeze(0)
+        x = ch.nn.functional.interpolate(x, size=args['resolution'], mode='bilinear')
+        return x[0]
+
     my_preprocess = transforms.Compose([
-        transforms.Resize(args['resolution']),
-        transforms.ToTensor(),
+        resize,
         transforms.Normalize(mean=args['normalization']['mean'],
                              std=args['normalization']['std'])
     ])
 
     def inference_function(image):
-        image = Image.fromarray(image)
         image = my_preprocess(image)
         image = image.unsqueeze(0)
         return model(image).data.numpy()[0]
