@@ -1,6 +1,5 @@
 import numpy as np
 from sandbox.controls.base_control import BaseControl
-from IPython import embed
 
 try:
     from sandbox.controls.blender.blender_utils import (
