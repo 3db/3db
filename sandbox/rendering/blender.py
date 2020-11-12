@@ -51,8 +51,6 @@ def load_model(root_folder, model):
         filename=filename,
         directory=directory)
 
-    bpy.data.objects[uid].location = (0, 0.3, 0.4)
-
     return bpy.data.objects[uid]
 
 def get_model_uid(loaded_model):
