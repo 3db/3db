@@ -1,4 +1,4 @@
-import numpy as np
+import torch as ch
 from colorsys import hsv_to_rgb
 from sandbox.controls.base_control import BaseControl
 
@@ -18,8 +18,9 @@ class BackgroundControl(BaseControl):
 
         bpy.context.scene.render.film_transparent = True
 
-        alpha = img[:, :, 3:].astype(float) / 255
-        img = img[:, :, :3] * alpha + 255 * (1 - alpha) * np.array(hsv_to_rgb(H, S, V))[None, None]
-        return np.uint8(img)
+        alpha = img[3:, :, :]
+        img = img[:3, :, :] * alpha + (1 - alpha) * (ch.tensor(hsv_to_rgb(H, S, V)))[:, None, None]
+        return img
+
 
 BlenderControl = BackgroundControl

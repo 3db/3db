@@ -1,4 +1,5 @@
 import importlib
+import torch as ch
 from collections import defaultdict
 from os import path, remove
 from glob import glob
@@ -144,5 +145,5 @@ def render(uid, job, cli_args, renderer_settings, applier,
         remove(temp_filename) 
 
     applier.unapply()
-
+    img = ch.from_numpy(img).float().permute(2, 0, 1) / 255.0
     return img
