@@ -39,7 +39,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 selected_policy.start()
                 running_policies.add(selected_policy)
             else:
-                selected_policy = random.choice(running_policies)
+                selected_policy = random.choice(list(running_policies))
 
             assert(wid not in workers)
             workers[wid] = selected_policy
