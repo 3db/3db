@@ -17,7 +17,7 @@ JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
 class PolicyController(Process):
 
     def __init__(self, env_file, search_space, model_name, policy_args,
-                 logger_manager, result_buffer, max_batch_size=100):
+                 logger_manager, result_buffer, max_batch_size=10):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()
