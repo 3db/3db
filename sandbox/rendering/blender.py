@@ -43,6 +43,7 @@ def load_env(root_folder, env):
     if env.endswith('.blend'): # full blender file
         bpy.ops.wm.open_mainfile(filepath=full_env_path)
     else:  # HDRI env
+        bpy.ops.wm.read_homefile()
         bpy.data.objects.remove(bpy.data.objects["Cube"], do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects["Light"], do_unlink=True)
         bpy.data.objects['Camera'].data.clip_start = 0.001
@@ -120,7 +121,6 @@ def setup_render(args):
     bpy.context.scene.render.resolution_x = args.resolution
     bpy.context.scene.render.resolution_y = args.resolution
     bpy.context.scene.render.use_persistent_data = True
-
 
 def render(uid, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):

@@ -1,4 +1,7 @@
 import zmq
+from tqdm import tqdm
+import numpy as np
+import torch as ch
 from uuid import uuid4
 import sys
 import time
@@ -19,6 +22,20 @@ try:
     arguments = arguments[index + 1:]
 except ValueError:
     pass
+
+COUNTER = 0
+
+def send_array(socket, A, flags=0, copy=True, track=False):
+    """send a numpy array with metadata"""
+    if ch.is_tensor(A):
+        A = A.data.cpu().numpy()
+    A = np.ascontiguousarray(A)
+    md = dict(
+        dtype=str(A.dtype),
+        shape=A.shape,
+    )
+    socket.send_json(md, flags | zmq.SNDMORE)
+    return socket.send(A, flags, copy=copy, track=track)
 
 
 if __name__ == '__main__':
@@ -49,13 +66,29 @@ if __name__ == '__main__':
 
     worker_id = str(uuid4())
 
-    def query(kind, **args):
-        socket.send_pyobj({
+    def query(kind, result=None, **args):
+        to_send = {
             'kind': kind,
             'worker_id': worker_id,
             **args
-        })
-        return socket.recv_pyobj()
+        }
+
+        if result is not None:
+            to_send['result'] = True
+
+        socket.send_json(to_send, flags=zmq.SNDMORE if result is not None else 0)
+
+        if result is not None:
+            image, logits, is_correct = result
+            send_array(socket, image, flags=zmq.SNDMORE)
+            send_array(socket, logits, flags=zmq.SNDMORE)
+            socket.send_pyobj(is_correct)
+
+        result = socket.recv_pyobj()
+        if result['kind'] == 'die':
+            print("==>[Received closed request from master]")
+            exit()
+        return result
 
     while True:
         infos = query('info')
@@ -86,6 +119,8 @@ if __name__ == '__main__':
                                             **render_args)
         rendering_engine.setup_render(renderer_settings)
 
+        pbar = tqdm(smoothing=0)
+
         while True:
             print("starting to pull")
             job_description = query('pull', batch_size=120)
@@ -97,7 +132,7 @@ if __name__ == '__main__':
             controls_args = job_description['controls_args']
             if len(paramters) == 0:
                 print("Nothing to do!", 'sleeping')
-                time.sleep(1)
+                time.sleep(0.1)
             else:
                 print("do some work")
                 for job in paramters:
@@ -117,5 +152,7 @@ if __name__ == '__main__':
 
                     prediction = inference_model(result)
                     is_correct = prediction.argmax() in uid_to_logits[model_uid]
-                    query('push', job=job, result=(result, prediction, is_correct))
-            print(job_description)
+                    data = (result, prediction, is_correct)
+                    query('push', job=job.id, result=data)
+                    pbar.update(1)
+            # print(job_description)

@@ -1,4 +1,5 @@
 import importlib
+import numpy as np
 import cv2
 import requests
 import io
@@ -6,6 +7,63 @@ from urllib.parse import urljoin
 from copy import deepcopy
 import torch as ch
 from torchvision import transforms
+import numpy as np
+from multiprocessing import Queue
+from queue import Empty
+
+
+# Concurrent cyclic buffer with reference counting to store the result
+# and avoid copying them to every sub process
+class BigChungusCyclicBuffer:
+
+    def __init__(self, resolution=(256, 256), num_logits=1000, size=5000):
+        self.image_buffer = ch.zeros((size, 3, *resolution), dtype=ch.float32).share_memory_()
+        self.logits_buffer = ch.zeros((size, num_logits), dtype=ch.float32).share_memory_()
+        self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
+        self.used_buffer = np.zeros(size, dtype='uint8')
+        self.first = 0
+        self.last = 0
+        self.size = size
+        self.registration_count = 0
+        self.events = Queue()
+
+    def __getitem__(self, ix):
+        return self.image_buffer[ix], self.logits_buffer[ix], self.correct_buffer[ix].item()
+
+    def free(self, ix):
+        self.events.put(ix)
+
+    def register(self):
+        self.registration_count += 1
+
+    def process_events(self):
+        while True:
+            try:
+                event = self.events.get(block=False)
+                assert self.used_buffer[event] > 0
+                self.used_buffer[event] -= 1
+                while self.used_buffer[self.first] == 0 and self.first != self.last:
+                    self.first = (self.first + 1) % self.size
+            except Empty:
+                break
+
+    def next_find_index(self):
+        while True:
+            self.process_events()
+            if self.used_buffer[self.last] == 0:
+                ix = self.last
+                self.used_buffer[ix] = self.registration_count
+                self.last = (self.last + 1) % self.size
+                return ix
+
+
+    def allocate(self, image, logits, is_correct):
+        ix = self.next_find_index()
+        self.image_buffer[ix] = image
+        self.logits_buffer[ix] = logits
+        self.correct_buffer[ix] = is_correct
+        return ix
+
 
 def overwrite_control(control, data):
 
