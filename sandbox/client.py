@@ -132,7 +132,7 @@ if __name__ == '__main__':
             controls_args = job_description['controls_args']
             if len(paramters) == 0:
                 print("Nothing to do!", 'sleeping')
-                time.sleep(0.1)
+                time.sleep(1)
             else:
                 print("do some work")
                 for job in paramters:
