@@ -141,8 +141,11 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
     print("==>[Shutting down workers]")
     for _ in tqdm(range(len(workers)), desc='Shutting down', unit=' workers'):
         message = my_recv(socket, result_buffer)
-        wid = message['worker_id']
-        del workers[wid]
         socket.send_pyobj({
             'kind': 'die'
         })
+        try:
+            wid = message['worker_id']
+            del workers[wid]
+        except:  # This worker didn't do work yet, we still shut it down
+            pass
