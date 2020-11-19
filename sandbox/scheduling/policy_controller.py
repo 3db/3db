@@ -60,26 +60,22 @@ class PolicyController(Process):
             is_correct = [None] * len(args)
 
             # Waiting and reordering the results
-            to_free = []
             for _ in range(len(args)):
                 job_id, result_ix = self.result_queue.get(block=True)
                 c_image, c_logits, c_is_correct = self.result_buffer[result_ix]
-                to_free.append(result_ix)
                 descriptor = all_descriptors[job_id]
                 self.logger_manager.log({
                     **descriptor._asdict(),
                     'result_ix': result_ix
                 })
-                images[descriptor.order] = c_image
-                logits[descriptor.order] = c_logits
+                images[descriptor.order] = c_image.clone()
+                logits[descriptor.order] = c_logits.clone()
                 is_correct[descriptor.order] = c_is_correct
+                self.result_buffer.free(result_ix)
 
             images = np.stack(images)
             logits = np.stack(logits)
             is_correct = np.stack(is_correct)
-
-            for ix in to_free:
-                self.result_buffer.free(ix)
 
             return images, logits, is_correct
 

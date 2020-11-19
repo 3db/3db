@@ -34,8 +34,8 @@ controls:
   #   z_ground: 0.23
   - module: "camera"
     # view_point_x: .1
-    view_point_y: -1
-    view_point_z: .2
+    # view_point_y: -1
+    # view_point_z: .2
     zoom_factor: 1
     aperture: 8
     focal_length: 50
