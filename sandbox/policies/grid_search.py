@@ -1,6 +1,11 @@
 import numpy as np
 from itertools import product
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
 
 class GridSearchPolicy:
 
@@ -27,10 +32,11 @@ class GridSearchPolicy:
             for discrete_instance in product(*discrete_spaces):
                 result.append((continuous_instance, discrete_instance))
 
-        images, logits, is_correct = render(result)
-        print(images.shape)
-        print(logits.shape)
-        print(f'Correct Prediction? {is_correct}')
+        for r in chunks(result, 1000):
+            images, logits, is_correct = render(r)
+            # print(images.shape)
+            # print(logits.shape)
+            # print(f'Correct Prediction? {is_correct}')
 
 
 

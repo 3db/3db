@@ -23,6 +23,27 @@ def load_model(model):
     return uid
 
 
+TRANSLATE_PREFIX = 'translation_control_'
+
+
+def cleanup_translate_containers(object):
+    object.parent = None
+    for other in bpy.data.objects:
+        if other.type == 'EMPTY' and len(other.type) == 0:
+            bpy.data.objects.remove(other, do_unlink=True)
+
+
+def post_translate(object, offset):
+    import bpy
+    if (object.parent is None
+            or not object.parent.name.startswith(TRANSLATE_PREFIX)):
+        bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD',
+                                 location=(0, 0, 0), scale=(1, 1, 1))
+        container = bpy.context.object
+        container.name = TRANSLATE_PREFIX + object.name
+        object.parent = container
+    object.parent.location += offset
+
 
 def clamp(x, minimum, maximum):
     return max(minimum, min(x, maximum))

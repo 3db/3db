@@ -14,6 +14,9 @@ class BackgroundControl(BaseControl):
     discrete_dims = {}
 
     def apply(self, img, H, S, V):
+        import bpy
+
+        bpy.context.scene.render.film_transparent = True
 
         alpha = img[3:, :, :]
         img = img[:3, :, :] * alpha + (1 - alpha) * (ch.tensor(hsv_to_rgb(H, S, V)))[:, None, None]

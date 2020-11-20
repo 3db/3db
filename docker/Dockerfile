@@ -21,3 +21,6 @@ RUN mkdir /data; \
     ./2.90/python/bin/python3.7m -m ensurepip; \
     ./2.90/python/bin/python3.7m -m pip install --upgrade pip; \
     ./2.90/python/bin/python3.7m -m pip install numpy pandas opencv-python git+https://github.com/GuillaumeLeclerc/bpycv pyzmq torch torchvision
+
+# Needed for running master in docker
+RUN pip install pandas tensorboard zmq opencv-python

@@ -5,7 +5,6 @@ from os import path, remove
 from glob import glob
 from multiprocessing import cpu_count
 from tempfile import NamedTemporaryFile
-from types import SimpleNamespace
 import cv2
 import numpy as np
 
@@ -17,6 +16,8 @@ except:
     pass
 
 IMAGE_FORMAT = 'png'
+
+ENV_EXTENSIONS = ['blend', 'exr', 'hdr']
 
 NAME = "Blender"
 
@@ -31,11 +32,37 @@ def enumerate_models(root_folder):
                                                           '*.blend'))]
 
 def enumerate_environments(root_folder):
-    return [path.basename(x) for x in glob(get_env_path(root_folder,
-                                                        '*.blend'))]
+    all_files = [path.basename(x) for x in
+                 glob(get_env_path(root_folder, '*.*'))]
+    all_files = [x for x in all_files if x.split('.')[-1] in ENV_EXTENSIONS]
+    return all_files
 
 def load_env(root_folder, env):
-    bpy.ops.wm.open_mainfile(filepath=get_env_path(root_folder, env))
+    full_env_path = get_env_path(root_folder, env)
+
+    if env.endswith('.blend'): # full blender file
+        bpy.ops.wm.open_mainfile(filepath=full_env_path)
+    else:  # HDRI env
+        bpy.ops.wm.read_homefile()
+        bpy.data.objects.remove(bpy.data.objects["Cube"], do_unlink=True)
+        bpy.data.objects.remove(bpy.data.objects["Light"], do_unlink=True)
+        bpy.data.objects['Camera'].data.clip_start = 0.001
+        bpy.context.scene.render.film_transparent = False
+        world = bpy.context.scene.world
+        node_tree = world.node_tree
+        output_node = world.node_tree.get_output_node('CYCLES')
+
+        [node_tree.links.remove(x) for x in output_node.inputs[0].links]
+
+        background_node = node_tree.nodes.new(type="ShaderNodeBackground")
+        node_tree.links.new(background_node.outputs[0], output_node.inputs[0])
+
+        img = bpy.data.images.load(full_env_path)
+        env_texture_node = node_tree.nodes.new(type="ShaderNodeTexEnvironment")
+        env_texture_node.image = img
+
+        node_tree.links.new(env_texture_node.outputs[0], background_node.inputs[0])
+
 
 def load_model(root_folder, model):
     basename, filename = path.split(get_model_path(root_folder, model))
@@ -67,7 +94,6 @@ def setup_render(args):
     bpy.context.scene.cycles.samples = args.samples
     bpy.context.scene.render.tile_x = args.tile_size
     bpy.context.scene.render.tile_y = args.tile_size
-    bpy.context.scene.render.film_transparent = True
 
     for device in cprefs.devices:
         device.use = False
@@ -96,13 +122,8 @@ def setup_render(args):
     bpy.context.scene.render.resolution_y = args.resolution
     bpy.context.scene.render.use_persistent_data = True
 
-
 def render(uid, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
-
-    renderer_settings = SimpleNamespace(**vars(cli_args),
-                                        **renderer_settings)
-    setup_render(renderer_settings)
 
     context = {
         'object': bpy.context.scene.objects[uid]
@@ -116,6 +137,7 @@ def render(uid, job, cli_args, renderer_settings, applier,
         temp_filename = temp_file.name
         temp_file.close()
         bpy.context.scene.render.filepath = temp_filename
+
         bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
         img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)

@@ -13,10 +13,15 @@ class PoseControl(BaseControl):
     discrete_dims = {}
 
     def apply(self, context, rotation_X, rotation_Y, rotation_Z):
+        import bpy
         import mathutils
 
-        eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
+        # eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
         ob = context['object']
-        ob.rotation_quaternion = eul.to_quaternion()
+        ob.rotation_euler = (rotation_X, rotation_Y, rotation_Z)
+        # ob.rotation_quaternion = eul.to_quaternion()
+
+        # bpy.ops.object.select_all(action='SELECT')
+        # bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
 BlenderControl = PoseControl

@@ -1,7 +1,9 @@
-import threading
-from queue import Queue, Empty
+from multiprocessing import Process, Queue
+from queue import Empty
 from collections import namedtuple
+import multiprocessing
 from uuid import uuid4
+import cv2
 import numpy as np
 
 from sandbox.utils import init_policy
@@ -12,10 +14,10 @@ JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
                                              'control_order'])
 
 
-class PolicyController(threading.Thread):
+class PolicyController(Process):
 
     def __init__(self, env_file, search_space, model_name, policy_args,
-                 logger_manager, max_batch_size=100):
+                 logger_manager, result_buffer, max_batch_size=10):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()
@@ -24,6 +26,7 @@ class PolicyController(threading.Thread):
         self.policy_args = policy_args
         self.search_space = search_space
         self.logger_manager = logger_manager
+        self.result_buffer = result_buffer
 
     def pull_work(self, worker_id):
         try:
@@ -37,15 +40,19 @@ class PolicyController(threading.Thread):
     def run(self):
         def render(args):
             # Posting the jobs to the queue
+
+            all_descriptors = {}
             for i, (continuous_args, discrete_args) in enumerate(args):
 
                 argument_dict, ctrl_list = self.search_space.unpack(continuous_args,
                                                                     discrete_args)
-                descriptor = JobDescriptor(order=i, id=str(uuid4()),
+                current_id = str(uuid4())
+                descriptor = JobDescriptor(order=i, id=current_id,
                                            render_args=argument_dict,
                                            control_order=ctrl_list,
                                            environment=self.env_file,
                                            model=self.model_name)
+                all_descriptors[current_id] = descriptor
                 self.work_queue.put(descriptor, block=True)
 
             images = [None] * len(args)
@@ -54,20 +61,22 @@ class PolicyController(threading.Thread):
 
             # Waiting and reordering the results
             for _ in range(len(args)):
-                descriptor, job_result = self.result_queue.get(block=True)
+                job_id, result_ix = self.result_queue.get(block=True)
+                c_image, c_logits, c_is_correct = self.result_buffer[result_ix]
+                descriptor = all_descriptors[job_id]
                 self.logger_manager.log({
                     **descriptor._asdict(),
-                    'image': job_result[0],
-                    'prediction': job_result[1],
-                    'is_correct': job_result[2]
+                    'result_ix': result_ix
                 })
-                images[descriptor.order] = job_result[0]
-                logits[descriptor.order] = job_result[1]
-                is_correct[descriptor.order] = job_result[2]
+                images[descriptor.order] = c_image.clone()
+                logits[descriptor.order] = c_logits.clone()
+                is_correct[descriptor.order] = c_is_correct
+                self.result_buffer.free(result_ix)
 
             images = np.stack(images)
             logits = np.stack(logits)
             is_correct = np.stack(is_correct)
+
             return images, logits, is_correct
 
         policy = init_policy(self.policy_args)

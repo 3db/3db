@@ -1,7 +1,8 @@
 import argparse
+import json
 import yaml
 from glob import glob
-from os import path
+from os import path, makedirs
 from collections import defaultdict
 import importlib
 
@@ -9,7 +10,7 @@ import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.SearchSpace import SearchSpace
-from sandbox.utils import init_control
+from sandbox.utils import init_control, BigChungusCyclicBuffer
 from sandbox.log import JSONLogger, TbLogger, ImageLogger, LoggerManager
 
 
@@ -78,25 +79,51 @@ if __name__ == '__main__':
 
         policy_controllers = []
 
+        with open(config['inference']['uid_to_logits'], 'r') as f:
+            uid_to_logits = json.load(f)
+
+        # We need to know the resolution and number of classes to allocate
+        # the memory beforehand and share it with other processes
+        big_chungus = BigChungusCyclicBuffer(
+            resolution=[render_args['resolution']] * 2,
+            num_logits=config['inference']['num_classes']
+        )
+
+        big_chungus = BigChungusCyclicBuffer()
+        big_chungus.register()  # Register a single policy for each output
+
         logger_manager = LoggerManager()
         loggers_list = [logger for logger in args.loggers.split(',')]
         if "JSONLogger" in loggers_list:
-            logger_manager.append(JSONLogger(path.join(args.logdir, 'details.log')))
+            logger_manager.append(JSONLogger(path.join(args.logdir, 'details.log'), big_chungus))
         if "TbLogger" in loggers_list:
-            logger_manager.append(TbLogger(args.logdir))
+            logger_manager.append(TbLogger(args.logdir, big_chungus))
         if "ImageLogger" in loggers_list:
-            logger_manager.append(ImageLogger(path.join(args.logdir, 'images')))
+            imgdir = path.join(args.logdir, 'images')
+            if not path.exists(imgdir):
+                makedirs(imgdir)
+            logger_manager.append(ImageLogger(imgdir, big_chungus))
         logger_manager.start()
         for env in all_envs:
             env = env.split('/')[-1]
             for model in all_models:
                 model = model.split('/')[-1]
+                # model = 'ba705749a39d4f5382b265c7b157e962.blend'
                 policy_controllers.append(
                     PolicyController(env, search_space, model, {
                         'continuous_dim': continuous_dim,
                         'discrete_sizes': discrete_sizes,
-                        **config['policy']}, logger_manager))
-
+                        **config['policy']}, logger_manager, big_chungus))
+                # break
+        import multiprocessing
         schedule_work(policy_controllers, args.port, all_envs, all_models,
-                      render_args, config['inference'], controls_args)
+                      render_args, config['inference'], controls_args,
+                      big_chungus)
+
+        # Warning the logger that we are done
+        logger_manager.log(None)
+        print("==>[Waiting for any pending logging]")
+        # We have to wait until it has processed everything left in the queue
+        logger_manager.join()
+        print("==>[Have a nice day!]")
 

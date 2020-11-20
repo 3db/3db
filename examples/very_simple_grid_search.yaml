@@ -1,53 +1,61 @@
 inference:
   module: 'torchvision.models'
   class: 'resnet18'
+  num_classes: 1000
   normalization:
     mean: [0.485, 0.456, 0.406]
     std: [0.229, 0.224, 0.225]
   resolution: [224, 224]
-  uid_to_logits: './data_collection/uid_to_IN.json'
+  uid_to_logits: './data_collection/ycb_to_IN.json'
   args:
     pretrained: True
 render_args:
   engine: 'sandbox.rendering.blender'
   resolution: 256
-  samples: 64
+  samples: 16
 policy:
   module: "sandbox.policies.grid_search"
-  samples_per_dim: 5
+  samples_per_dim: 3
 controls:
-  - module: "background"
-    H: 0.
-    S: 0.
-    V: 1.
+  # - module: "background"
+  #   H: 0.
+  #   S: .4
+  #   V: .4
   - module: "pose"
-    rotation_X: 0
-    rotation_Y: 0
-    rotation_Z: 0
+    # rotation_X: 0
+    # rotation_Y: 0
+    # rotation_Z: 0
+  - module: "denoiser"
+  # - module: "position"
+  #   offset_X: 0
+  #   offset_Y: 0.3
+  #   offset_Z: 0.4
+  # - module: "pin_to_ground"
+  #   z_ground: 0.23
   - module: "camera"
-    view_point_x: 1
-    view_point_y: 1
-    view_point_z: 1
-    zoom_factor: .6
+    # view_point_x: .1
+    # view_point_y: -1
+    # view_point_z: .2
+    zoom_factor: 1
     aperture: 8
     focal_length: 50
   # - module: "scale"
-    # factor: (0.25, 1)
+  #   factor: (1, 1.5)
   - module: "obj_loc_in_frame"
-    x_shift: 0   
-    y_shift: 0  
+    x_shift: (-.3,.3)
+    y_shift: (-.3,.3)
   # - module: "occlusion"
   #   occlusion_ratio: 0.5
   #   direction: 8
   #   occluder: 2
   #   zoom: 0.2
   #   scale: (0.25, .5)
-  - module: "pointlight"
-    intensity: 10000
-    distance: 5
-    dir_x: 1
-    dir_y: 1
-    dir_z: 1
-    # H: 0
-    # S: 0
-    V: 1
+  # - module: "pointlight"
+  #   intensity: 10000
+  #   distance: 5
+  #   dir_x: 1
+  #   dir_y: 1
+  #   dir_z: 1
+  #   # H: 0
+  #   S: .7
+  #   V: .7

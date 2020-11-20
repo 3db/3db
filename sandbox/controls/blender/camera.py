@@ -34,7 +34,6 @@ class CameraControl(BaseControl):
         ob.select_set(True)
         for area in bpy.context.screen.areas:
             if area.type == 'VIEW_3D':
-                print("FOUND")
                 ctx = bpy.context.copy()
                 space = area.spaces[0]
                 r = space.region_3d
