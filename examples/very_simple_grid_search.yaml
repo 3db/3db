@@ -26,24 +26,24 @@ controls:
     # rotation_Y: 0
     # rotation_Z: 0
   - module: "denoiser"
-  # - module: "position"
-  #   offset_X: 0
-  #   offset_Y: 0.3
-  #   offset_Z: 0.4
-  # - module: "pin_to_ground"
-  #   z_ground: 0.23
+  - module: "position"
+    offset_X: 0
+    offset_Y: 0.3
+    offset_Z: 0.4
+  - module: "pin_to_ground"
+    z_ground: 0.23
   - module: "camera"
-    # view_point_x: .1
-    # view_point_y: -1
-    # view_point_z: .2
+    view_point_x: .1
+    view_point_y: -1
+    view_point_z: .2
     zoom_factor: 1
     aperture: 8
     focal_length: 50
   # - module: "scale"
   #   factor: (1, 1.5)
-  - module: "obj_loc_in_frame"
-    x_shift: (-.3,.3)
-    y_shift: (-.3,.3)
+  # - module: "obj_loc_in_frame"
+  #   x_shift: (-.3,.3)
+  #   y_shift: (-.3,.3)
   # - module: "occlusion"
   #   occlusion_ratio: 0.5
   #   direction: 8

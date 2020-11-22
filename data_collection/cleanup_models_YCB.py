@@ -17,6 +17,9 @@ IN2CM = 2.54
 FOLDER = '/mnt/ssd/ycb-tools/models/ycb'
 OUTPUT = '/mnt/ssd/ycb-tools/models/ycb_preprocessed'
 
+FOLDER = '/data/'
+OUTPUT = '/output/'
+
 
 parser = argparse.ArgumentParser(description='Pre preocess gltf models')
 parser.add_argument('--folder', default=FOLDER, help='Where the source models are')
@@ -148,7 +151,9 @@ def process_uid(uid, reference_dimensions):
         model_size = get_size(model_folder) / 2**20
 
         # load_file(path.join(model_folder, 'scene.gltf'))
-        model_path = path.join(model_folder, 'google_16k', 'textured.obj')
+        # model_path = path.join(model_folder, 'google_16k', 'textured.obj')
+        model_path = path.join(model_folder, 'google_64k', 'textured.obj')
+        # model_path = path.join(model_folder, 'google_512k', 'textured.obj')
         if os.path.exists(model_path):
             load_file(model_path)
         else:
@@ -163,8 +168,8 @@ def process_uid(uid, reference_dimensions):
 
         # center_object()
 
-        rescale(reference_dimensions)
-        center_object()
+        # rescale(reference_dimensions)
+        # center_object()
         apply_transformations()
         rename(uid)
         bpy.ops.wm.save_as_mainfile(filepath=output)
