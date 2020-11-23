@@ -46,7 +46,6 @@ def load_env(root_folder, env):
         bpy.ops.wm.read_homefile()
         bpy.data.objects.remove(bpy.data.objects["Cube"], do_unlink=True)
         bpy.data.objects.remove(bpy.data.objects["Light"], do_unlink=True)
-        bpy.data.objects['Camera'].data.clip_start = 0.001
         bpy.context.scene.render.film_transparent = False
         world = bpy.context.scene.world
         node_tree = world.node_tree
