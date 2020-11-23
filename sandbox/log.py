@@ -102,7 +102,7 @@ class TbLogger():
         current_acc = df.is_correct.mean()
         self.writer.add_scalar('Accuracy', current_acc, self.count)
         for uid in df.model.unique():
-            id = df[df.model == uid].id.sample(1).item()
+            id = df[df.model == uid].id.iloc[-1]
             self.writer.add_image(uid, self.images[id], self.count)
         self.images = {}
         self.numeric_data = []

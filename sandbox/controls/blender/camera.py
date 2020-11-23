@@ -30,6 +30,11 @@ class CameraControl(BaseControl):
 
         ob = context['object']
 
+        # avoid division by zero bug
+        view_point_x += 1e-6
+        view_point_y += 1e-6
+        view_point_z += 1e-6
+
         bpy.ops.object.select_all(action='DESELECT')
         ob.select_set(True)
         for area in bpy.context.screen.areas:
