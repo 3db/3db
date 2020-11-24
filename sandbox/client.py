@@ -55,6 +55,8 @@ if __name__ == '__main__':
                         default=None, type=int,)
     parser.add_argument('--tile-size', help='The size of tiles used for GPU rendering',
                         default=256, type=int)
+    parser.add_argument('--batch-size', help='How many task to ask for in a batch',
+                        default=1, type=int)
 
     args = parser.parse_args(arguments)
     print(args)
@@ -98,44 +100,50 @@ if __name__ == '__main__':
         all_models = rendering_engine.enumerate_models(args.root_folder)
         all_envs = rendering_engine.enumerate_environments(args.root_folder)
 
+        # Gather all experiment-wide parameters
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
-
-        print("INFO gotten")
-        assignment = query('connect')
-
-        assert assignment['kind'] == 'assignment'
-        uid_to_logits = assignment['uid_to_logits']
-        inference_args = assignment['inference']
+        uid_to_logits = infos['uid_to_logits']
+        inference_args = infos['inference']
+        controls_args = infos['controls_args']
         inference_model = load_inference_model(inference_args)
 
-        loaded_env = rendering_engine.load_env(args.root_folder,
-                                             assignment['environment'])
-        loaded_model = rendering_engine.load_model(args.root_folder,
-                                                   assignment['model'])
-
-        model_uid = rendering_engine.get_model_uid(loaded_model)
-        renderer_settings = SimpleNamespace(**vars(args),
-                                            **render_args)
-        rendering_engine.setup_render(renderer_settings)
+        last_env = None
+        last_model = None
 
         pbar = tqdm(smoothing=0)
 
         while True:
-            print("starting to pull")
-            job_description = query('pull', batch_size=120)
-            if job_description['kind'] == 'done':  # Configuration is done, reconnect
-                print("This configuration is done")
-                break
-            print("pull done")
+            job_description = query('pull', batch_size=args.batch_size,
+                                    last_environment=last_env,
+                                    last_model=last_model)
             paramters = job_description['params_to_render']
-            controls_args = job_description['controls_args']
+
             if len(paramters) == 0:
                 print("Nothing to do!", 'sleeping')
                 time.sleep(1)
             else:
                 print("do some work")
                 for job in paramters:
+
+                    current_env = job.environment
+                    current_model = job.model
+
+                    # We reload model and env if we got assigned to something
+                    # different this time
+                    if current_env != last_env or current_model != last_model:
+                        print("==>[Loading new environment/model pair]")
+                        loaded_env = rendering_engine.load_env(args.root_folder,
+                                                               current_env)
+                        loaded_model = rendering_engine.load_model(args.root_folder,
+                                                                   current_model)
+                        model_uid = rendering_engine.get_model_uid(loaded_model)
+                        renderer_settings = SimpleNamespace(**vars(args),
+                                                            **render_args)
+                        rendering_engine.setup_render(renderer_settings)
+                        last_env = current_env
+                        last_model = current_model
+
                     controls_applier = ControlsApplier(job.control_order,
                                                        job.render_args,
                                                        controls_args,
