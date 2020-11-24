@@ -71,7 +71,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
         for policy in running_policies:
             pulled = policy.pull_work()
             if pulled is None:
-                break
+                continue
             wait_before_start_new = False
             work_queue[pulled.id] = (policy, pulled, 0, time.time())
 
