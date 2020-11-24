@@ -1,4 +1,5 @@
 import zmq
+import itertools
 import os
 import time
 import numpy as np
@@ -68,13 +69,13 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             break  # We finished all the policies
 
         # Pulling all the work to be done
-        pulled = 0
+        pulled_count = 0
         for policy in running_policies:
             pulled = policy.pull_work()
             if pulled is None:
                 continue
-            pulled += 1
-            if pulled > 10:
+            pulled_count += 1
+            if pulled_count > 10:  # Do not pull too much work at once, it stalls the main thread
                 break
             wait_before_start_new = False
             work_queue[pulled.id] = (policy, pulled, 0, time.time())
@@ -109,21 +110,20 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             to_work_on = []
             to_send = []
 
-            # Read all the work that has to be done
-            for wid, (policy, job, num_scheduled, time_scheduled) in work_queue.items():
-                to_work_on.append((num_scheduled,
-                                  (job.environment != last_env) + (job.model != last_model),
-                                  time_scheduled, job.id))
+            def custom_order(arg):
+                policy, job, num_scheduled, time_scheduled = arg
+                return (num_scheduled,
+                        (job.environment != last_env) + (job.model != last_model),
+                        time_scheduled, job.id)
 
-            # Sort and select the work based on the priority
-            to_work_on.sort()
-            to_work_on = to_work_on[:bs]
 
-            for _, __, ___, jobid in to_work_on:
-                policy, job, num_scheduled, time_scheduled = work_queue[jobid]
+            to_work_on = sorted(work_queue.values(), key=custom_order)[: bs]
+
+            for _, job,  __, ___ in to_work_on:
+                policy, job, num_scheduled, time_scheduled = work_queue[job.id]
                 to_send.append(job)
                 # Remember that we sent this job to one extra worker
-                work_queue[jobid] = (policy, job, num_scheduled + 1, time_scheduled)
+                work_queue[job.id] = (policy, job, num_scheduled + 1, time_scheduled)
 
             # Send the job information to the worker node
             socket.send_pyobj({
