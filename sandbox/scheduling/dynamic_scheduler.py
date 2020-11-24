@@ -46,6 +46,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
         uid_to_logits = json.load(f)
 
 
+    buffer_usage_bar = tqdm(smoothing=0, unit='slots', total=result_buffer.size)
+    buffer_usage_bar.set_description('Buffer left')
     rendering_bar = tqdm(smoothing=0.1, unit=' images')
     rendering_bar.set_description('Rendering')
     policies_bar = tqdm(total=len(policy_controllers), unit=' policies')
@@ -56,6 +58,10 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             break  # We finished all the policies
 
         message = my_recv(socket, result_buffer)
+
+        buffer_usage_bar.reset()
+        buffer_usage_bar.update(len(result_buffer.free_idx))
+        buffer_usage_bar.refresh()
 
         wid = message['worker_id']
 
@@ -136,6 +142,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
 
     rendering_bar.close()
     policies_bar.close()
+    buffer_usage_bar.close()
 
     print("==>[Received all the results]")
     print("==>[Shutting down workers]")
