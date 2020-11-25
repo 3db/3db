@@ -15,16 +15,16 @@ render_args:
   samples: 16
 policy:
   module: "sandbox.policies.grid_search"
-  samples_per_dim: 6
+  samples_per_dim: 5
 controls:
   # - module: "background"
   #   H: 0.
   #   S: .4
   #   V: .4
   - module: "pose"
-    # rotation_X: 0
-    # rotation_Y: 0
-    # rotation_Z: 0
+    rotation_X: (-3.14, 2.10) # (-pi, pi - 2*pi/6)
+    rotation_Y: (-3.14, 2.10) # (-pi, pi - 2*pi/6)
+    rotation_Z: (-3.14, 2.10) # (-pi, pi - 2*pi/6)
   - module: "denoiser"
   - module: "position"
     offset_X: 0
@@ -36,7 +36,7 @@ controls:
     view_point_x: (-.5, .5)
     view_point_y: -1
     view_point_z: (-.2, 1.)
-    zoom_factor: 1
+    zoom_factor: (0.3, 1.2)
     aperture: 8
     focal_length: 50
   # - module: "scale"
