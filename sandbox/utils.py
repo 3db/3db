@@ -21,6 +21,7 @@ class BigChungusCyclicBuffer:
         self.logits_buffer = ch.zeros((size, num_logits), dtype=ch.float32).share_memory_()
         self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
         self.used_buffer = np.zeros(size, dtype='uint8')
+        self.free_idx = list(range(size))
         self.first = 0
         self.last = 0
         self.size = size
@@ -42,20 +43,21 @@ class BigChungusCyclicBuffer:
                 event = self.events.get(block=False)
                 assert self.used_buffer[event] > 0
                 self.used_buffer[event] -= 1
-                while self.used_buffer[self.first] == 0 and self.first != self.last:
-                    self.first = (self.first + 1) % self.size
+                if self.used_buffer[event] == 0:
+                    self.free_idx.append(event)
             except Empty:
                 break
 
     def next_find_index(self):
         while True:
             self.process_events()
-            if self.used_buffer[self.last] == 0:
-                ix = self.last
+            try:
+                ix = self.free_idx.pop()
+                assert self.used_buffer[ix] == 0
                 self.used_buffer[ix] = self.registration_count
-                self.last = (self.last + 1) % self.size
                 return ix
-
+            except IndexError:
+                pass
 
     def allocate(self, image, logits, is_correct):
         ix = self.next_find_index()

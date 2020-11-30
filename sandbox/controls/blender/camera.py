@@ -27,8 +27,14 @@ class CameraControl(BaseControl):
         camera = bpy.data.objects['Camera']
         camera.data.lens = focal_length
         camera.data.dof.aperture_fstop = aperture
+        camera.data.clip_start = 0.001
 
         ob = context['object']
+
+        # avoid division by zero bug
+        view_point_x += 1e-6
+        view_point_y += 1e-6
+        view_point_z += 1e-6
 
         bpy.ops.object.select_all(action='DESELECT')
         ob.select_set(True)

@@ -1,3 +1,12 @@
+import os
+# Making sure that we don't spawn some crazy multithreaded stuff
+# All good since we do threading ourselves
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+
 import argparse
 import json
 import yaml

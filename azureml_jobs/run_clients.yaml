@@ -34,16 +34,17 @@ search:
     #   container_args:
     #     shm_size: 64gb  
     command:
+      - pip install tqdm orjson --upgrade --user
       - ls {id}
       - PYTHONPATH="$$(PYTHONPATH):sandbox" /blender/blender --python-use-system-env -b -P sandbox/client.py 
-          -- /mnt/my_data/ycb_data/ --master-address 52.229.63.209:5555 & 
+          -- /mnt/my_data/ycb_data/ --master-address 52.143.103.213:5556 & 
         PYTHONPATH="$$(PYTHONPATH):sandbox" /blender/blender --python-use-system-env -b -P sandbox/client.py 
-          -- /mnt/my_data/ycb_data/ --master-address 52.229.63.209:5555 & 
+          -- /mnt/my_data/ycb_data/ --master-address 52.143.103.213:5556 & 
         PYTHONPATH="$$(PYTHONPATH):sandbox" /blender/blender --python-use-system-env -b -P sandbox/client.py 
-          -- /mnt/my_data/ycb_data/ --master-address 52.229.63.209:5555 
+          -- /mnt/my_data/ycb_data/ --master-address 52.143.103.213:5556 
   type: grid
   max_trials: 100000
   params:
     - name: id
       spec: discrete
-      values: '[i for i in range(10)]'
+      values: '[i for i in range(60)]'

@@ -17,7 +17,7 @@ JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
 class PolicyController(Process):
 
     def __init__(self, env_file, search_space, model_name, policy_args,
-                 logger_manager, result_buffer, max_batch_size=10):
+                 logger_manager, result_buffer):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()
@@ -28,7 +28,7 @@ class PolicyController(Process):
         self.logger_manager = logger_manager
         self.result_buffer = result_buffer
 
-    def pull_work(self, worker_id):
+    def pull_work(self):
         try:
             return self.work_queue.get(block=False)
         except Empty:
