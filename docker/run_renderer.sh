@@ -1,15 +1,8 @@
 #!/bin/bash
-
 code_folder=$(dirname "$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )")
-env_folder=$(realpath $1)
-models_folder=$(realpath $2)
-out_folder=$(realpath $3)
-
-echo $SCRIPTPATH
+data_folder=$(realpath $1)
 
 docker run -it --network=host --ipc=host --rm  \
     --mount type=bind,source="$code_folder",target=/code \
-    --mount type=bind,source="$env_folder",target=/data/blender_environments \
-    --mount type=bind,source="$models_folder",target=/data/blender_models \
-    --mount type=bind,source="$out_folder",target=/out \
-    sandbox bash
+    --mount type=bind,source="$data_folder",target=/data \
+    --runtime=nvidia -e NVIDIA_VISIBLE_DEVICES="$CUDA_VISIBLE_DEVICES" sandbox
