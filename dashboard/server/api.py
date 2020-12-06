@@ -12,15 +12,16 @@ import argparse
 import gzip, functools
 from io import BytesIO as IO
 from flask import after_this_request, request
+from torch_utils import transform_image, get_prediction, render_prediction
+from robustness import model_utils, datasets
 from flask_cors import CORS
 
 from flask import send_from_directory
 
-
-
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('logdir', type=str,
                     help='where to find the log information')
+parser.add_argument('--arch', type=str, default='resnet18')
 
 def is_safe_path(basedir, path, follow_symlinks=True):
   if follow_symlinks:
@@ -138,6 +139,17 @@ if __name__ == '__main__':
     print("STARTING")
     reader = DataReader(path.join(args.logdir, 'details.log'))
 
+    print("Loading model...")
+    ds = datasets.ImageNet("")
+    model, _ = model_utils.make_and_restore_model(arch=args.arch, dataset=ds, pytorch_pretrained=True)
+    model = model.model.eval().cuda()
+
+    print("Loading class map...")
+    img_class_map = None
+    mapping_file_path = 'index_to_name.json'                  # Human-readable names for Imagenet classes
+    if os.path.isfile(mapping_file_path):
+        with open (mapping_file_path) as f:
+            img_class_map = json.load(f)
 
     @app.route('/canny/<imid>')
     def send_canny(imid):
@@ -158,7 +170,16 @@ if __name__ == '__main__':
     def send_js(imid):
         return send_from_directory(path.join(args.logdir, 'images'), imid + '.png')
 
-
+    @app.route('/predict', methods=['POST'])
+    def predict():
+        if request.method == 'POST':
+            f = request.files['file']
+            if f is not None:
+                input_tensor = transform_image(f).cuda()
+                prediction_idx = get_prediction(model, input_tensor)
+                class_id, class_name = render_prediction(prediction_idx, img_class_map)
+                return jsonify({'class_id': class_id, 'class_name': class_name})
+                
     @app.route('/')
     @gzipped
     def return_data():
