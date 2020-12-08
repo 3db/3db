@@ -46,6 +46,8 @@ DEFAULT_RENDER_ARGS = {
     'engine': 'sandbox.rendering.blender',
     'resolution': 256,
     'samples': 256,
+    'with_uv': False,
+    'with_depth': False
 }
 
 
@@ -93,12 +95,18 @@ if __name__ == '__main__':
 
         # We need to know the resolution and number of classes to allocate
         # the memory beforehand and share it with other processes
-        big_chungus = BigChungusCyclicBuffer(
-            resolution=[render_args['resolution']] * 2,
-            num_logits=config['inference']['num_classes']
-        )
+        render_channels = ['rgb']
+        if render_args['with_uv']:
+            render_channels.append('uv')
+        if render_args['with_depth']:
+            render_channels.append('depth')
 
-        big_chungus = BigChungusCyclicBuffer()
+        big_chungus = BigChungusCyclicBuffer(
+            render_channels,
+            resolution=[render_args['resolution']] * 2,
+            num_logits=config['inference']['num_classes'],
+
+        )
         big_chungus.register()  # Register a single policy for each output
 
         logger_manager = LoggerManager()

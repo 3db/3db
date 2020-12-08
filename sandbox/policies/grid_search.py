@@ -34,9 +34,6 @@ class GridSearchPolicy:
 
         for r in chunks(result, 1000):
             images, logits, is_correct = render(r)
-            # print(images.shape)
-            # print(logits.shape)
-            # print(f'Correct Prediction? {is_correct}')
 
 
 

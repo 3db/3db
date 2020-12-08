@@ -4,7 +4,7 @@ from collections import defaultdict
 from os import path, remove
 from glob import glob
 from multiprocessing import cpu_count
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 import cv2
 import numpy as np
 
@@ -84,6 +84,44 @@ def load_model(root_folder, model):
 def get_model_uid(loaded_model):
     return loaded_model.name
 
+def create_node_tree(folder_base, with_uv=False, with_depth=False):
+    to_collect = {}
+    scene = bpy.context.scene
+    scene.use_nodes = True
+    nodes = scene.node_tree.nodes
+    links = scene.node_tree.links
+
+    scene.view_layers["View Layer"].use_pass_uv = with_uv
+    bpy.context.scene.view_layers["View Layer"].use_pass_z = with_depth
+
+
+    for node in list(nodes):
+        nodes.remove(node)
+
+    layers_node = nodes.new(type="CompositorNodeRLayers")
+
+    rgba_image_output_node = nodes.new(type="CompositorNodeOutputFile")
+    to_collect['rgb'] = path.join(folder_base, "rgb")
+    rgba_image_output_node.base_path = to_collect['rgb']
+
+    links.new(layers_node.outputs[0], rgba_image_output_node.inputs[0])
+
+    if with_uv:
+        uv_image_output_node = nodes.new(type="CompositorNodeOutputFile")
+        links.new(layers_node.outputs["UV"], uv_image_output_node.inputs[0])
+        to_collect['uv'] = path.join(folder_base, 'uv')
+        uv_image_output_node.base_path = to_collect['uv']
+
+    if with_depth:
+        depth_image_output_node = nodes.new(type="CompositorNodeOutputFile")
+        links.new(layers_node.outputs["Depth"], depth_image_output_node.inputs[0])
+        depth_image_output_node.base_path = folder_base + "_depth"
+        to_collect['depth'] = path.join(folder_base, 'depth')
+        depth_image_output_node.base_path = to_collect['depth']
+
+    return to_collect
+
+
 def setup_render(args):
     scene = bpy.context.scene
     bpy.context.scene.render.engine = 'CYCLES'
@@ -130,19 +168,23 @@ def render(uid, job, cli_args, renderer_settings, applier,
 
     applier.apply_pre_controls(context)
 
-    img_extension = f".{IMAGE_FORMAT}"
+    output = {}
 
-    with NamedTemporaryFile(suffix=img_extension) as temp_file:
-        temp_filename = temp_file.name
-        temp_file.close()
-        bpy.context.scene.render.filepath = temp_filename
-
+    with TemporaryDirectory() as temp_folder:
+        print(temp_folder)
+        to_collect = create_node_tree(temp_folder,
+                                      renderer_settings['with_uv'],
+                                      renderer_settings['with_depth'])
         bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
         bpy.ops.render.render(use_viewport=False, write_still=True)
-        img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
-        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-        remove(temp_filename) 
+        for name, folder_to_collect in to_collect.items():
+            images = glob(path.join(folder_to_collect, '*'))
+            assert len(images) == 1
+            temp_filename = images[0]
+            img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+            output[name] = ch.from_numpy(img).float().permute(2, 0, 1) / 255.0
 
-    applier.unapply()
-    img = ch.from_numpy(img).float().permute(2, 0, 1) / 255.0
-    return img
+        # temp_folder.cleanup()
+
+    return output
