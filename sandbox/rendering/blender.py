@@ -1,4 +1,5 @@
 import importlib
+import re
 import torch as ch
 from collections import defaultdict
 from os import path, remove
@@ -222,7 +223,8 @@ def render(uid, job, cli_args, renderer_settings, applier,
         main_scene.node_tree.nodes['File Output'].base_path = temp_folder
         bpy.ops.render.render(use_viewport=False, write_still=True)
         bpy.context.window.scene = compositing_scene
-        blender_loaded_image = bpy.data.images.load(path.join(temp_folder, "render_exr0001.exr"))
+        written_file = glob(path.join(temp_folder, '*.exr'))
+        blender_loaded_image = bpy.data.images.load(written_file[0])
         compositing_scene.node_tree.nodes["input_image"].image = blender_loaded_image
         compositing_scene.node_tree.nodes["File Output"].format.file_format = IMAGE_FORMAT.upper()
         compositing_scene.node_tree.nodes['File Output'].base_path = temp_folder
@@ -230,7 +232,7 @@ def render(uid, job, cli_args, renderer_settings, applier,
         all_files = glob(path.join(temp_folder, "*.png"))
 
         for full_filename in all_files:
-            name = path.basename(full_filename).replace('0001.png', '')
+            name = re.sub(r'[0-9]+.png', '', path.basename(full_filename))
             img = cv2.imread(full_filename, cv2.IMREAD_UNCHANGED)
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
 
