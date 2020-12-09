@@ -84,43 +84,11 @@ def load_model(root_folder, model):
 def get_model_uid(loaded_model):
     return loaded_model.name
 
-def create_node_tree(folder_base, with_uv=False, with_depth=False):
-    to_collect = {}
-    scene = bpy.context.scene
-    scene.use_nodes = True
-    nodes = scene.node_tree.nodes
-    links = scene.node_tree.links
-
-    scene.view_layers["View Layer"].use_pass_uv = with_uv
-    bpy.context.scene.view_layers["View Layer"].use_pass_z = with_depth
-
-
-    for node in list(nodes):
-        nodes.remove(node)
-
-    layers_node = nodes.new(type="CompositorNodeRLayers")
-
-    rgba_image_output_node = nodes.new(type="CompositorNodeOutputFile")
-    to_collect['rgb'] = path.join(folder_base, "rgb")
-    rgba_image_output_node.base_path = to_collect['rgb']
-
-    links.new(layers_node.outputs[0], rgba_image_output_node.inputs[0])
-
-    if with_uv:
-        uv_image_output_node = nodes.new(type="CompositorNodeOutputFile")
-        links.new(layers_node.outputs["UV"], uv_image_output_node.inputs[0])
-        to_collect['uv'] = path.join(folder_base, 'uv')
-        uv_image_output_node.base_path = to_collect['uv']
-
-    if with_depth:
-        depth_image_output_node = nodes.new(type="CompositorNodeOutputFile")
-        links.new(layers_node.outputs["Depth"], depth_image_output_node.inputs[0])
-        depth_image_output_node.base_path = folder_base + "_depth"
-        to_collect['depth'] = path.join(folder_base, 'depth')
-        depth_image_output_node.base_path = to_collect['depth']
-
-    return to_collect
-
+def to_nice_PNG(input_node):
+    input_node.use_node_format = False
+    input_node.format.file_format = "PNG"
+    input_node.format.compression = 0
+    input_node.format.color_depth = "16"
 
 def setup_render(args):
     scene = bpy.context.scene
@@ -131,6 +99,11 @@ def setup_render(args):
     bpy.context.scene.cycles.samples = args.samples
     bpy.context.scene.render.tile_x = args.tile_size
     bpy.context.scene.render.tile_y = args.tile_size
+    bpy.context.scene.display_settings.display_device = 'None'
+    bpy.context.scene.sequencer_colorspace_settings.name = 'Raw'
+    bpy.context.view_layer.update()
+    bpy.context.scene.view_settings.view_transform = 'Standard'
+    bpy.context.scene.view_settings.look = 'None'
 
     for device in cprefs.devices:
         device.use = False
@@ -159,6 +132,78 @@ def setup_render(args):
     bpy.context.scene.render.resolution_y = args.resolution
     bpy.context.scene.render.use_persistent_data = True
 
+    scene.use_nodes = True
+
+    nodes = scene.node_tree.nodes
+    links = scene.node_tree.links
+
+    scene.view_layers["View Layer"].use_pass_uv = args.with_uv
+    bpy.context.scene.view_layers["View Layer"].use_pass_z = args.with_depth
+
+    scene.use_nodes = True
+    scene.name = 'main_scene'
+
+    for node in list(nodes):
+        nodes.remove(node)
+
+    layers_node = nodes.new(type="CompositorNodeRLayers")
+
+    file_output_node = nodes.new(type="CompositorNodeOutputFile")
+    file_output_node.format.file_format = "OPEN_EXR"
+    file_output_node.format.exr_codec = 'NONE'
+    output_slots = file_output_node.file_slots
+    output_slots.remove(file_output_node.inputs[0])
+    output_slots.new("render_exr")
+    links.new(layers_node.outputs[0], file_output_node.inputs[0])
+
+    if args.with_depth:
+        output_slots.new("depth")
+        to_nice_PNG(file_output_node.file_slots["depth"])
+        math_node = nodes.new(type="CompositorNodeMath")
+        links.new(layers_node.outputs["Depth"], math_node.inputs[0])
+        math_node.operation = "DIVIDE"
+        math_node.inputs[1].default_value = args.max_depth
+        links.new(math_node.outputs[0], file_output_node.inputs["depth"])
+
+    if args.with_uv:
+        output_slots.new("uv")
+        to_nice_PNG(file_output_node.file_slots["uv"])
+        links.new(layers_node.outputs["UV"], file_output_node.inputs["uv"])
+
+    main_scene = scene
+
+    if 'sandbox_compositing_scene' not in bpy.data.scenes:
+        cur_scene = bpy.data.scenes.new('sandbox_compositing_scene')
+        bpy.context.window.scene = cur_scene
+        cur_scene.display_settings.display_device = 'sRGB'
+        cur_scene.sequencer_colorspace_settings.name = 'sRGB'
+        bpy.context.view_layer.update()
+        cur_scene.view_settings.view_transform = 'Filmic'
+        cur_scene.view_settings.look = 'None'
+
+        cur_scene.use_nodes = True
+        scene = cur_scene
+        nodes = scene.node_tree.nodes
+        links = scene.node_tree.links
+
+        for node in list(nodes):
+            nodes.remove(node)
+
+        input_image = nodes.new(type="CompositorNodeImage")
+        input_image.name = "input_image"
+        file_output_node = nodes.new(type="CompositorNodeOutputFile")
+        output_slots = file_output_node.file_slots
+        output_slots.remove(file_output_node.inputs[0])
+        output_slots.new("rgb")
+        file_output_node.format.file_format = "PNG"
+        file_output_node.format.compression = 0
+        file_output_node.format.color_depth = "8"
+        links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
+
+    bpy.context.window.scene = main_scene
+
+
+
 def render(uid, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
 
@@ -171,20 +216,33 @@ def render(uid, job, cli_args, renderer_settings, applier,
     output = {}
 
     with TemporaryDirectory() as temp_folder:
-        print(temp_folder)
-        to_collect = create_node_tree(temp_folder,
-                                      renderer_settings['with_uv'],
-                                      renderer_settings['with_depth'])
-        bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
+        main_scene = bpy.data.scenes['main_scene']
+        compositing_scene = bpy.data.scenes['sandbox_compositing_scene']
+        bpy.context.window.scene = main_scene
+        main_scene.node_tree.nodes['File Output'].base_path = temp_folder
         bpy.ops.render.render(use_viewport=False, write_still=True)
-        for name, folder_to_collect in to_collect.items():
-            images = glob(path.join(folder_to_collect, '*'))
-            assert len(images) == 1
-            temp_filename = images[0]
-            img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
-            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-            output[name] = ch.from_numpy(img).float().permute(2, 0, 1) / 255.0
+        bpy.context.window.scene = compositing_scene
+        blender_loaded_image = bpy.data.images.load(path.join(temp_folder, "render_exr0001.exr"))
+        compositing_scene.node_tree.nodes["input_image"].image = blender_loaded_image
+        compositing_scene.node_tree.nodes["File Output"].format.file_format = IMAGE_FORMAT.upper()
+        compositing_scene.node_tree.nodes['File Output'].base_path = temp_folder
+        bpy.ops.render.render(use_viewport=False, write_still=True)
+        all_files = glob(path.join(temp_folder, "*.png"))
 
-        # temp_folder.cleanup()
+        for full_filename in all_files:
+            name = path.basename(full_filename).replace('0001.png', '')
+            img = cv2.imread(full_filename, cv2.IMREAD_UNCHANGED)
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+
+            if img.dtype is np.dtype(np.uint16):
+                img = img.astype('float32') / (2**16 - 1)
+                output[name] = ch.from_numpy(img).float().permute(2, 0, 1)
+            else:
+                output[name] = ch.from_numpy(img).float().permute(2, 0, 1) / (2**8 - 1)
+
+        # Avoid memory leak by keeping all EXR rendered so far in memory
+        bpy.data.images.remove(blender_loaded_image)
+        # Switch back to the main scene
+        bpy.context.window.scene = main_scene
 
     return output

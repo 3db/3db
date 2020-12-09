@@ -47,7 +47,8 @@ DEFAULT_RENDER_ARGS = {
     'resolution': 256,
     'samples': 256,
     'with_uv': False,
-    'with_depth': False
+    'with_depth': False,
+    'max_depth': 10
 }
 
 
