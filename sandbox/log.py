@@ -133,7 +133,9 @@ class ImageLogger():
 
     def log(self, item):
         rix = item['result_ix']
-        image, _, __ = self.result_buffer[rix]
-        img_path = path.join(self.folder, item['id'] + '.png')
-        cv2.imwrite(img_path, cv2.cvtColor(image.permute(1,2,0).numpy()*255.0, cv2.COLOR_RGB2BGR))
+        images, _, __ = self.result_buffer[rix]
+        for channel_name, image in images.items():
+            img_path = path.join(self.folder,
+                                 item['id'] + '_' + channel_name + '.png')
+            cv2.imwrite(img_path, cv2.cvtColor(image.permute(1,2,0).numpy()*255.0, cv2.COLOR_RGB2BGR))
         self.result_buffer.free(rix)

@@ -75,14 +75,17 @@ if __name__ == '__main__':
             **args
         }
 
+        channel_names = []
         if result is not None:
-            to_send['result'] = True
+            channel_names = list(result[0].keys())
+            to_send['result_channel_names'] = channel_names
 
         socket.send_json(to_send, flags=zmq.SNDMORE if result is not None else 0)
 
         if result is not None:
-            image, logits, is_correct = result
-            send_array(socket, image, flags=zmq.SNDMORE)
+            images, logits, is_correct = result
+            for channel_name in channel_names:
+                send_array(socket, images[channel_name], flags=zmq.SNDMORE)
             send_array(socket, logits, flags=zmq.SNDMORE)
             socket.send_pyobj(is_correct)
 
@@ -155,10 +158,11 @@ if __name__ == '__main__':
                                                      loaded_model,
                                                      loaded_env
                                                      )
-                    result = controls_applier.apply_post_controls(result)
-                    result = result[:3]
+                    result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
 
-                    prediction = inference_model(result)
+                    result = {k: v[:3] for (k, v) in result.items()}
+
+                    prediction = inference_model(result['rgb'])
                     is_correct = prediction.argmax() in uid_to_logits[model_uid]
                     data = (result, prediction, is_correct)
                     query('push', job=job.id, result=data)
