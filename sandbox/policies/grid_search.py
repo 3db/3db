@@ -35,6 +35,4 @@ class GridSearchPolicy:
         for r in chunks(result, 1000):
             images, logits, is_correct = render(r)
 
-
-
 Policy = GridSearchPolicy

@@ -28,18 +28,16 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('root_folder', type=str,
                     help='folder containing all data (models, environments, etc)')
-
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
-
 parser.add_argument('--logdir', type=str, default=None,
                     help='Log information about each sample into a folder')
-
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
-
 parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
                     help='Which loggers to use. Comma dilimited list. e.g. JSONLogger,TbLogger,ImageLogger')
+parser.add_argument('--single-model', action='store_true',
+                    help='If given, only do one model and one environment (for debugging)')
 
 
 DEFAULT_RENDER_ARGS = {
@@ -122,17 +120,22 @@ if __name__ == '__main__':
                 makedirs(imgdir)
             logger_manager.append(ImageLogger(imgdir, big_chungus))
         logger_manager.start()
-        for env in all_envs:
-            env = env.split('/')[-1]
-            for model in all_models:
-                model = model.split('/')[-1]
-                # model = 'ba705749a39d4f5382b265c7b157e962.blend'
-                policy_controllers.append(
-                    PolicyController(env, search_space, model, {
-                        'continuous_dim': continuous_dim,
-                        'discrete_sizes': discrete_sizes,
-                        **config['policy']}, logger_manager, big_chungus))
-                # break
+
+        class Done(Exception): pass 
+        try:
+            for env in all_envs:
+                env = env.split('/')[-1]
+                for model in all_models:
+                    model = model.split('/')[-1]
+                    policy_controllers.append(
+                        PolicyController(env, search_space, model, {
+                            'continuous_dim': continuous_dim,
+                            'discrete_sizes': discrete_sizes,
+                            **config['policy']}, logger_manager, big_chungus))
+                    if args.single_model: raise Done
+        except Done:
+            pass
+
         import multiprocessing
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'], controls_args,
