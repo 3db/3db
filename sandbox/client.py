@@ -78,7 +78,7 @@ if __name__ == '__main__':
         channel_names = []
         if result is not None:
             channel_names = list(result[0].keys())
-            to_send['result'] = channel_names
+            to_send['result_channel_names'] = channel_names
 
         socket.send_json(to_send, flags=zmq.SNDMORE if result is not None else 0)
 

@@ -23,8 +23,8 @@ def recv_array(socket, flags=0, copy=True, track=False):
 def my_recv(socket, cyclic_buffer):
     main_message = socket.recv_json()
 
-    if 'result' in main_message:
-        channel_names = main_message['result']
+    if 'result_channel_names' in main_message:
+        channel_names = main_message['result_channel_names']
         images = {}
         for channel_name in channel_names:
             images[channel_name] = recv_array(socket)

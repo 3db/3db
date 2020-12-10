@@ -172,34 +172,35 @@ def setup_render(args):
         links.new(layers_node.outputs["UV"], file_output_node.inputs["uv"])
 
     main_scene = scene
+    assert 'sandbox_compositing_scene' not in bpy.data.scenes, (
+     '_sandbox_compositing_scene already exists in the blender file')
 
-    if 'sandbox_compositing_scene' not in bpy.data.scenes:
-        cur_scene = bpy.data.scenes.new('sandbox_compositing_scene')
-        bpy.context.window.scene = cur_scene
-        cur_scene.display_settings.display_device = 'sRGB'
-        cur_scene.sequencer_colorspace_settings.name = 'sRGB'
-        bpy.context.view_layer.update()
-        cur_scene.view_settings.view_transform = 'Filmic'
-        cur_scene.view_settings.look = 'None'
+    cur_scene = bpy.data.scenes.new('sandbox_compositing_scene')
+    bpy.context.window.scene = cur_scene
+    cur_scene.display_settings.display_device = 'sRGB'
+    cur_scene.sequencer_colorspace_settings.name = 'sRGB'
+    bpy.context.view_layer.update()
+    cur_scene.view_settings.view_transform = 'Filmic'
+    cur_scene.view_settings.look = 'None'
 
-        cur_scene.use_nodes = True
-        scene = cur_scene
-        nodes = scene.node_tree.nodes
-        links = scene.node_tree.links
+    cur_scene.use_nodes = True
+    scene = cur_scene
+    nodes = scene.node_tree.nodes
+    links = scene.node_tree.links
 
-        for node in list(nodes):
-            nodes.remove(node)
+    for node in list(nodes):
+        nodes.remove(node)
 
-        input_image = nodes.new(type="CompositorNodeImage")
-        input_image.name = "input_image"
-        file_output_node = nodes.new(type="CompositorNodeOutputFile")
-        output_slots = file_output_node.file_slots
-        output_slots.remove(file_output_node.inputs[0])
-        output_slots.new("rgb")
-        file_output_node.format.file_format = "PNG"
-        file_output_node.format.compression = 0
-        file_output_node.format.color_depth = "8"
-        links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
+    input_image = nodes.new(type="CompositorNodeImage")
+    input_image.name = "input_image"
+    file_output_node = nodes.new(type="CompositorNodeOutputFile")
+    output_slots = file_output_node.file_slots
+    output_slots.remove(file_output_node.inputs[0])
+    output_slots.new("rgb")
+    file_output_node.format.file_format = "PNG"
+    file_output_node.format.compression = 0
+    file_output_node.format.color_depth = "8"
+    links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
 
     bpy.context.window.scene = main_scene
 
