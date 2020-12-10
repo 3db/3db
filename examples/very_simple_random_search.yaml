@@ -1,0 +1,22 @@
+inference:
+  module: 'torchvision.models'
+  class: 'resnet18'
+  num_classes: 1000
+  normalization:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+  resolution: [224, 224]
+  uid_to_logits: './data_collection/uid_to_IN.json'
+  args:
+    pretrained: True
+render_args:
+  engine: 'sandbox.rendering.blender'
+  resolution: 256
+  samples: 16
+policy:
+  module: "sandbox.policies.random_search"
+  samples: 10
+controls:
+  - module: "background"
+    S: .4
+    V: .4

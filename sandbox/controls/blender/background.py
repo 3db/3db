@@ -19,7 +19,7 @@ class BackgroundControl(BaseControl):
         bpy.context.scene.render.film_transparent = True
 
         alpha = img[3:, :, :]
-        img = img[:3, :, :] * alpha + (1 - alpha) * (ch.tensor(hsv_to_rgb(H, S, V)))[:, None, None]
+        img = img[:3, :, :] * alpha + (1 - alpha) * ch.tensor(hsv_to_rgb(H, S, V))[:, None, None].float()
         return img
 
 
