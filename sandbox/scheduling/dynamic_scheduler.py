@@ -35,7 +35,7 @@ def my_recv(socket, cyclic_buffer):
 
 def schedule_work(policy_controllers, port, list_envs, list_models,
                   render_args, inference_args, controls_args,
-                  result_buffer):
+                  evaluation_args, result_buffer):
     context = zmq.Context(io_threads=os.cpu_count())
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
@@ -100,7 +100,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 'render_args': render_args,
                 'uid_to_logits': uid_to_logits,
                 'inference': inference_args,
-                'controls_args': controls_args
+                'controls_args': controls_args,
+                'evaluation_args': evaluation_args
             })
         elif message['kind'] == 'pull':
             bs = message['batch_size']

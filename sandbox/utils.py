@@ -140,7 +140,18 @@ def load_inference_model(args):
     def inference_function(image):
         image = my_preprocess(image)
         image = image.unsqueeze(0)
-        return model(image).data.numpy()[0]
+        return model(image)[0]
+
+        """
+        if isinstance(out, list): 
+            # Object detection
+            N = out[0]['boxes'].shape[0]
+            results = [out[0][s].float().view(N, -1) for s in ('boxes', 'labels', 'scores')]
+            out = ch.cat(results, dim=1)
+            return out
+        elif isinstance(out, ch.tensor):
+            # Image classification
+            return out.data.numpy()[0]
+        """
 
     return inference_function
-

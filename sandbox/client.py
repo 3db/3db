@@ -100,6 +100,10 @@ if __name__ == '__main__':
         all_models = rendering_engine.enumerate_models(args.root_folder)
         all_envs = rendering_engine.enumerate_environments(args.root_folder)
 
+        evaluation_args = infos['evaluation_args']
+        evaluator_module = importlib.import_module(evaluation_args['module'])
+        evaluator = evaluator_module.Evaluator(**infos['evaluation_args']['args'])
+
         # Gather all experiment-wide parameters
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
@@ -158,8 +162,24 @@ if __name__ == '__main__':
                     result = controls_applier.apply_post_controls(result)
                     result = result[:3]
 
-                    prediction = inference_model(result)
-                    is_correct = prediction.argmax() in uid_to_logits[model_uid]
+                    with ch.no_grad():
+                        prediction = inference_model(result)
+                    if evaluator.label_type == 'classes':
+                        lab = uid_to_logits[model_uid]
+                    elif evaluator.label_type == 'segmentation_map':
+                        lab = result['segmentation_map']
+                    is_correct = evaluator.is_correct(prediction, lab)
+                    # loss = evaluator.loss(prediction, lab)
+                    """
+                    with ch.no_grad():
+                        prediction, mode = inference_model(result)
+                    if mode == 'classification':
+                        is_correct = prediction.argmax() in uid_to_logits[model_uid]
+                    elif mode == 'detection':
+                        iou_thresh = infos['evaluation']['iou_threshold']
+                        true_bbs = get_bounding_boxes(result['segmentation_map'])
+                        is_correct = [max_iou(bb, prediction) > iou_thresh for bb in true_bbs]
+                    """
                     data = (result, prediction, is_correct)
                     query('push', job=job.id, result=data)
                     pbar.update(1)

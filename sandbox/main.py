@@ -130,7 +130,7 @@ if __name__ == '__main__':
         import multiprocessing
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'], controls_args,
-                      big_chungus)
+                      config['evaluation'], big_chungus)
 
         # Warning the logger that we are done
         logger_manager.log(None)
