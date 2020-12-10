@@ -172,20 +172,12 @@ if __name__ == '__main__':
                     if evaluator.label_type == 'classes':
                         lab = uid_to_logits[model_uid]
                     elif evaluator.label_type == 'segmentation_map':
-                        lab = result['segmentation_map']
+                        print(result.keys())
+                        lab = result['segmentation']
                     is_correct = evaluator.is_correct(prediction, lab)
+                    prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'])
                     # loss = evaluator.loss(prediction, lab)
-                    """
-                    with ch.no_grad():
-                        prediction, mode = inference_model(result)
-                    if mode == 'classification':
-                        is_correct = prediction.argmax() in uid_to_logits[model_uid]
-                    elif mode == 'detection':
-                        iou_thresh = infos['evaluation']['iou_threshold']
-                        true_bbs = get_bounding_boxes(result['segmentation_map'])
-                        is_correct = [max_iou(bb, prediction) > iou_thresh for bb in true_bbs]
-                    """
-                    data = (result, prediction, is_correct)
+                    data = (result, prediction_tens, is_correct)
                     query('push', job=job.id, result=data)
                     pbar.update(1)
             # print(job_description)

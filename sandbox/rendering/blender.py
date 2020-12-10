@@ -264,7 +264,7 @@ def render(uid, object_class, job, cli_args, renderer_settings, applier,
                 img = img.astype('float32') / (2**8 - 1)
 
             output[name] = ch.from_numpy(img).permute(2, 0, 1)
-
+        
         # Avoid memory leak by keeping all EXR rendered so far in memory
         bpy.data.images.remove(blender_loaded_image)
         # Switch back to the main scene

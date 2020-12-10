@@ -87,7 +87,7 @@ class TbLogger():
 
     def __init__(self, dir, result_buffer):
         self.dir = dir
-        print(f'==>[Loggint tensorboard to {dir}]')
+        print(f'==>[Logging tensorboard to {dir}]')
         self.writer = None # Defer allocation in the sub-process
         self.result_buffer = result_buffer
         self.result_buffer.register()
@@ -115,7 +115,7 @@ class TbLogger():
         information['is_correct'] = is_correct
 
         self.numeric_data.append(information)
-        self.images[item['id']] = image.clone()
+        self.images[item['id']] = image['rgb'].clone()
 
         if self.count % 1 == 0:
             self.write()

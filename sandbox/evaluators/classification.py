@@ -1,7 +1,8 @@
 from torch import nn
 import torch as ch
+from sandbox.evaluators import base_evaluator
 
-class SimpleClassificationEvaluator: 
+class SimpleClassificationEvaluator(base_evaluator.Evaluator): 
     def __init__(self, *, topk):
         super().__init__()
         self.crit = nn.CrossEntropyLoss()

@@ -16,14 +16,14 @@ from queue import Empty
 # and avoid copying them to every sub process
 class BigChungusCyclicBuffer:
 
-    def __init__(self, output_channels, resolution=(256, 256), num_logits=1000, size=2500):
+    def __init__(self, output_channels, output_shape, resolution=(256, 256), size=2500):
         self.image_buffers = {}
 
         for channel_name, channels, dtype in output_channels:
             buff = ch.zeros((size, channels, *resolution), dtype=dtype).share_memory_()
             self.image_buffers[channel_name] = buff
 
-        self.logits_buffer = ch.zeros((size, num_logits), dtype=ch.float32).share_memory_()
+        self.logits_buffer = ch.zeros((size, *output_shape), dtype=ch.float32).share_memory_()
         self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
         self.used_buffer = np.zeros(size, dtype='uint8')
         self.free_idx = list(range(size))

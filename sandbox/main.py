@@ -106,9 +106,8 @@ if __name__ == '__main__':
 
         big_chungus = BigChungusCyclicBuffer(
             render_channels,
+            output_shape=config['inference']['output_shape'],
             resolution=[render_args['resolution']] * 2,
-            num_logits=config['inference']['num_classes'],
-
         )
         big_chungus.register()  # Register a single policy for each output
 

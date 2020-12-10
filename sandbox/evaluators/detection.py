@@ -1,7 +1,11 @@
 from torchvision.ops import boxes
+from sandbox.evaluators import base_evaluator
 import torch as ch
 
-class SimpleDetectionEvaluator:
+from PIL import Image 
+
+
+class SimpleDetectionEvaluator(base_evaluator.Evaluator):
     def __init__(self, iou_threshold, min_recall=1.0, min_precision=0.0):
         self.iou_threshold = iou_threshold
         self.min_recall = min_recall
@@ -9,19 +13,16 @@ class SimpleDetectionEvaluator:
         self.label_type = "segmentation_map"
 
     def get_bounding_boxes(self, seg_map):
-        BG_IND = 0
-        assert seg_map.dtype == 'uint16', 'Wrong dtype for segmentation map'
+        BG_IND = -1
         unique_objs = seg_map.unique()
-        assert BG_IND in unique_objs, 'Background class (-1) not found'
+        assert BG_IND in unique_objs, f'Background class ({BG_IND}) not found (found {unique_objs})'
         bbs = []
         for obj in unique_objs:
+            # TODO: there's a more efficient way to do the below 
             if obj == BG_IND: continue 
             filt = seg_map == obj
-            rows, cols = [np.any(filt, axis=a) for a in (0, 1)]
-            rmin, rmax = np.where(rows)[0][[0, -1]]
-            cmin, cmax = np.where(cols)[0][[0, -1]]
-            # Classes are one-indexed
-            bbs.append([rmin, cmin, rmax, cmax, obj - 1])
+            _, cols, rows = ch.where(filt)
+            bbs.append([rows.min(), cols.min(), rows.max(), cols.max(), obj])
         return ch.tensor(bbs)
         
     def is_correct(self, pred, lab):
@@ -36,11 +37,15 @@ class SimpleDetectionEvaluator:
         recall (TP / TP + FN) at least ``min_recall``.
         """
         gt_boxes = self.get_bounding_boxes(lab)
-        all_ious = boxes.box_iou(pred['boxes'], gt_boxes[:,4]) 
+        keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
+        all_ious = boxes.box_iou(pred['boxes'][keep_inds], gt_boxes[:,:4]) 
         hits = all_ious > self.iou_threshold
         # TODO: check that i got precision and recall right
-        prec, recall = [ch.any(hits, dim=d).mean().item() for d in (0, 1)]
-        print(f"Precision: {prec} | Recall: {prec}")
+        recall, precision = [ch.any(hits, dim=d).float().mean().item() for d in (0, 1)]
+        print(f"Precision: {prec} | Recall: {recall}")
+        if recall == 0.:
+            Image.fromarray((lab[0] == -1).numpy().astype('uint8') * 255).save("/tmp/test.png")
+            import pdb; pdb.set_trace()
         return (prec >= self.min_precision) and (recall >= self.min_recall)
 
   
@@ -52,4 +57,17 @@ class SimpleDetectionEvaluator:
         - lab (np.array) : segmentation map containing the ground-truth objects
         """
         # TODO: do this
+    
+    def to_tensor(self, pred, output_shape):
+        """
+        Turns a prediction dictionary into a tensor with the given output_shape (N x 6).
+        To do this, we concatenate the prediction into the form [(x1, y1, x2, y2, score, label)].
+        """
+        out = ch.zeros(*output_shape) - 1
+        keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
+        N = keep_inds.shape[0]
+        keys = ('boxes', 'scores', 'labels')
+        out[:N] = ch.cat([pred[s][keep_inds].view(N, -1).float() for s in keys], dim=1)
+        return out
                
+Evaluator = SimpleDetectionEvaluator
