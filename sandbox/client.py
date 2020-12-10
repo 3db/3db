@@ -152,7 +152,9 @@ if __name__ == '__main__':
                                                        controls_args,
                                                        args.root_folder)
 
-                    result = rendering_engine.render(model_uid, job, args,
+                    result = rendering_engine.render(model_uid,
+                                                     uid_to_logits[model_uid][0],
+                                                     job, args,
                                                      render_args,
                                                      controls_applier,
                                                      loaded_model,
