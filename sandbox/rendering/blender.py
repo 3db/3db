@@ -140,6 +140,7 @@ def setup_render(args):
 
     scene.view_layers["View Layer"].use_pass_uv = args.with_uv
     bpy.context.scene.view_layers["View Layer"].use_pass_z = args.with_depth
+    bpy.context.scene.view_layers["View Layer"].use_pass_object_index = args.with_segmentation
 
     scene.use_nodes = True
     scene.name = 'main_scene'
@@ -170,6 +171,16 @@ def setup_render(args):
         output_slots.new("uv")
         setup_nice_PNG(file_output_node.file_slots["uv"])
         links.new(layers_node.outputs["UV"], file_output_node.inputs["uv"])
+
+    if args.with_segmentation:
+        output_slots.new("segmentation")
+        setup_nice_PNG(file_output_node.file_slots["segmentation"])
+        file_output_node.file_slots["segmentation"].format.color_mode = "BW"
+        math_node = nodes.new(type="CompositorNodeMath")
+        links.new(layers_node.outputs["IndexOB"], math_node.inputs[0])
+        math_node.operation = "DIVIDE"
+        math_node.inputs[1].default_value = 65535.0
+        links.new(math_node.outputs[0], file_output_node.inputs["segmentation"])
 
     main_scene = scene
     assert 'sandbox_compositing_scene' not in bpy.data.scenes, (
@@ -206,12 +217,15 @@ def setup_render(args):
 
 
 
-def render(uid, job, cli_args, renderer_settings, applier,
+def render(uid, object_class, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
 
     context = {
         'object': bpy.context.scene.objects[uid]
     }
+
+    # 0 is background so we shift everything by 1
+    context['object'].pass_index = object_class + 1
 
     applier.apply_pre_controls(context)
 
@@ -231,15 +245,22 @@ def render(uid, job, cli_args, renderer_settings, applier,
         compositing_scene.node_tree.nodes['File Output'].base_path = temp_folder
         bpy.ops.render.render(use_viewport=False, write_still=True)
         all_files = glob(path.join(temp_folder, "*.png"))
+        bpy.ops.wm.save_as_mainfile(filepath='/tmp/debug.blend')
 
         for full_filename in all_files:
             name = re.sub(r'[0-9]+.png', '', path.basename(full_filename))
             img = cv2.imread(full_filename, cv2.IMREAD_UNCHANGED)
-            img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
 
-            if img.dtype is np.dtype(np.uint16):
+            if name == 'segmentation': 
+                img = img[:, :, None]  # Add extra dimension for the channel
+                img = img.astype('int32') - 1  # Go back from the 1 index to the 0 index
+                # We needed 1 index for the classes because we can only read images with
+                # positive integers
+            elif img.dtype is np.dtype(np.uint16):
+                img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
                 img = img.astype('float32') / (2**16 - 1)
             else:
+                img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
                 img = img.astype('float32') / (2**8 - 1)
 
             output[name] = ch.from_numpy(img).permute(2, 0, 1)

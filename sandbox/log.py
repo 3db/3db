@@ -135,7 +135,12 @@ class ImageLogger():
         rix = item['result_ix']
         images, _, __ = self.result_buffer[rix]
         for channel_name, image in images.items():
-            img_path = path.join(self.folder,
-                                 item['id'] + '_' + channel_name + '.png')
-            cv2.imwrite(img_path, cv2.cvtColor(image.permute(1,2,0).numpy()*255.0, cv2.COLOR_RGB2BGR))
+            if channel_name == 'segmentation':
+                img_path = path.join(self.folder,
+                                     item['id'] + '_' + channel_name + '.npy')
+                np.save(img_path, image.numpy()[0])
+            else:
+                img_path = path.join(self.folder,
+                                     item['id'] + '_' + channel_name + '.png')
+                cv2.imwrite(img_path, cv2.cvtColor(image.permute(1,2,0).numpy()*255.0, cv2.COLOR_RGB2BGR))
         self.result_buffer.free(rix)

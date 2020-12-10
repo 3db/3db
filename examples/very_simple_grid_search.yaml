@@ -14,6 +14,7 @@ render_args:
   resolution: 256
   with_uv: True
   with_depth: True
+  with_segmentation: True
   samples: 16
 policy:
   module: "sandbox.policies.grid_search"

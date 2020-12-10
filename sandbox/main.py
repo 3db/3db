@@ -14,6 +14,7 @@ from glob import glob
 from os import path, makedirs
 from collections import defaultdict
 import importlib
+import torch as ch
 
 import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
@@ -46,6 +47,7 @@ DEFAULT_RENDER_ARGS = {
     'samples': 256,
     'with_uv': False,
     'with_depth': False,
+    'with_segmentation': False,
     'max_depth': 10
 }
 
@@ -94,11 +96,13 @@ if __name__ == '__main__':
 
         # We need to know the resolution and number of classes to allocate
         # the memory beforehand and share it with other processes
-        render_channels = ['rgb']
+        render_channels = [('rgb', 3, ch.float32)]
         if render_args['with_uv']:
-            render_channels.append('uv')
+            render_channels.append(('uv', 3, ch.float32))
         if render_args['with_depth']:
-            render_channels.append('depth')
+            render_channels.append(('depth', 3, ch.float32))
+        if render_args['with_segmentation']:
+            render_channels.append(('segmentation', 1, ch.int32))
 
         big_chungus = BigChungusCyclicBuffer(
             render_channels,
