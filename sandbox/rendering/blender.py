@@ -245,7 +245,6 @@ def render(uid, object_class, job, cli_args, renderer_settings, applier,
         compositing_scene.node_tree.nodes['File Output'].base_path = temp_folder
         bpy.ops.render.render(use_viewport=False, write_still=False)
         all_files = glob(path.join(temp_folder, "*.png"))
-        bpy.ops.wm.save_as_mainfile(filepath='/tmp/debug.blend')
 
         for full_filename in all_files:
             name = re.sub(r'[0-9]+.png', '', path.basename(full_filename))
