@@ -40,6 +40,7 @@ class SimpleDetectionEvaluator:
         hits = all_ious > self.iou_threshold
         # TODO: check that i got precision and recall right
         prec, recall = [ch.any(hits, dim=d).mean().item() for d in (0, 1)]
+        print(f"Precision: {prec} | Recall: {prec}")
         return (prec >= self.min_precision) and (recall >= self.min_recall)
 
   
