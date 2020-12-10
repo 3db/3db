@@ -85,7 +85,7 @@ def load_model(root_folder, model):
 def get_model_uid(loaded_model):
     return loaded_model.name
 
-def to_nice_PNG(input_node):
+def setup_nice_PNG(input_node):
     input_node.use_node_format = False
     input_node.format.file_format = "PNG"
     input_node.format.compression = 0
@@ -159,7 +159,7 @@ def setup_render(args):
 
     if args.with_depth:
         output_slots.new("depth")
-        to_nice_PNG(file_output_node.file_slots["depth"])
+        setup_nice_PNG(file_output_node.file_slots["depth"])
         math_node = nodes.new(type="CompositorNodeMath")
         links.new(layers_node.outputs["Depth"], math_node.inputs[0])
         math_node.operation = "DIVIDE"
@@ -168,7 +168,7 @@ def setup_render(args):
 
     if args.with_uv:
         output_slots.new("uv")
-        to_nice_PNG(file_output_node.file_slots["uv"])
+        setup_nice_PNG(file_output_node.file_slots["uv"])
         links.new(layers_node.outputs["UV"], file_output_node.inputs["uv"])
 
     main_scene = scene
@@ -238,9 +238,10 @@ def render(uid, job, cli_args, renderer_settings, applier,
 
             if img.dtype is np.dtype(np.uint16):
                 img = img.astype('float32') / (2**16 - 1)
-                output[name] = ch.from_numpy(img).float().permute(2, 0, 1)
             else:
-                output[name] = ch.from_numpy(img).float().permute(2, 0, 1) / (2**8 - 1)
+                img = img.astype('float32') / (2**8 - 1)
+
+            output[name] = ch.from_numpy(img).permute(2, 0, 1)
 
         # Avoid memory leak by keeping all EXR rendered so far in memory
         bpy.data.images.remove(blender_loaded_image)
