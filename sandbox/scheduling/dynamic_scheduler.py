@@ -23,12 +23,16 @@ def recv_array(socket, flags=0, copy=True, track=False):
 def my_recv(socket, cyclic_buffer):
     main_message = socket.recv_json()
 
-    if 'result' in main_message:
-        image = recv_array(socket)
+    if 'result_channel_names' in main_message:
+        channel_names = main_message['result_channel_names']
+        images = {}
+        for channel_name in channel_names:
+            images[channel_name] = recv_array(socket)
+
         logits = recv_array(socket)
         is_correct = socket.recv_pyobj()
 
-        ix = cyclic_buffer.allocate(image, logits, is_correct)
+        ix = cyclic_buffer.allocate(images, logits, is_correct)
         main_message['result'] = ix
 
     return main_message

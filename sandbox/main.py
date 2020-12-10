@@ -14,6 +14,7 @@ from glob import glob
 from os import path, makedirs
 from collections import defaultdict
 import importlib
+import torch as ch
 
 import sandbox
 from sandbox.scheduling.dynamic_scheduler import schedule_work
@@ -44,6 +45,10 @@ DEFAULT_RENDER_ARGS = {
     'engine': 'sandbox.rendering.blender',
     'resolution': 256,
     'samples': 256,
+    'with_uv': False,
+    'with_depth': False,
+    'with_segmentation': False,
+    'max_depth': 10
 }
 
 
@@ -91,12 +96,20 @@ if __name__ == '__main__':
 
         # We need to know the resolution and number of classes to allocate
         # the memory beforehand and share it with other processes
-        big_chungus = BigChungusCyclicBuffer(
-            resolution=[render_args['resolution']] * 2,
-            num_logits=config['inference']['num_classes']
-        )
+        render_channels = [('rgb', 3, ch.float32)]
+        if render_args['with_uv']:
+            render_channels.append(('uv', 3, ch.float32))
+        if render_args['with_depth']:
+            render_channels.append(('depth', 3, ch.float32))
+        if render_args['with_segmentation']:
+            render_channels.append(('segmentation', 1, ch.int32))
 
-        big_chungus = BigChungusCyclicBuffer()
+        big_chungus = BigChungusCyclicBuffer(
+            render_channels,
+            resolution=[render_args['resolution']] * 2,
+            num_logits=config['inference']['num_classes'],
+
+        )
         big_chungus.register()  # Register a single policy for each output
 
         logger_manager = LoggerManager()

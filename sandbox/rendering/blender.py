@@ -1,10 +1,11 @@
 import importlib
+import re
 import torch as ch
 from collections import defaultdict
 from os import path, remove
 from glob import glob
 from multiprocessing import cpu_count
-from tempfile import NamedTemporaryFile
+from tempfile import TemporaryDirectory
 import cv2
 import numpy as np
 
@@ -84,6 +85,12 @@ def load_model(root_folder, model):
 def get_model_uid(loaded_model):
     return loaded_model.name
 
+def setup_nice_PNG(input_node):
+    input_node.use_node_format = False
+    input_node.format.file_format = "PNG"
+    input_node.format.compression = 0
+    input_node.format.color_depth = "16"
+
 def setup_render(args):
     scene = bpy.context.scene
     bpy.context.scene.render.engine = 'CYCLES'
@@ -93,6 +100,11 @@ def setup_render(args):
     bpy.context.scene.cycles.samples = args.samples
     bpy.context.scene.render.tile_x = args.tile_size
     bpy.context.scene.render.tile_y = args.tile_size
+    bpy.context.scene.display_settings.display_device = 'None'
+    bpy.context.scene.sequencer_colorspace_settings.name = 'Raw'
+    bpy.context.view_layer.update()
+    bpy.context.scene.view_settings.view_transform = 'Standard'
+    bpy.context.scene.view_settings.look = 'None'
 
     for device in cprefs.devices:
         device.use = False
@@ -121,28 +133,141 @@ def setup_render(args):
     bpy.context.scene.render.resolution_y = args.resolution
     bpy.context.scene.render.use_persistent_data = True
 
-def render(uid, job, cli_args, renderer_settings, applier,
+    scene.use_nodes = True
+
+    nodes = scene.node_tree.nodes
+    links = scene.node_tree.links
+
+    scene.view_layers["View Layer"].use_pass_uv = args.with_uv
+    bpy.context.scene.view_layers["View Layer"].use_pass_z = args.with_depth
+    bpy.context.scene.view_layers["View Layer"].use_pass_object_index = args.with_segmentation
+
+    scene.use_nodes = True
+    scene.name = 'main_scene'
+
+    for node in list(nodes):
+        nodes.remove(node)
+
+    layers_node = nodes.new(type="CompositorNodeRLayers")
+
+    file_output_node = nodes.new(type="CompositorNodeOutputFile")
+    file_output_node.format.file_format = "OPEN_EXR"
+    file_output_node.format.exr_codec = 'NONE'
+    output_slots = file_output_node.file_slots
+    output_slots.remove(file_output_node.inputs[0])
+    output_slots.new("render_exr")
+    links.new(layers_node.outputs[0], file_output_node.inputs[0])
+
+    if args.with_depth:
+        output_slots.new("depth")
+        setup_nice_PNG(file_output_node.file_slots["depth"])
+        math_node = nodes.new(type="CompositorNodeMath")
+        links.new(layers_node.outputs["Depth"], math_node.inputs[0])
+        math_node.operation = "DIVIDE"
+        math_node.inputs[1].default_value = args.max_depth
+        links.new(math_node.outputs[0], file_output_node.inputs["depth"])
+
+    if args.with_uv:
+        output_slots.new("uv")
+        setup_nice_PNG(file_output_node.file_slots["uv"])
+        links.new(layers_node.outputs["UV"], file_output_node.inputs["uv"])
+
+    if args.with_segmentation:
+        output_slots.new("segmentation")
+        setup_nice_PNG(file_output_node.file_slots["segmentation"])
+        file_output_node.file_slots["segmentation"].format.color_mode = "BW"
+        math_node = nodes.new(type="CompositorNodeMath")
+        links.new(layers_node.outputs["IndexOB"], math_node.inputs[0])
+        math_node.operation = "DIVIDE"
+        math_node.inputs[1].default_value = 65535.0
+        links.new(math_node.outputs[0], file_output_node.inputs["segmentation"])
+
+    main_scene = scene
+    assert 'sandbox_compositing_scene' not in bpy.data.scenes, (
+     '_sandbox_compositing_scene already exists in the blender file')
+
+    cur_scene = bpy.data.scenes.new('sandbox_compositing_scene')
+    bpy.context.window.scene = cur_scene
+    cur_scene.display_settings.display_device = 'sRGB'
+    cur_scene.sequencer_colorspace_settings.name = 'sRGB'
+    bpy.context.view_layer.update()
+    cur_scene.view_settings.view_transform = 'Filmic'
+    cur_scene.view_settings.look = 'None'
+
+    cur_scene.use_nodes = True
+    scene = cur_scene
+    nodes = scene.node_tree.nodes
+    links = scene.node_tree.links
+
+    for node in list(nodes):
+        nodes.remove(node)
+
+    input_image = nodes.new(type="CompositorNodeImage")
+    input_image.name = "input_image"
+    file_output_node = nodes.new(type="CompositorNodeOutputFile")
+    output_slots = file_output_node.file_slots
+    output_slots.remove(file_output_node.inputs[0])
+    output_slots.new("rgb")
+    file_output_node.format.file_format = "PNG"
+    file_output_node.format.compression = 0
+    file_output_node.format.color_depth = "8"
+    links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
+
+    bpy.context.window.scene = main_scene
+
+
+
+def render(uid, object_class, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
 
     context = {
         'object': bpy.context.scene.objects[uid]
     }
 
+    # 0 is background so we shift everything by 1
+    context['object'].pass_index = object_class + 1
+
     applier.apply_pre_controls(context)
 
-    img_extension = f".{IMAGE_FORMAT}"
+    output = {}
 
-    with NamedTemporaryFile(suffix=img_extension) as temp_file:
-        temp_filename = temp_file.name
-        temp_file.close()
-        bpy.context.scene.render.filepath = temp_filename
-
-        bpy.context.scene.render.image_settings.file_format = IMAGE_FORMAT.upper()
+    with TemporaryDirectory() as temp_folder:
+        main_scene = bpy.data.scenes['main_scene']
+        compositing_scene = bpy.data.scenes['sandbox_compositing_scene']
+        bpy.context.window.scene = main_scene
+        main_scene.node_tree.nodes['File Output'].base_path = temp_folder
         bpy.ops.render.render(use_viewport=False, write_still=True)
-        img = cv2.imread(temp_filename, cv2.IMREAD_UNCHANGED)
-        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
-        remove(temp_filename) 
+        bpy.context.window.scene = compositing_scene
+        written_file = glob(path.join(temp_folder, '*.exr'))
+        blender_loaded_image = bpy.data.images.load(written_file[0])
+        compositing_scene.node_tree.nodes["input_image"].image = blender_loaded_image
+        compositing_scene.node_tree.nodes["File Output"].format.file_format = IMAGE_FORMAT.upper()
+        compositing_scene.node_tree.nodes['File Output'].base_path = temp_folder
+        bpy.ops.render.render(use_viewport=False, write_still=True)
+        all_files = glob(path.join(temp_folder, "*.png"))
+        bpy.ops.wm.save_as_mainfile(filepath='/tmp/debug.blend')
 
-    applier.unapply()
-    img = ch.from_numpy(img).float().permute(2, 0, 1) / 255.0
-    return img
+        for full_filename in all_files:
+            name = re.sub(r'[0-9]+.png', '', path.basename(full_filename))
+            img = cv2.imread(full_filename, cv2.IMREAD_UNCHANGED)
+
+            if name == 'segmentation': 
+                img = img[:, :, None]  # Add extra dimension for the channel
+                img = img.astype('int32') - 1  # Go back from the 1 index to the 0 index
+                # We needed 1 index for the classes because we can only read images with
+                # positive integers
+            elif img.dtype is np.dtype(np.uint16):
+                img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+                img = img.astype('float32') / (2**16 - 1)
+            else:
+                img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+                img = img.astype('float32') / (2**8 - 1)
+
+            output[name] = ch.from_numpy(img).permute(2, 0, 1)
+
+        # Avoid memory leak by keeping all EXR rendered so far in memory
+        bpy.data.images.remove(blender_loaded_image)
+        # Switch back to the main scene
+        bpy.context.window.scene = main_scene
+
+    return output

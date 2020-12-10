@@ -16,8 +16,13 @@ from queue import Empty
 # and avoid copying them to every sub process
 class BigChungusCyclicBuffer:
 
-    def __init__(self, resolution=(256, 256), num_logits=1000, size=5000):
-        self.image_buffer = ch.zeros((size, 3, *resolution), dtype=ch.float32).share_memory_()
+    def __init__(self, output_channels, resolution=(256, 256), num_logits=1000, size=2500):
+        self.image_buffers = {}
+
+        for channel_name, channels, dtype in output_channels:
+            buff = ch.zeros((size, channels, *resolution), dtype=dtype).share_memory_()
+            self.image_buffers[channel_name] = buff
+
         self.logits_buffer = ch.zeros((size, num_logits), dtype=ch.float32).share_memory_()
         self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
         self.used_buffer = np.zeros(size, dtype='uint8')
@@ -29,7 +34,8 @@ class BigChungusCyclicBuffer:
         self.events = Queue()
 
     def __getitem__(self, ix):
-        return self.image_buffer[ix], self.logits_buffer[ix], self.correct_buffer[ix].item()
+        image_results = {k: v[ix] for (k, v) in self.image_buffers.items()}
+        return image_results, self.logits_buffer[ix], self.correct_buffer[ix].item()
 
     def free(self, ix):
         self.events.put(ix)
@@ -59,9 +65,13 @@ class BigChungusCyclicBuffer:
             except IndexError:
                 pass
 
-    def allocate(self, image, logits, is_correct):
+    def allocate(self, images, logits, is_correct):
         ix = self.next_find_index()
-        self.image_buffer[ix] = image
+
+        for channel_name, image_data in images.items():
+            assert channel_name in self.image_buffers, "Unexpected channel " + channel_name
+            self.image_buffers[channel_name][ix] = image_data
+
         self.logits_buffer[ix] = logits
         self.correct_buffer[ix] = is_correct
         return ix

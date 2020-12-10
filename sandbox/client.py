@@ -75,14 +75,17 @@ if __name__ == '__main__':
             **args
         }
 
+        channel_names = []
         if result is not None:
-            to_send['result'] = True
+            channel_names = list(result[0].keys())
+            to_send['result_channel_names'] = channel_names
 
         socket.send_json(to_send, flags=zmq.SNDMORE if result is not None else 0)
 
         if result is not None:
-            image, logits, is_correct = result
-            send_array(socket, image, flags=zmq.SNDMORE)
+            images, logits, is_correct = result
+            for channel_name in channel_names:
+                send_array(socket, images[channel_name], flags=zmq.SNDMORE)
             send_array(socket, logits, flags=zmq.SNDMORE)
             socket.send_pyobj(is_correct)
 
@@ -153,17 +156,19 @@ if __name__ == '__main__':
                                                        controls_args,
                                                        args.root_folder)
 
-                    result = rendering_engine.render(model_uid, job, args,
+                    result = rendering_engine.render(model_uid,
+                                                     uid_to_logits[model_uid][0],
+                                                     job, args,
                                                      render_args,
                                                      controls_applier,
                                                      loaded_model,
                                                      loaded_env
                                                      )
-                    result = controls_applier.apply_post_controls(result)
-                    result = result[:3]
+                    result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
+                    result = {k: v[:3] for (k, v) in result.items()}
 
                     with ch.no_grad():
-                        prediction = inference_model(result)
+                        prediction = inference_model(result['rgb'])
                     if evaluator.label_type == 'classes':
                         lab = uid_to_logits[model_uid]
                     elif evaluator.label_type == 'segmentation_map':
