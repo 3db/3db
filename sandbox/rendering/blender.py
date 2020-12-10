@@ -236,14 +236,14 @@ def render(uid, object_class, job, cli_args, renderer_settings, applier,
         compositing_scene = bpy.data.scenes['sandbox_compositing_scene']
         bpy.context.window.scene = main_scene
         main_scene.node_tree.nodes['File Output'].base_path = temp_folder
-        bpy.ops.render.render(use_viewport=False, write_still=True)
+        bpy.ops.render.render(use_viewport=False, write_still=False)
         bpy.context.window.scene = compositing_scene
         written_file = glob(path.join(temp_folder, '*.exr'))
         blender_loaded_image = bpy.data.images.load(written_file[0])
         compositing_scene.node_tree.nodes["input_image"].image = blender_loaded_image
         compositing_scene.node_tree.nodes["File Output"].format.file_format = IMAGE_FORMAT.upper()
         compositing_scene.node_tree.nodes['File Output'].base_path = temp_folder
-        bpy.ops.render.render(use_viewport=False, write_still=True)
+        bpy.ops.render.render(use_viewport=False, write_still=False)
         all_files = glob(path.join(temp_folder, "*.png"))
         bpy.ops.wm.save_as_mainfile(filepath='/tmp/debug.blend')
 
@@ -254,6 +254,7 @@ def render(uid, object_class, job, cli_args, renderer_settings, applier,
             if name == 'segmentation': 
                 img = img[:, :, None]  # Add extra dimension for the channel
                 img = img.astype('int32') - 1  # Go back from the 1 index to the 0 index
+                print(img.max())
                 # We needed 1 index for the classes because we can only read images with
                 # positive integers
             elif img.dtype is np.dtype(np.uint16):
