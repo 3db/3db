@@ -55,7 +55,7 @@ class DataReader():
 
     def update_data(self):
         # Make sure this is identical to EXTRA_KEYS in DetailView.js on the client
-        EXTRA_KEYS = ['is_correct', 'environment', 'model', 'id', 'outputs']
+        EXTRA_KEYS = ['is_correct', 'environment', 'model', 'id', 'outputs', 'eval_module']
         result = None
         with open(self.fname) as handle:
             full_data = handle.readlines()
@@ -80,6 +80,7 @@ class DataReader():
                 for kix, k in enumerate(self.keys):
                     result[i, kix] = render_args[k]
                 
+                print(data)
                 for kix, k in enumerate(EXTRA_KEYS):
                     result[i, -1-kix] = data[k]
 

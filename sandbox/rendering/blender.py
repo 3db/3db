@@ -253,7 +253,6 @@ def render(uid, object_class, job, cli_args, renderer_settings, applier,
             if name == 'segmentation': 
                 img = img[:, :, None]  # Add extra dimension for the channel
                 img = img.astype('int32') - 1  # Go back from the 1 index to the 0 index
-                print(img.max())
                 # We needed 1 index for the classes because we can only read images with
                 # positive integers
             elif img.dtype is np.dtype(np.uint16):

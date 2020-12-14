@@ -64,9 +64,10 @@ class LoggerManager(Process):
 
 class JSONLogger():
 
-    def __init__(self, fname, result_buffer):
+    def __init__(self, fname, result_buffer, config):
         self.handle = open(fname , 'ab+')
         self.fname = fname
+        self.config = config
         self.result_buffer = result_buffer
         self.result_buffer.register()
         print(f'==>[Logging to the JSON file {fname}]')
@@ -77,6 +78,7 @@ class JSONLogger():
         _, outputs, is_correct = self.result_buffer[rix]
         item['outputs'] = outputs.numpy()
         item['is_correct'] = is_correct
+        item['eval_module'] = self.config['evaluation']['module']
         cleaned = clean_log(item)
         encoded = json.dumps(cleaned, default=default, option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
         self.result_buffer.free(rix)
@@ -85,7 +87,7 @@ class JSONLogger():
 
 class TbLogger():
 
-    def __init__(self, dir, result_buffer):
+    def __init__(self, dir, result_buffer, config):
         self.dir = dir
         print(f'==>[Logging tensorboard to {dir}]')
         self.writer = None # Defer allocation in the sub-process
@@ -125,7 +127,7 @@ class TbLogger():
 
 class ImageLogger():
 
-    def __init__(self, dir, result_buffer):
+    def __init__(self, dir, result_buffer, config):
         self.result_buffer = result_buffer
         self.result_buffer.register()
         self.folder = dir
