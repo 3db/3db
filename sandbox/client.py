@@ -83,10 +83,10 @@ if __name__ == '__main__':
         socket.send_json(to_send, flags=zmq.SNDMORE if result is not None else 0)
 
         if result is not None:
-            images, logits, is_correct = result
+            images, outputs, is_correct = result
             for channel_name in channel_names:
                 send_array(socket, images[channel_name], flags=zmq.SNDMORE)
-            send_array(socket, logits, flags=zmq.SNDMORE)
+            send_array(socket, outputs, flags=zmq.SNDMORE)
             socket.send_pyobj(is_correct)
 
         result = socket.recv_pyobj()
@@ -110,7 +110,7 @@ if __name__ == '__main__':
         # Gather all experiment-wide parameters
         assert set(infos['models']) == set(all_models)
         assert set(infos['environments']) == set(all_envs)
-        uid_to_logits = infos['uid_to_logits']
+        uid_to_targets = infos['uid_to_targets']
         inference_args = infos['inference']
         controls_args = infos['controls_args']
         inference_model = load_inference_model(inference_args)
@@ -157,7 +157,7 @@ if __name__ == '__main__':
                                                        args.root_folder)
 
                     result = rendering_engine.render(model_uid,
-                                                     uid_to_logits[model_uid][0],
+                                                     uid_to_targets[model_uid][0],
                                                      job, args,
                                                      render_args,
                                                      controls_applier,
@@ -168,14 +168,14 @@ if __name__ == '__main__':
                     result = {k: v[:3] for (k, v) in result.items()}
 
                     with ch.no_grad():
-                        prediction = inference_model(result['rgb'])
+                        prediction, input_shape = inference_model(result['rgb'])
                     if evaluator.label_type == 'classes':
-                        lab = uid_to_logits[model_uid]
+                        lab = uid_to_targets[model_uid]
                     elif evaluator.label_type == 'segmentation_map':
                         print(result.keys())
                         lab = result['segmentation']
                     is_correct = evaluator.is_correct(prediction, lab)
-                    prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'])
+                    prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
                     # loss = evaluator.loss(prediction, lab)
                     data = (result, prediction_tens, is_correct)
                     query('push', job=job.id, result=data)

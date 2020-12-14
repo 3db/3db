@@ -26,6 +26,6 @@ class RandomSearchPolicy:
             discrete_instance = [rng.integers(low=0, high=n) for n in self.discrete_sizes]
             result.append((continuous_instance, discrete_instance))
 
-        images, logits, is_correct = render_and_send(result)
+        images, outputs, is_correct = render_and_send(result)
 
 Policy = RandomSearchPolicy

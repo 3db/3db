@@ -66,7 +66,7 @@ RUN echo "export THEME=agnoster" >> ~/.zshrc
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y wget libopenexr-dev git
 RUN apt-get install -y htop
-RUN pip install cox robustness kornia scikit-image \
+RUN pip install cox robustness kornia scikit-image orjson \
     opencv-python imgaug zmq OpenEXR tensorboard ipdb
 RUN /blender/2.90/python/bin/pip install tqdm ipdb
 RUN wget https://www.dropbox.com/s/yhpp4yws7sgi6lj/cifar_nat.pt\?raw=1 -O /cifar_nat.pt 
@@ -75,4 +75,7 @@ WORKDIR /
 RUN apt-get install -y tmux
 RUN echo "set-option -g default-shell /bin/zsh" >> /etc/tmux.conf
 
+# Setup for dashboard
+RUN pip install flask flask_cors
+RUN apt update && apt install -y nodejs npm
 CMD ["zsh"]

@@ -91,8 +91,8 @@ if __name__ == '__main__':
 
         policy_controllers = []
 
-        with open(config['inference']['uid_to_logits'], 'r') as f:
-            uid_to_logits = json.load(f)
+        with open(config['inference']['uid_to_targets'], 'r') as f:
+            uid_to_targets = json.load(f)
 
         # We need to know the resolution and number of classes to allocate
         # the memory beforehand and share it with other processes

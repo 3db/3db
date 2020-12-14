@@ -6,7 +6,7 @@ inference:
     mean: [0., 0., 0.]
     std: [1., 1., 1.]
   resolution: [500, 500]
-  uid_to_logits: './data_collection/uid_to_IN.json'
+  uid_to_targets: './data_collection/uid_to_IN.json'
   args:
     pretrained: True
 evaluation:

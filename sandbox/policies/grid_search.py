@@ -33,6 +33,6 @@ class GridSearchPolicy:
                 result.append((continuous_instance, discrete_instance))
 
         for r in chunks(result, 1000):
-            images, logits, is_correct = render(r)
+            images, outputs, is_correct = render(r)
 
 Policy = GridSearchPolicy

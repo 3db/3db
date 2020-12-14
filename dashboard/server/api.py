@@ -54,6 +54,8 @@ class DataReader():
         return current_size > self.last_size
 
     def update_data(self):
+        # Make sure this is identical to EXTRA_KEYS in DetailView.js on the client
+        EXTRA_KEYS = ['is_correct', 'environment', 'model', 'id', 'outputs']
         result = None
         with open(self.fname) as handle:
             full_data = handle.readlines()
@@ -71,17 +73,16 @@ class DataReader():
                     self.keys = cur_keys
 
                 if result is None:
-                    result = np.zeros((n_samples, len(self.keys) + 4), dtype='object')
+                    result = np.zeros((n_samples, len(self.keys) + len(EXTRA_KEYS)), dtype='object')
                 else:
                     assert self.keys == cur_keys
 
                 for kix, k in enumerate(self.keys):
                     result[i, kix] = render_args[k]
+                
+                for kix, k in enumerate(EXTRA_KEYS):
+                    result[i, -1-kix] = data[k]
 
-                result[i, -1] = data['is_correct']
-                result[i, -2] = data['environment']
-                result[i, -3] = data['model']
-                result[i, -4] = data['id']
             self.next_ix = len(full_data)
         if self.result is None:
             self.result = result
@@ -168,7 +169,7 @@ if __name__ == '__main__':
 
     @app.route('/images/<imid>')
     def send_js(imid):
-        return send_from_directory(path.join(args.logdir, 'images'), imid + '.png')
+        return send_from_directory(path.join(args.logdir, 'images'), imid + '_rgb.png')
 
     @app.route('/predict', methods=['POST'])
     def predict():
@@ -186,4 +187,4 @@ if __name__ == '__main__':
         reader.update_data()
         return Response(reader.answer, mimetype='application/json')
 
-    app.run(host='0.0.0.0', port='8000', debug=True)
+    app.run(host='0.0.0.0', port='8001', debug=True)

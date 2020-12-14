@@ -6,7 +6,7 @@ import { observer } from "mobx-react"
 
 import  colormap from 'colormap';
 
-import { range, every, uniq, xor, min, max } from 'lodash';
+import { range, every, uniq, xor, min, max, forEach } from 'lodash';
 
 import dm from '../models/DataManager';
 
@@ -267,7 +267,18 @@ const RenderControls = ({ currentState }) => {
   </>
 }
 
+function dataForItem(item) {
+    const EXTRAKEYS = ["is_correct", "environment", "model", "id", "outputs"];
+    var retVal = {};
+    for(var i = 0; i < EXTRAKEYS.length; i++) {
+        retVal[EXTRAKEYS[i]] = item[item.length - i - 1];
+    }
+    return retVal;
+}
 
+function getBBoxes(output) {
+    console.log(output);
+}
 
 const RenderImages = observer(({ currentState }) => {
   const selectedSamples = currentState.selectedSamplesWHeatmap
@@ -280,7 +291,9 @@ const RenderImages = observer(({ currentState }) => {
         position: 'top'
       }}
       renderItem={item => {
-        const is_correct = item[item.length - 1]
+        const data = dataForItem(item);
+        const is_correct = data["is_correct"];
+        const bboxes = getBBoxes(data["outputs"]);
         let style = {
           width: '100%',
           border: '10px solid'
@@ -291,10 +304,17 @@ const RenderImages = observer(({ currentState }) => {
         } else {
           style['borderColor'] = INCORRECT_COLOR
         }
+        style['position'] = "absolute";
 
         return <>
           <List.Item style={{ marginTop: '15px', marginBottom: '0' }}>
-            <Image style={style} src={new URL(`images/${item[item.length - 4]}`, dm.currentUrl).toString()} />
+            <div style={{position: "relative"}}>
+                <Image style={style} src={new URL(`images/${data["id"]}`, dm.currentUrl).toString()} />
+                <svg width="100" height="110" style={{position: "absolute", left: 0, top: 0}}>
+                    <rect width="300" height="100" style={{fill: 'rgb(0,0,255)', strokeWidth: '3', stroke: 'rgb(0,0,0)' }} />
+                    Sorry, your browser does not support inline SVG.  
+                </svg>
+            </div>
           </List.Item>
         </>;
       }}

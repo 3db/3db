@@ -42,11 +42,8 @@ class SimpleDetectionEvaluator(base_evaluator.Evaluator):
         hits = all_ious > self.iou_threshold
         # TODO: check that i got precision and recall right
         recall, precision = [ch.any(hits, dim=d).float().mean().item() for d in (0, 1)]
-        print(f"Precision: {prec} | Recall: {recall}")
-        if recall == 0.:
-            Image.fromarray((lab[0] == -1).numpy().astype('uint8') * 255).save("/tmp/test.png")
-            import pdb; pdb.set_trace()
-        return (prec >= self.min_precision) and (recall >= self.min_recall)
+        print(f"Precision: {precision} | Recall: {recall}")
+        return (precision >= self.min_precision) and (recall >= self.min_recall)
 
   
     def loss(self, pred, lab):
@@ -58,16 +55,19 @@ class SimpleDetectionEvaluator(base_evaluator.Evaluator):
         """
         # TODO: do this
     
-    def to_tensor(self, pred, output_shape):
+    def to_tensor(self, pred, output_shape, input_shape):
         """
         Turns a prediction dictionary into a tensor with the given output_shape (N x 6).
         To do this, we concatenate the prediction into the form [(x1, y1, x2, y2, score, label)].
         """
+        C, H, W = input_shape
         out = ch.zeros(*output_shape) - 1
         keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
         N = keep_inds.shape[0]
         keys = ('boxes', 'scores', 'labels')
         out[:N] = ch.cat([pred[s][keep_inds].view(N, -1).float() for s in keys], dim=1)
-        return out
+        out[:,[0, 2]] /= W
+        out[:,[1, 3]] /= H
+        return out 
                
 Evaluator = SimpleDetectionEvaluator

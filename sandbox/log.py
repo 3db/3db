@@ -74,8 +74,8 @@ class JSONLogger():
     def log(self, item):
         item = {k:v for (k,v) in item.items()}
         rix = item['result_ix']
-        _, logits, is_correct = self.result_buffer[rix]
-        item['logits'] = logits.numpy()
+        _, outputs, is_correct = self.result_buffer[rix]
+        item['outputs'] = outputs.numpy()
         item['is_correct'] = is_correct
         cleaned = clean_log(item)
         encoded = json.dumps(cleaned, default=default, option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)

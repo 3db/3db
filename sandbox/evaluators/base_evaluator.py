@@ -7,7 +7,7 @@ class Evaluator:
 
     def loss(self, pred, label): raise NotImplementedError
 
-    def to_tensor(self, pred, output_shape): 
+    def to_tensor(self, pred, output_shape, input_shape): 
         if isinstance(pred, ch.Tensor):
             assert list(pred.shape) == list(output_shape), \
                 "Shape of prediction ({pred.shape}) does not match declared shape ({output_shape})"

@@ -23,7 +23,7 @@ class BigChungusCyclicBuffer:
             buff = ch.zeros((size, channels, *resolution), dtype=dtype).share_memory_()
             self.image_buffers[channel_name] = buff
 
-        self.logits_buffer = ch.zeros((size, *output_shape), dtype=ch.float32).share_memory_()
+        self.outputs_buffer = ch.zeros((size, *output_shape), dtype=ch.float32).share_memory_()
         self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
         self.used_buffer = np.zeros(size, dtype='uint8')
         self.free_idx = list(range(size))
@@ -35,7 +35,7 @@ class BigChungusCyclicBuffer:
 
     def __getitem__(self, ix):
         image_results = {k: v[ix] for (k, v) in self.image_buffers.items()}
-        return image_results, self.logits_buffer[ix], self.correct_buffer[ix].item()
+        return image_results, self.outputs_buffer[ix], self.correct_buffer[ix].item()
 
     def free(self, ix):
         self.events.put(ix)
@@ -65,14 +65,14 @@ class BigChungusCyclicBuffer:
             except IndexError:
                 pass
 
-    def allocate(self, images, logits, is_correct):
+    def allocate(self, images, outputs, is_correct):
         ix = self.next_find_index()
 
         for channel_name, image_data in images.items():
             assert channel_name in self.image_buffers, "Unexpected channel " + channel_name
             self.image_buffers[channel_name][ix] = image_data
 
-        self.logits_buffer[ix] = logits
+        self.outputs_buffer[ix] = outputs
         self.correct_buffer[ix] = is_correct
         return ix
 
@@ -149,19 +149,6 @@ def load_inference_model(args):
 
     def inference_function(image):
         image = my_preprocess(image)
-        image = image.unsqueeze(0)
-        return model(image)[0]
-
-        """
-        if isinstance(out, list): 
-            # Object detection
-            N = out[0]['boxes'].shape[0]
-            results = [out[0][s].float().view(N, -1) for s in ('boxes', 'labels', 'scores')]
-            out = ch.cat(results, dim=1)
-            return out
-        elif isinstance(out, ch.tensor):
-            # Image classification
-            return out.data.numpy()[0]
-        """
+        return model(image.unsqueeze(0))[0], image.shape
 
     return inference_function

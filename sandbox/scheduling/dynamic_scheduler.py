@@ -29,10 +29,10 @@ def my_recv(socket, cyclic_buffer):
         for channel_name in channel_names:
             images[channel_name] = recv_array(socket)
 
-        logits = recv_array(socket)
+        outputs = recv_array(socket)
         is_correct = socket.recv_pyobj()
 
-        ix = cyclic_buffer.allocate(images, logits, is_correct)
+        ix = cyclic_buffer.allocate(images, outputs, is_correct)
         main_message['result'] = ix
 
     return main_message
@@ -50,10 +50,9 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
     running_policies = set()
     done_policies = set()
 
-    # Load the mapping for UIDs to logits indices
-    with open(inference_args['uid_to_logits'], 'r') as f:
-        uid_to_logits = json.load(f)
-
+    # Load the mapping for UIDs to target indices
+    with open(inference_args['uid_to_targets'], 'r') as f:
+        uid_to_targets = json.load(f)
 
     buffer_usage_bar = tqdm(smoothing=0, unit='slots', total=result_buffer.size)
     buffer_usage_bar.set_description('Buffer left')
@@ -102,7 +101,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 'environments': list_envs,
                 'models': list_models,
                 'render_args': render_args,
-                'uid_to_logits': uid_to_logits,
+                'uid_to_targets': uid_to_targets,
                 'inference': inference_args,
                 'controls_args': controls_args,
                 'evaluation_args': evaluation_args
