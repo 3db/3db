@@ -9,6 +9,7 @@ import  colormap from 'colormap';
 import { range, every, uniq, xor, min, max, forEach } from 'lodash';
 
 import dm from '../models/DataManager';
+import {COCOClasses, ImageNetClasses} from './ClassMaps'
 
 const { Column, ColumnGroup } = Table;
 const { Panel } = Collapse;
@@ -268,7 +269,7 @@ const RenderControls = ({ currentState }) => {
 }
 
 function dataForItem(item) {
-    const EXTRAKEYS = ["is_correct", "environment", "model", "id", "outputs"];
+    const EXTRAKEYS = ["is_correct", "environment", "model", "id", "outputs", "eval_module"];
     var retVal = {};
     for(var i = 0; i < EXTRAKEYS.length; i++) {
         retVal[EXTRAKEYS[i]] = item[item.length - i - 1];
@@ -276,8 +277,8 @@ function dataForItem(item) {
     return retVal;
 }
 
-function getBBoxes(output) {
-    console.log(output);
+function argMax(array) {
+    return [].reduce.call(array, (m, c, i, arr) => c > arr[m] ? i : m, 0)
 }
 
 const RenderImages = observer(({ currentState }) => {
@@ -293,25 +294,71 @@ const RenderImages = observer(({ currentState }) => {
       renderItem={item => {
         const data = dataForItem(item);
         const is_correct = data["is_correct"];
-        const bboxes = getBBoxes(data["outputs"]);
         let style = {
           width: '100%',
-          border: '10px solid'
         };
 
+        let itemStyle = {
+            position: 'relative',
+            boxSizing: 'content-box',
+            borderWidth: '10px',
+            borderStyle: 'solid',
+            borderColor: 'black'
+        };
         if (is_correct) {
-          style['borderColor'] = CORRECT_COLOR
+          itemStyle['borderColor'] = CORRECT_COLOR
         } else {
-          style['borderColor'] = INCORRECT_COLOR
+          itemStyle['borderColor'] = INCORRECT_COLOR
         }
-        style['position'] = "absolute";
+
+        const rectStyle = {fill: 'rgba(0,0,0,0)', strokeWidth: '3', stroke: 'rgb(0,0,0)'};
+        var rects = [];
+        var texts = [];
+        
+        if(data["eval_module"] == "sandbox.evaluators.detection") {
+            const bboxes = data["outputs"];
+            for(let bbox of bboxes) {
+                if(bbox[0] < 0) { break; }
+                const rand = Math.random().toString().substr(2, 8);
+                rects.push(<rect x={(bbox[0] * 100) + "%"} 
+                                y={(bbox[1] * 100) + "%"} 
+                                width={((bbox[2] - bbox[0]) * 100) + "%"} 
+                                height={((bbox[3] - bbox[1]) * 100) + "%"} 
+                                style={rectStyle}
+                                key={rand + "_rect"}/>)
+                texts.push(<text x={(bbox[0] * 100) + "%"}
+                                y={(bbox[1] * 100) + "%"}
+                                fontSize="8"
+                                style={{stroke: 'white', strokeWidth: '0.6em'}}
+                                transform="translate(0 10)"
+                                key={rand + "_text"}>{COCOClasses[bbox[5]]}</text>);
+                texts.push(<text x={(bbox[0] * 100) + "%"}
+                                y={(bbox[1] * 100) + "%"}
+                                fontSize="8"
+                                transform="translate(0 10)"
+                                key={rand + "_textbg"}>{COCOClasses[bbox[5]]}</text>);
+            }
+        }
+        else if (data["eval_module"] == "sandbox.evaluators.classification") {
+            let label = argMax(data["outputs"]);
+            console.log(label, data["outputs"][label]);
+            const rand = Math.random().toString().substr(2, 8);
+            texts.push(<text x="0" y="0" fontSize="10"
+                            style={{stroke: 'white', strokeWidth: '0.6em'}}
+                            transform="translate(0 10)"
+                            key={rand + "_text"}>{ImageNetClasses[label]}</text>);
+            texts.push(<text x="0" y="0" fontSize="10"
+                            transform="translate(0 10)"
+                            key={rand + "_textbg"}>{ImageNetClasses[label]}</text>);
+        }
 
         return <>
           <List.Item style={{ marginTop: '15px', marginBottom: '0' }}>
-            <div style={{position: "relative"}}>
-                <Image style={style} src={new URL(`images/${data["id"]}`, dm.currentUrl).toString()} />
-                <svg width="100" height="110" style={{position: "absolute", left: 0, top: 0}}>
-                    <rect width="300" height="100" style={{fill: 'rgb(0,0,255)', strokeWidth: '3', stroke: 'rgb(0,0,0)' }} />
+            <div style={itemStyle}>
+                <img style={style} src={new URL(`images/${data["id"]}`, dm.currentUrl).toString()} />
+                <svg width="100%" height="100%" style={{position: "absolute", zIndex: "100", left: 0, top: 0}}>
+                    {rects}
+                    {texts}
                     Sorry, your browser does not support inline SVG.  
                 </svg>
             </div>
