@@ -165,6 +165,7 @@ if __name__ == '__main__':
                                                      loaded_env
                                                      )
                     result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
+                    controls_applier.unapply()
                     result = {k: v[:3] for (k, v) in result.items()}
 
                     with ch.no_grad():

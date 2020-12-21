@@ -29,7 +29,7 @@ TRANSLATE_PREFIX = 'translation_control_'
 def cleanup_translate_containers(object):
     object.parent = None
     for other in bpy.data.objects:
-        if other.type == 'EMPTY' and len(other.type) == 0:
+        if other.type == 'EMPTY' and len(other.children) == 0:
             bpy.data.objects.remove(other, do_unlink=True)
 
 
