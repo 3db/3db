@@ -233,11 +233,8 @@ def setup_render(args):
     file_output_node.format.color_depth = "8"
     links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
 
-count = 0
-
 def render(uid, object_class, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
-    global count
 
     context = {
         'object': bpy.context.scene.objects[uid]
@@ -285,10 +282,5 @@ def render(uid, object_class, job, cli_args, renderer_settings, applier,
 
         # Avoid memory leak by keeping all EXR rendered so far in memory
         bpy.data.images.remove(blender_loaded_image)
-        if count == 10:
-            bpy.ops.wm.save_as_mainfile(filepath='/tmp/scene.blend')
-            exit()
-        else:
-            count += 1
 
     return output
