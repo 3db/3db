@@ -91,7 +91,7 @@ class JSONLogger(Logger):
         self.result_buffer = result_buffer
         self.regid = self.result_buffer.register()
         self.queue = Queue()
-        print(f'==>[Logging to the JSON file {fname} with regid ]')
+        print(f'==>[Logging to the JSON file {fname} with regid {self.regid}]')
 
     def log(self, item):
         item = {k: v for (k, v) in item.items()}

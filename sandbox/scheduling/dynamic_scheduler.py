@@ -145,7 +145,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 del work_queue[job.id]  # This is done do not give it to anyone else 
                 selected_policy.push_result(job.id, result)
             else:
-                pass  # This task has been completed earlier by another worker
+                # This task has been completed earlier by another worker
+                result_buffer.free(result, 1) # We have to free the result
 
             socket.send_pyobj({
                 'kind': 'ack'
