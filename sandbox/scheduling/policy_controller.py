@@ -71,7 +71,7 @@ class PolicyController(Process):
                 images[descriptor.order] = {k: v.clone() for (k, v) in c_images.items()}
                 outputs[descriptor.order] = c_outputs.clone()
                 is_correct[descriptor.order] = c_is_correct
-                self.result_buffer.free(result_ix)
+                self.result_buffer.free(result_ix, 1)
 
             image_channels = list(images[0].keys())
             images = {k: np.stack([image[k] for image in images]) for k in image_channels}

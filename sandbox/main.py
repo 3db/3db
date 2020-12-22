@@ -109,7 +109,8 @@ if __name__ == '__main__':
             output_shape=config['inference']['output_shape'],
             resolution=[render_args['resolution']] * 2,
         )
-        big_chungus.register()  # Register a single policy for each output
+        policy_regid = big_chungus.register()  # Register a single policy for each output
+        assert policy_regid == 1
 
         logger_manager = LoggerManager()
         loggers_list = [logger for logger in args.loggers.split(',')]

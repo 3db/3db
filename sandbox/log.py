@@ -39,41 +39,62 @@ def clean_value(v):
 def clean_log(d):
     return {clean_key(k): clean_value(v) for (k, v) in d.items() if k!='image' and k != 'result_ix'}
 
-class LoggerManager(Process):
+class LoggerManager():
 
     def __init__(self):
         super().__init__()
-        self.queue = Queue()
         self.loggers = []
 
     def append(self, logger):
         self.loggers.append(logger)
 
-    def log(self, data):
-        self.queue.put(data)
+    def log(self, item):
+        for logger in self.loggers:
+            logger.enqueue(item)
+
+    def start(self):
+        for logger in self.loggers:
+            logger.start()
+
+    def join(self):
+        for logger in self.loggers:
+            logger.join()
+
+
+class Logger(Process):
+
+    def __init__(self):
+        super().__init__()
+        self.queue = Queue()
+
+    def enqueue(self, item):
+        self.queue.put(item)
+
+    def log(self):
+        raise NotImplementedError()
 
     def run(self):
         while True:
             item = self.queue.get()
             if item is None:
                 break
-            for logger in self.loggers:
-                logger.log(item)
+            self.log(item)
 
 
-
-class JSONLogger():
+class JSONLogger(Logger):
 
     def __init__(self, fname, result_buffer, config):
-        self.handle = open(fname , 'ab+')
+        super().__init__()
+        self.handle = open(fname, 'ab+')
         self.fname = fname
         self.config = config
         self.result_buffer = result_buffer
-        self.result_buffer.register()
-        print(f'==>[Logging to the JSON file {fname}]')
+        self.regid = self.result_buffer.register()
+        self.queue = Queue()
+        print(f'==>[Logging to the JSON file {fname} with regid ]')
 
     def log(self, item):
-        item = {k:v for (k,v) in item.items()}
+        item = {k: v for (k, v) in item.items()}
         rix = item['result_ix']
         _, outputs, is_correct = self.result_buffer[rix]
         item['outputs'] = outputs.numpy()
@@ -81,18 +102,19 @@ class JSONLogger():
         item['eval_module'] = self.config['evaluation']['module']
         cleaned = clean_log(item)
         encoded = json.dumps(cleaned, default=default, option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
-        self.result_buffer.free(rix)
+        self.result_buffer.free(rix, self.regid)
         self.handle.write(encoded)
 
 
-class TbLogger():
+class TbLogger(Logger):
 
     def __init__(self, dir, result_buffer, config):
+        super().__init__()
         self.dir = dir
         print(f'==>[Logging tensorboard to {dir}]')
         self.writer = None # Defer allocation in the sub-process
         self.result_buffer = result_buffer
-        self.result_buffer.register()
+        self.regid = self.result_buffer.register()
         self.numeric_data = []
         self.images = {}
         self.count = 0
@@ -122,16 +144,17 @@ class TbLogger():
         if self.count % 1 == 0:
             self.write()
 
-        self.result_buffer.free(rix)
+        self.result_buffer.free(rix, self.regid)
 
 
-class ImageLogger():
+class ImageLogger(Logger):
 
     def __init__(self, dir, result_buffer, config):
+        super().__init__()
         self.result_buffer = result_buffer
-        self.result_buffer.register()
+        self.regid = self.result_buffer.register()
         self.folder = dir
-        print(f'==>[Logging images to {dir}]')
+        print(f'==>[Logging images to {dir} with regid {self.regid}]')
 
     def log(self, item):
         rix = item['result_ix']
@@ -145,4 +168,4 @@ class ImageLogger():
                 img_path = path.join(self.folder,
                                      item['id'] + '_' + channel_name + '.png')
                 cv2.imwrite(img_path, cv2.cvtColor(image.permute(1,2,0).numpy()*255.0, cv2.COLOR_RGB2BGR))
-        self.result_buffer.free(rix)
+        self.result_buffer.free(rix, self.regid)

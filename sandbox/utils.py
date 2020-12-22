@@ -16,7 +16,7 @@ from queue import Empty
 # and avoid copying them to every sub process
 class BigChungusCyclicBuffer:
 
-    def __init__(self, output_channels, output_shape, resolution=(256, 256), size=2500):
+    def __init__(self, output_channels, output_shape, resolution=(256, 256), size=1001):
         self.image_buffers = {}
 
         for channel_name, channels, dtype in output_channels:
@@ -30,6 +30,7 @@ class BigChungusCyclicBuffer:
         self.first = 0
         self.last = 0
         self.size = size
+        self.mask = 0
         self.registration_count = 0
         self.events = Queue()
 
@@ -37,18 +38,22 @@ class BigChungusCyclicBuffer:
         image_results = {k: v[ix] for (k, v) in self.image_buffers.items()}
         return image_results, self.outputs_buffer[ix], self.correct_buffer[ix].item()
 
-    def free(self, ix):
-        self.events.put(ix)
+    def free(self, ix, reg_id):
+        self.events.put((ix, reg_id))
 
     def register(self):
         self.registration_count += 1
+        if self.registration_count > 8:
+            raise Exception("Too many registrations")
+        self.mask = 2**self.registration_count - 1
+        return self.registration_count
 
     def process_events(self):
         while True:
             try:
-                event = self.events.get(block=False)
+                (event, reg_id) = self.events.get(block=False)
                 assert self.used_buffer[event] > 0
-                self.used_buffer[event] -= 1
+                self.used_buffer[event] ^= 1 << (reg_id - 1)
                 if self.used_buffer[event] == 0:
                     self.free_idx.append(event)
             except Empty:
@@ -60,9 +65,10 @@ class BigChungusCyclicBuffer:
             try:
                 ix = self.free_idx.pop()
                 assert self.used_buffer[ix] == 0
-                self.used_buffer[ix] = self.registration_count
+                self.used_buffer[ix] = self.mask
                 return ix
             except IndexError:
+                np.save('/tmp/used_buffer.npy', self.used_buffer)
                 pass
 
     def allocate(self, images, outputs, is_correct):
