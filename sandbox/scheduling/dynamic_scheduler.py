@@ -144,6 +144,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 selected_policy, job, _, _ = work_queue[jobid]
                 del work_queue[job.id]  # This is done do not give it to anyone else 
                 selected_policy.push_result(job.id, result)
+                renders_to_report += 1
             else:
                 # This task has been completed earlier by another worker
                 result_buffer.free(result, -1) # We have to free the result
@@ -152,7 +153,6 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 'kind': 'ack'
             })
 
-            renders_to_report += 1
 
             if time.time() > last_tqdm + TQDM_FREQ:
                 last_tqdm = time.time()
