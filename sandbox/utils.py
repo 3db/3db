@@ -53,7 +53,10 @@ class BigChungusCyclicBuffer:
             try:
                 (event, reg_id) = self.events.get(block=False)
                 assert self.used_buffer[event] > 0
-                self.used_buffer[event] ^= 1 << (reg_id - 1)
+                if reg_id == -1:
+                    self.used_buffer[event] = 0
+                else:
+                    self.used_buffer[event] ^= 1 << (reg_id - 1)
                 if self.used_buffer[event] == 0:
                     self.free_idx.append(event)
             except Empty:
