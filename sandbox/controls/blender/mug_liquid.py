@@ -21,7 +21,7 @@ class MugLiquidController(BaseControl):
         # eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
         ob = context['object']
         material = ob.material_slots['liquid'].material.node_tree
-        material.nodes['milk_coffe_ratio'].inputs['Fac'].default_value = ratio_milk
-        material.nodes['water_ratio'].inputs['Fac'].default_value = ratio_water
+        material.nodes["coffee_milk_ratio"].outputs[0].default_value = ratio_coffee / tot
+        material.nodes["water_ratio"].outputs[0].default_value = ratio_water / tot
 
 BlenderControl = MugLiquidController
