@@ -7,7 +7,6 @@ class MugLiquidController(BaseControl):
     continuous_dims = {
         'ratio_milk': (0, 1),
         'ratio_coffee': (0, 1),
-        'ratio_water': (0, 1),
     }
 
     discrete_dims = {}
@@ -16,12 +15,11 @@ class MugLiquidController(BaseControl):
         import bpy
         import mathutils
 
-        tot = ratio_milk + ratio_coffee + ratio_water
+        ratio_water = 1 - ratio_coffee - ratio_milk
 
-        # eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
         ob = context['object']
         material = ob.material_slots['liquid'].material.node_tree
-        material.nodes["coffee_milk_ratio"].outputs[0].default_value = ratio_coffee / tot
-        material.nodes["water_ratio"].outputs[0].default_value = ratio_water / tot
+        material.nodes["coffee_milk_ratio"].outputs[0].default_value = ratio_coffee / (ratio_coffee + ratio_milk)
+        material.nodes["water_ratio"].outputs[0].default_value = ratio_water
 
 BlenderControl = MugLiquidController
