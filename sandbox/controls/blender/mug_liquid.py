@@ -11,7 +11,7 @@ class MugLiquidController(BaseControl):
 
     discrete_dims = {}
 
-    def apply(self, context, ratio_milk, ratio_coffee, ratio_water):
+    def apply(self, context, ratio_milk, ratio_coffee):
         import bpy
         import mathutils
 
