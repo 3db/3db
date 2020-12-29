@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
         class Done(Exception): pass 
         try:
-            for env, model in tqdm(product(all_envs, all_models), desc="Init policies"):
+            for env, model in tqdm(list(product(all_envs, all_models)), desc="Init policies"):
                     env = env.split('/')[-1]
                     model = model.split('/')[-1]
                     policy_controllers.append(
@@ -141,6 +141,7 @@ if __name__ == '__main__':
         except Done:
             pass
 
+        print("==>[Starting the scheduler]")
         import multiprocessing
         schedule_work(policy_controllers, args.port, all_envs, all_models,
                       render_args, config['inference'], controls_args,
