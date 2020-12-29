@@ -8,8 +8,10 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 import argparse
+from itertools import product
 import json
 import yaml
+from tqdm import tqdm
 from glob import glob
 from os import path, makedirs
 from collections import defaultdict
@@ -127,9 +129,8 @@ if __name__ == '__main__':
 
         class Done(Exception): pass 
         try:
-            for env in all_envs:
-                env = env.split('/')[-1]
-                for model in all_models:
+            for env, model in tqdm(product(all_envs, all_models), desc="Init policies"):
+                    env = env.split('/')[-1]
                     model = model.split('/')[-1]
                     policy_controllers.append(
                         PolicyController(env, search_space, model, {
