@@ -57,6 +57,9 @@ if __name__ == '__main__':
                         default=256, type=int)
     parser.add_argument('--batch-size', help='How many task to ask for in a batch',
                         default=1, type=int)
+    parser.add_argument('--fake-results', action='store_true',
+                        help='Always return the same result regardless of the parameters' + 
+                        '\nThis is useful to debug and produce large amount of data quickly')
 
     args = parser.parse_args(arguments)
     print(args)
@@ -67,6 +70,8 @@ if __name__ == '__main__':
     socket.connect("tcp://" + args.master_address)
 
     worker_id = str(uuid4())
+
+    LAST_RESULT = []  # This is used to store the first render when --fake-result is set
 
     def query(kind, result=None, **args):
         to_send = {
@@ -133,52 +138,56 @@ if __name__ == '__main__':
                 print("do some work")
                 for job in paramters:
 
-                    current_env = job.environment
-                    current_model = job.model
+                    if LAST_RESULT:
+                        data = LAST_RESULT[0]
+                    else:
+                        current_env = job.environment
+                        current_model = job.model
 
-                    # We reload model and env if we got assigned to something
-                    # different this time
-                    if current_env != last_env or current_model != last_model:
-                        print("==>[Loading new environment/model pair]")
-                        loaded_env = rendering_engine.load_env(args.root_folder,
-                                                               current_env)
-                        loaded_model = rendering_engine.load_model(args.root_folder,
-                                                                   current_model)
-                        model_uid = rendering_engine.get_model_uid(loaded_model)
-                        renderer_settings = SimpleNamespace(**vars(args),
-                                                            **render_args)
-                        rendering_engine.setup_render(renderer_settings)
-                        last_env = current_env
-                        last_model = current_model
+                        # We reload model and env if we got assigned to something
+                        # different this time
+                        if current_env != last_env or current_model != last_model:
+                            print("==>[Loading new environment/model pair]")
+                            loaded_env = rendering_engine.load_env(args.root_folder,
+                                                                current_env)
+                            loaded_model = rendering_engine.load_model(args.root_folder,
+                                                                    current_model)
+                            model_uid = rendering_engine.get_model_uid(loaded_model)
+                            renderer_settings = SimpleNamespace(**vars(args),
+                                                                **render_args)
+                            rendering_engine.setup_render(renderer_settings)
+                            last_env = current_env
+                            last_model = current_model
 
-                    controls_applier = ControlsApplier(job.control_order,
-                                                       job.render_args,
-                                                       controls_args,
-                                                       args.root_folder)
+                        controls_applier = ControlsApplier(job.control_order,
+                                                        job.render_args,
+                                                        controls_args,
+                                                        args.root_folder)
 
-                    result = rendering_engine.render(model_uid,
-                                                     uid_to_targets[model_uid][0],
-                                                     job, args,
-                                                     render_args,
-                                                     controls_applier,
-                                                     loaded_model,
-                                                     loaded_env
-                                                     )
-                    result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
-                    controls_applier.unapply()
-                    result = {k: v[:3] for (k, v) in result.items()}
+                        result = rendering_engine.render(model_uid,
+                                                        uid_to_targets[model_uid][0],
+                                                        job, args,
+                                                        render_args,
+                                                        controls_applier,
+                                                        loaded_model,
+                                                        loaded_env
+                                                        )
+                        result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
+                        controls_applier.unapply()
+                        result = {k: v[:3] for (k, v) in result.items()}
 
-                    with ch.no_grad():
-                        prediction, input_shape = inference_model(result['rgb'])
-                    if evaluator.label_type == 'classes':
-                        lab = uid_to_targets[model_uid]
-                    elif evaluator.label_type == 'segmentation_map':
-                        print(result.keys())
-                        lab = result['segmentation']
-                    is_correct = evaluator.is_correct(prediction, lab)
-                    prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
-                    # loss = evaluator.loss(prediction, lab)
-                    data = (result, prediction_tens, is_correct)
+                        with ch.no_grad():
+                            prediction, input_shape = inference_model(result['rgb'])
+                        if evaluator.label_type == 'classes':
+                            lab = uid_to_targets[model_uid]
+                        elif evaluator.label_type == 'segmentation_map':
+                            print(result.keys())
+                            lab = result['segmentation']
+                        is_correct = evaluator.is_correct(prediction, lab)
+                        prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
+                        # loss = evaluator.loss(prediction, lab)
+                        data = (result, prediction_tens, is_correct)
+                        LAST_RESULT.append(data)
                     query('push', job=job.id, result=data)
                     pbar.update(1)
             # print(job_description)
