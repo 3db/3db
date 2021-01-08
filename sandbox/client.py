@@ -187,7 +187,8 @@ if __name__ == '__main__':
                         prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
                         # loss = evaluator.loss(prediction, lab)
                         data = (result, prediction_tens, is_correct)
-                        LAST_RESULT.append(data)
+                        if args.fake_results:
+                            LAST_RESULT.append(data)
                     query('push', job=job.id, result=data)
                     pbar.update(1)
             # print(job_description)
