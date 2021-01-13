@@ -37,8 +37,8 @@ def my_recv(socket, cyclic_buffer):
 
     return main_message
 
-def schedule_work(policy_controllers, port, list_envs, list_models,
-                  render_args, inference_args, controls_args,
+def schedule_work(policy_controllers, port, max_running_policies, list_envs,
+                  list_models, render_args, inference_args, controls_args,
                   evaluation_args, result_buffer):
     context = zmq.Context(io_threads=1)
     socket = context.socket(zmq.REP)
@@ -86,7 +86,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             work_queue[pulled.id] = (policy, pulled, 0, time.time())
 
         # If there is not enough work we start a new policy
-        if len(work_queue) < 2 * len(seen_workers) and not wait_before_start_new and len(controllers_to_start) and len(running_policies) < 5:
+        if len(work_queue) < 2 * len(seen_workers) and not wait_before_start_new and len(controllers_to_start) and len(running_policies) < max_running_policies:
             selected_policy = controllers_to_start.pop()
             selected_policy.start()
             running_policies.add(selected_policy)
