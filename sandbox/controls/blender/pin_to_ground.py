@@ -27,7 +27,7 @@ class PinToGroundControl(BaseControl):
         post_translate(ob, Vector([0, 0, z_ground - obj_min_z]))
         self.ob = ob
 
-    def unapply(self):
+    def unapply(self, context):
         cleanup_translate_containers(self.ob)
 
 

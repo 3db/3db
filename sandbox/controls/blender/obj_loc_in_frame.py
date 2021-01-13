@@ -39,7 +39,7 @@ class ObjLocInFrameControl(BaseControl):
         shift = np.matmul(camera_matrix, np.array([[x_limit*x_shift, y_limit*y_shift, -z_obj_wrt_camera, 1]]).T)
         post_translate(ob, Vector(list(shift[:3])))
 
-    def unapply(self):
+    def unapply(self, context):
         cleanup_translate_containers(self.ob)
 
 

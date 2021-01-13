@@ -54,7 +54,7 @@ if __name__ == '__main__':
     parser.add_argument('--cpu-cores', help='number of cpu cores to use (default uses all)', 
                         default=None, type=int,)
     parser.add_argument('--tile-size', help='The size of tiles used for GPU rendering',
-                        default=256, type=int)
+                        default=32, type=int)
     parser.add_argument('--batch-size', help='How many task to ask for in a batch',
                         default=1, type=int)
     parser.add_argument('--fake-results', action='store_true',
@@ -164,16 +164,18 @@ if __name__ == '__main__':
                                                         controls_args,
                                                         args.root_folder)
 
-                        result = rendering_engine.render(model_uid,
-                                                        uid_to_targets[model_uid][0],
-                                                        job, args,
-                                                        render_args,
-                                                        controls_applier,
-                                                        loaded_model,
-                                                        loaded_env
-                                                        )
-                        result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
-                        controls_applier.unapply()
+                        context = {}
+                        result = rendering_engine.render(context,
+                                                         model_uid,
+                                                         uid_to_targets[model_uid][0],
+                                                         job, args,
+                                                         render_args,
+                                                         controls_applier,
+                                                         loaded_model,
+                                                         loaded_env
+                                                         )
+                        result['rgb'] = controls_applier.apply_post_controls(context, result['rgb'])
+                        controls_applier.unapply(context)
                         result = {k: v[:3] for (k, v) in result.items()}
 
                         with ch.no_grad():

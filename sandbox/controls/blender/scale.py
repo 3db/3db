@@ -13,7 +13,7 @@ class ObjScaleControl(BaseControl):
         self.ob = context['object']
         self.ob.scale = (factor,) * 3
 
-    def unapply(self):
+    def unapply(self, context):
         self.ob.scale = (1.,) * 3
 
 BlenderControl = ObjScaleControl

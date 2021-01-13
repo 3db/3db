@@ -25,7 +25,7 @@ class PositionControl(BaseControl):
         self.ob = ob
         post_translate(ob, Vector([offset_X, offset_Y, offset_Z]))
 
-    def unapply(self):
+    def unapply(self, context):
         cleanup_translate_containers(self.ob)
 
 

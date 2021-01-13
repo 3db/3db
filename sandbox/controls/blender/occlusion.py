@@ -95,7 +95,7 @@ class OcclusionControl(BaseControl):
         self.move_in_plane(self.occluder, x_shift, y_shift)
         self.occluder.scale = (scale,) * 3
 
-    def unapply(self):
+    def unapply(self, context):
         import bpy
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
