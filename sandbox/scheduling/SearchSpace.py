@@ -27,12 +27,17 @@ class SearchSpace:
                     # We consider this paramter to be set and not searched over
                     set_args.append((name, continous_arg, value_range))
             for k, v in control.discrete_dims.items():
-                discrete_args.append((name, k, v))
+                if isinstance(v, str):
+                    v = [v]
+                if len(v) == 1:
+                    set_args.append((name, k, v[0]))
+                else:
+                    discrete_args.append((name, k, v))
 
         self.continuous_args = continuous_args
         self.discrete_args = discrete_args
         self.set_args = set_args
-        print(continuous_args)
+        print(discrete_args)
 
     def generate_description(self):
         return len(self.continuous_args), [x[2] for x in self.discrete_args]
