@@ -17,15 +17,14 @@ class MaterialControl(BaseControl):
                                                           'blender_control_material',
                                                           '*.blend')
                                                 )))
+        self.root_folder = root_folder
         self.files_in_folder.append('keep_original')
-        self.discrete_dims["replacement_material"] = len(self.files_in_folder)
+        self.files_in_folder = [x.replace(root_folder, '') for x in self.files_in_folder]
+        self.discrete_dims["replacement_material"] = self.files_in_folder
 
 
     def apply(self, context, replacement_material):
         import bpy
-
-        fname = self.files_in_folder[replacement_material]
-        current_materials = set([x.name for x in bpy.data.materials])
 
         state = {
             'added_materials': [],
@@ -34,8 +33,11 @@ class MaterialControl(BaseControl):
 
         context['material_control_state'] = state
 
-        if fname == "keep_original":
+        if replacement_material == "keep_original":
             return
+
+        fname = path.join(self.root_folder, replacement_material)
+        current_materials = set([x.name for x in bpy.data.materials])
 
         with bpy.data.libraries.load(fname) as (data_from, data_to):
             for material in data_from.materials:
