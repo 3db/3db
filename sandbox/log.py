@@ -73,12 +73,16 @@ class Logger(Process):
     def log(self):
         raise NotImplementedError()
 
+    def end(self):
+        pass
+
     def run(self):
         while True:
             item = self.queue.get()
             if item is None:
                 break
             self.log(item)
+        self.end()
 
 
 class JSONLogger(Logger):
@@ -104,6 +108,10 @@ class JSONLogger(Logger):
         encoded = json.dumps(cleaned, default=default, option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
         self.result_buffer.free(rix, self.regid)
         self.handle.write(encoded)
+
+    def end(self):
+        self.handle.close()
+
 
 
 class TbLogger(Logger):
