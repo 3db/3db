@@ -1,6 +1,7 @@
 inference:
   module: 'torchvision.models.detection'
   class: 'retinanet_resnet50_fpn'
+  label_map: './data_collection/coco_mapping.json'
   output_shape: [100, 6]
   normalization:
     mean: [0., 0., 0.]

@@ -117,7 +117,7 @@ if __name__ == '__main__':
         logger_manager = LoggerManager()
         loggers_list = [logger for logger in args.loggers.split(',')]
         if "JSONLogger" in loggers_list:
-            logger_manager.append(JSONLogger(path.join(args.logdir, 'details.log'), big_chungus, config))
+            logger_manager.append(JSONLogger(args.logdir, big_chungus, config))
         if "TbLogger" in loggers_list:
             logger_manager.append(TbLogger(args.logdir, big_chungus, config))
         if "ImageLogger" in loggers_list:

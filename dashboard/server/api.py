@@ -55,7 +55,7 @@ class DataReader():
 
     def update_data(self):
         # Make sure this is identical to EXTRA_KEYS in DetailView.js on the client
-        EXTRA_KEYS = ['is_correct', 'environment', 'model', 'id', 'outputs', 'eval_module']
+        EXTRA_KEYS = ['is_correct', 'environment', 'model', 'id', 'outputs', 'eval_module', 'class_info']
         result = None
         with open(self.fname) as handle:
             full_data = handle.readlines()
@@ -181,6 +181,10 @@ if __name__ == '__main__':
                 prediction_idx = get_prediction(model, input_tensor)
                 class_id, class_name = render_prediction(prediction_idx, img_class_map)
                 return jsonify({'class_id': class_id, 'class_name': class_name})
+    
+    @app.route('/class_map')
+    def return_class_map():
+        jsonify(json.load(open(path.join(args.logdir, 'class_map.log'))))
                 
     @app.route('/')
     @gzipped

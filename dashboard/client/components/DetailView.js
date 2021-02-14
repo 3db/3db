@@ -9,7 +9,6 @@ import  colormap from 'colormap';
 import { range, every, uniq, xor, min, max, forEach } from 'lodash';
 
 import dm from '../models/DataManager';
-import {COCOClasses, ImageNetClasses} from './ClassMaps'
 
 const { Column, ColumnGroup } = Table;
 const { Panel } = Collapse;
@@ -269,7 +268,7 @@ const RenderControls = ({ currentState }) => {
 }
 
 function dataForItem(item) {
-    const EXTRAKEYS = ["is_correct", "environment", "model", "id", "outputs", "eval_module"];
+    const EXTRAKEYS = ["is_correct", "environment", "model", "id", "outputs", "eval_module", "class_info"];
     var retVal = {};
     for(var i = 0; i < EXTRAKEYS.length; i++) {
         retVal[EXTRAKEYS[i]] = item[item.length - i - 1];
@@ -315,7 +314,7 @@ const RenderImages = observer(({ currentState }) => {
         var rects = [];
         var texts = [];
         
-        if(data["eval_module"] == "sandbox.evaluators.detection") {
+        if(data["output_type"] == "bboxes") {
             const bboxes = data["outputs"];
             for(let bbox of bboxes) {
                 if(bbox[0] < 0) { break; }
@@ -339,7 +338,7 @@ const RenderImages = observer(({ currentState }) => {
                                 key={rand + "_textbg"}>{COCOClasses[bbox[5]]}</text>);
             }
         }
-        else if (data["eval_module"] == "sandbox.evaluators.classification") {
+        else if (data["output_type"] == "classes") {
             let label = argMax(data["outputs"]);
             console.log(label, data["outputs"][label]);
             const rand = Math.random().toString().substr(2, 8);

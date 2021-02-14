@@ -3,11 +3,13 @@ import torch as ch
 from sandbox.evaluators import base_evaluator
 
 class SimpleClassificationEvaluator(base_evaluator.Evaluator): 
+    label_type = 'classes'
+    output_type = 'classes'
+
     def __init__(self, *, topk):
         super().__init__()
         self.crit = nn.CrossEntropyLoss()
         self.topk = topk
-        self.label_type = "classes"
 
     def fix_type(self, label):
         """

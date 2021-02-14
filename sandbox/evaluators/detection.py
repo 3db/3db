@@ -6,11 +6,13 @@ from PIL import Image
 
 
 class SimpleDetectionEvaluator(base_evaluator.Evaluator):
+    label_type = 'segmentation_map'
+    output_type = 'bboxes'
+
     def __init__(self, iou_threshold, min_recall=1.0, min_precision=0.0):
         self.iou_threshold = iou_threshold
         self.min_recall = min_recall
         self.min_precision = min_precision
-        self.label_type = "segmentation_map"
 
     def get_bounding_boxes(self, seg_map):
         BG_IND = -1

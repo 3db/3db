@@ -170,11 +170,12 @@ if __name__ == '__main__':
 
                     with ch.no_grad():
                         prediction, input_shape = inference_model(result['rgb'])
-                    if evaluator.label_type == 'classes':
+                    if evaluator_module.Evaluator.label_type == 'classes':
                         lab = uid_to_targets[model_uid]
-                    elif evaluator.label_type == 'segmentation_map':
-                        print(result.keys())
+                    elif evaluator_module.Evaluator.label_type == 'segmentation_map':
                         lab = result['segmentation']
+                    else:
+                        raise ValueError(f'Label type {evaluator_module.label_type} not found')
                     is_correct = evaluator.is_correct(prediction, lab)
                     prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
                     # loss = evaluator.loss(prediction, lab)

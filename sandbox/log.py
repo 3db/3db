@@ -10,13 +10,12 @@ from torch.utils.tensorboard import SummaryWriter
 from concurrent.futures import ThreadPoolExecutor
 import cv2
 from os import path
+import shutil
 import pandas as pd
 import torch as ch
 import torchvision
 from multiprocessing import Process, Queue
-
-# torch.multiprocessing.set_sharing_strategy('file_system')
-
+import importlib
 
 def clean_key(k):
     if isinstance(k, str):
@@ -83,15 +82,22 @@ class Logger(Process):
 
 class JSONLogger(Logger):
 
-    def __init__(self, fname, result_buffer, config):
+    def __init__(self, root_dir, result_buffer, config):
         super().__init__()
-        self.handle = open(fname, 'ab+')
-        self.fname = fname
+        self.fname = path.join(root_dir, 'details.log')
+        self.handle = open(self.fname, 'ab+')
         self.config = config
         self.result_buffer = result_buffer
         self.regid = self.result_buffer.register()
         self.queue = Queue()
-        print(f'==>[Logging to the JSON file {fname} with regid {self.regid}]')
+        self.evaluator = importlib.import_module(self.config['evaluation']['module']).Evaluator
+        if 'label_map' in config['inference']:
+            classmap_fname = path.join(root_dir, 'class_maps.json')
+            print(f"==>[Saving class maps to {classmap_fname}]")
+            shutil.copyfile(config['inference']['label_map'], classmap_fname)
+            # classmap_str = json.dumps(json.load(open(config['inference']['label_map'])))
+            # f.write(classmap_str)
+        print(f'==>[Logging to the JSON file {self.fname} with regid {self.regid}]')
 
     def log(self, item):
         item = {k: v for (k, v) in item.items()}
@@ -99,7 +105,7 @@ class JSONLogger(Logger):
         _, outputs, is_correct = self.result_buffer[rix]
         item['outputs'] = outputs.numpy()
         item['is_correct'] = is_correct
-        item['eval_module'] = self.config['evaluation']['module']
+        item['output_type'] = self.evaluator.output_type
         cleaned = clean_log(item)
         encoded = json.dumps(cleaned, default=default, option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
         self.result_buffer.free(rix, self.regid)
