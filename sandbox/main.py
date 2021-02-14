@@ -41,6 +41,8 @@ parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
                     help='Which loggers to use. Comma dilimited list. e.g. JSONLogger,TbLogger,ImageLogger')
 parser.add_argument('--single-model', action='store_true',
                     help='If given, only do one model and one environment (for debugging)')
+parser.add_argument('--max-concurrent-policies', '-m', type=int, default=10,
+                    help='Maximum number of concurrent policies, can keep memory usage under control')
 
 
 DEFAULT_RENDER_ARGS = {
@@ -143,7 +145,8 @@ if __name__ == '__main__':
 
         print("==>[Starting the scheduler]")
         import multiprocessing
-        schedule_work(policy_controllers, args.port, all_envs, all_models,
+        schedule_work(policy_controllers, args.port,
+                      args.max_concurrent_policies, all_envs, all_models,
                       render_args, config['inference'], controls_args,
                       config['evaluation'], big_chungus)
 

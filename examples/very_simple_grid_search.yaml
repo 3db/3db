@@ -19,20 +19,13 @@ render_args:
   resolution: 256
   with_uv: True
   with_depth: True
-  with_segmentation: True
+  with_segmentation: False
   samples: 16
 policy:
   module: "sandbox.policies.grid_search"
   samples_per_dim: 5
 controls:
-  # - module: "background"
-  #   H: 0.
-  #   S: .4
-  #   V: .4
-  - module: "pose"
-    rotation_X: (-3.14, 2.10) # (-pi, pi - 2*pi/6)
-    rotation_Y: (-3.14, 2.10) # (-pi, pi - 2*pi/6)
-    rotation_Z: (-3.14, 2.10) # (-pi, pi - 2*pi/6)
+  - module: "mug_controller"
   - module: "denoiser"
   - module: "position"
     offset_X: 0
@@ -47,23 +40,3 @@ controls:
     zoom_factor: (0.3, 1.2)
     aperture: 8
     focal_length: 50
-  # - module: "scale"
-  #   factor: (1, 1.5)
-  # - module: "obj_loc_in_frame"
-  #   x_shift: (-.3,.3)
-  #   y_shift: (-.3,.3)
-  # - module: "occlusion"
-  #   occlusion_ratio: 0.5
-  #   direction: 8
-  #   occluder: 2
-  #   zoom: 0.2
-  #   scale: (0.25, .5)
-  # - module: "pointlight"
-  #   intensity: 10000
-  #   distance: 5
-  #   dir_x: 1
-  #   dir_y: 1
-  #   dir_z: 1
-  #   # H: 0
-  #   S: .7
-  #   V: .7

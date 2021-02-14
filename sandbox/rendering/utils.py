@@ -55,12 +55,12 @@ class ControlsApplier:
                 control_class.apply(context=context, **control_params)
 
     # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
-    def unapply(self):
+    def unapply(self, context):
         for control_class in self.control_classes:
-            control_class.unapply()
+            control_class.unapply(context)
 
     # post-processing controls
-    def apply_post_controls(self, img):
+    def apply_post_controls(self, context, img):
         for control_class in self.control_classes:
             if control_class.kind == 'post':
                 classname = type(control_class).__name__

@@ -233,12 +233,11 @@ def setup_render(args):
     file_output_node.format.color_depth = "8"
     links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
 
-def render(uid, object_class, job, cli_args, renderer_settings, applier,
+def render(context, uid, object_class, job, cli_args, renderer_settings, applier,
            loaded_model=None, loaded_env=None):
 
-    context = {
-        'object': bpy.context.scene.objects[uid]
-    }
+
+    context['object'] = bpy.context.scene.objects[uid]
 
     # 0 is background so we shift everything by 1
     context['object'].pass_index = object_class + 1

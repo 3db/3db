@@ -37,10 +37,10 @@ def my_recv(socket, cyclic_buffer):
 
     return main_message
 
-def schedule_work(policy_controllers, port, list_envs, list_models,
-                  render_args, inference_args, controls_args,
+def schedule_work(policy_controllers, port, max_running_policies, list_envs,
+                  list_models, render_args, inference_args, controls_args,
                   evaluation_args, result_buffer):
-    context = zmq.Context(io_threads=os.cpu_count())
+    context = zmq.Context(io_threads=1)
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
 
@@ -62,6 +62,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
     policies_bar.set_description('Policies')
     work_queue = {}
     renders_to_report = 0
+    valid_renders = 0
+    total_renders = 0
     last_tqdm = 0
 
     wait_before_start_new = False
@@ -84,7 +86,7 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             work_queue[pulled.id] = (policy, pulled, 0, time.time())
 
         # If there is not enough work we start a new policy
-        if len(work_queue) < 2 * len(seen_workers) and not wait_before_start_new and len(controllers_to_start):
+        if len(work_queue) < 2 * len(seen_workers) and not wait_before_start_new and len(controllers_to_start) and len(running_policies) < max_running_policies:
             selected_policy = controllers_to_start.pop()
             selected_policy.start()
             running_policies.add(selected_policy)
@@ -139,12 +141,15 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
             # Extract the result from the message
             jobid, result = message['job'], message['result']
 
+            total_renders += 1
+
             if jobid in work_queue:
                 # Recover the policy associated to this job entry
                 selected_policy, job, _, _ = work_queue[jobid]
                 del work_queue[job.id]  # This is done do not give it to anyone else 
                 selected_policy.push_result(job.id, result)
                 renders_to_report += 1
+                valid_renders += 1
             else:
                 # This task has been completed earlier by another worker
                 result_buffer.free(result, -1) # We have to free the result
@@ -166,7 +171,8 @@ def schedule_work(policy_controllers, port, list_envs, list_models,
                 })
                 rendering_bar.set_postfix({
                     'workers': len(seen_workers),
-                    'pending': len(work_queue)
+                    'pending': len(work_queue),
+                    'waste%': (1 - valid_renders / total_renders) * 100
                 })
 
         else:

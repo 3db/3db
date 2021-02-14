@@ -54,9 +54,12 @@ if __name__ == '__main__':
     parser.add_argument('--cpu-cores', help='number of cpu cores to use (default uses all)', 
                         default=None, type=int,)
     parser.add_argument('--tile-size', help='The size of tiles used for GPU rendering',
-                        default=256, type=int)
+                        default=32, type=int)
     parser.add_argument('--batch-size', help='How many task to ask for in a batch',
                         default=1, type=int)
+    parser.add_argument('--fake-results', action='store_true',
+                        help='Always return the same result regardless of the parameters' + 
+                        '\nThis is useful to debug and produce large amount of data quickly')
 
     args = parser.parse_args(arguments)
     print(args)
@@ -67,6 +70,8 @@ if __name__ == '__main__':
     socket.connect("tcp://" + args.master_address)
 
     worker_id = str(uuid4())
+
+    LAST_RESULT = []  # This is used to store the first render when --fake-result is set
 
     def query(kind, result=None, **args):
         to_send = {
@@ -91,95 +96,104 @@ if __name__ == '__main__':
 
         result = socket.recv_pyobj()
         if result['kind'] == 'die':
-            print("==>[Received closed request from master]")
+            print("==> [Received closed request from master]")
             exit()
         return result
 
+    # while True:
+    infos = query('info')
+    render_args = infos['render_args']
+
+    rendering_engine = importlib.import_module(render_args['engine'])
+    all_models = rendering_engine.enumerate_models(args.root_folder)
+    all_envs = rendering_engine.enumerate_environments(args.root_folder)
+
+    evaluation_args = infos['evaluation_args']
+    evaluator_module = importlib.import_module(evaluation_args['module'])
+    evaluator = evaluator_module.Evaluator(**infos['evaluation_args']['args'])
+
+    # Gather all experiment-wide parameters
+    assert set(infos['models']) == set(all_models)
+    assert set(infos['environments']) == set(all_envs)
+    uid_to_targets = infos['uid_to_targets']
+    inference_args = infos['inference']
+    controls_args = infos['controls_args']
+    inference_model = load_inference_model(inference_args)
+
+    last_env = None
+    last_model = None
+
+    pbar = tqdm(smoothing=0)
+
     while True:
-        infos = query('info')
-        render_args = infos['render_args']
+        job_description = query('pull', batch_size=args.batch_size,
+                                last_environment=last_env,
+                                last_model=last_model)
+        parameters = job_description['params_to_render']
 
-        rendering_engine = importlib.import_module(render_args['engine'])
-        all_models = rendering_engine.enumerate_models(args.root_folder)
-        all_envs = rendering_engine.enumerate_environments(args.root_folder)
+        if len(parameters) == 0:
+            print("Nothing to do!", 'sleeping')
+            time.sleep(1)
+            continue
 
-        evaluation_args = infos['evaluation_args']
-        evaluator_module = importlib.import_module(evaluation_args['module'])
-        evaluator = evaluator_module.Evaluator(**infos['evaluation_args']['args'])
-
-        # Gather all experiment-wide parameters
-        assert set(infos['models']) == set(all_models)
-        assert set(infos['environments']) == set(all_envs)
-        uid_to_targets = infos['uid_to_targets']
-        inference_args = infos['inference']
-        controls_args = infos['controls_args']
-        inference_model = load_inference_model(inference_args)
-
-        last_env = None
-        last_model = None
-
-        pbar = tqdm(smoothing=0)
-
-        while True:
-            job_description = query('pull', batch_size=args.batch_size,
-                                    last_environment=last_env,
-                                    last_model=last_model)
-            paramters = job_description['params_to_render']
-
-            if len(paramters) == 0:
-                print("Nothing to do!", 'sleeping')
-                time.sleep(1)
+        print("do some work")
+        for job in parameters:
+            if LAST_RESULT:
+                data = LAST_RESULT[0]
+                continue
             else:
-                print("do some work")
-                for job in paramters:
+                current_env = job.environment
+                current_model = job.model
 
-                    current_env = job.environment
-                    current_model = job.model
+                # We reload model and env if we got assigned to something
+                # different this time
+                if current_env != last_env or current_model != last_model:
+                    print("==>[Loading new environment/model pair]")
+                    loaded_env = rendering_engine.load_env(args.root_folder,
+                                                        current_env)
+                    loaded_model = rendering_engine.load_model(args.root_folder,
+                                                            current_model)
+                    model_uid = rendering_engine.get_model_uid(loaded_model)
+                    renderer_settings = SimpleNamespace(**vars(args),
+                                                        **render_args)
+                    rendering_engine.setup_render(renderer_settings)
+                    last_env = current_env
+                    last_model = current_model
 
-                    # We reload model and env if we got assigned to something
-                    # different this time
-                    if current_env != last_env or current_model != last_model:
-                        print("==>[Loading new environment/model pair]")
-                        loaded_env = rendering_engine.load_env(args.root_folder,
-                                                               current_env)
-                        loaded_model = rendering_engine.load_model(args.root_folder,
-                                                                   current_model)
-                        model_uid = rendering_engine.get_model_uid(loaded_model)
-                        renderer_settings = SimpleNamespace(**vars(args),
-                                                            **render_args)
-                        rendering_engine.setup_render(renderer_settings)
-                        last_env = current_env
-                        last_model = current_model
+                controls_applier = ControlsApplier(job.control_order,
+                                                job.render_args,
+                                                controls_args,
+                                                args.root_folder)
 
-                    controls_applier = ControlsApplier(job.control_order,
-                                                       job.render_args,
-                                                       controls_args,
-                                                       args.root_folder)
+                context = {}
+                result = rendering_engine.render(context,
+                                                    model_uid,
+                                                    uid_to_targets[model_uid][0],
+                                                    job, args,
+                                                    render_args,
+                                                    controls_applier,
+                                                    loaded_model,
+                                                    loaded_env)
+                result['rgb'] = controls_applier.apply_post_controls(context, result['rgb'])
+                controls_applier.unapply(context)
+                result = {k: v[:3] for (k, v) in result.items()}
 
-                    result = rendering_engine.render(model_uid,
-                                                     uid_to_targets[model_uid][0],
-                                                     job, args,
-                                                     render_args,
-                                                     controls_applier,
-                                                     loaded_model,
-                                                     loaded_env
-                                                     )
-                    result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
-                    controls_applier.unapply()
-                    result = {k: v[:3] for (k, v) in result.items()}
+                with ch.no_grad():
+                    prediction, input_shape = inference_model(result['rgb'])
 
-                    with ch.no_grad():
-                        prediction, input_shape = inference_model(result['rgb'])
-                    if evaluator_module.Evaluator.label_type == 'classes':
-                        lab = uid_to_targets[model_uid]
-                    elif evaluator_module.Evaluator.label_type == 'segmentation_map':
-                        lab = result['segmentation']
-                    else:
-                        raise ValueError(f'Label type {evaluator_module.label_type} not found')
-                    is_correct = evaluator.is_correct(prediction, lab)
-                    prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
-                    # loss = evaluator.loss(prediction, lab)
-                    data = (result, prediction_tens, is_correct)
-                    query('push', job=job.id, result=data)
-                    pbar.update(1)
-            # print(job_description)
+                if evaluator_module.Evaluator.label_type == 'classes':
+                    lab = uid_to_targets[model_uid]
+                elif evaluator_module.Evaluator.label_type == 'segmentation_map':
+                    print(result.keys())
+                    lab = result['segmentation']
+                else:
+                    raise ValueError(f'Label type {evaluator_module.Evaluator.label_type} not found')
+
+                is_correct = evaluator.is_correct(prediction, lab)
+                prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
+                # loss = evaluator.loss(prediction, lab)
+                data = (result, prediction_tens, is_correct)
+                if args.fake_results:
+                    LAST_RESULT.append(data)
+            query('push', job=job.id, result=data)
+            pbar.update(1)
