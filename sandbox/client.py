@@ -1,20 +1,29 @@
-import zmq
-from tqdm import tqdm
-import numpy as np
-import torch as ch
-from uuid import uuid4
+"""
+3DB Client
+
+The client is responsible for receiving tasks (sets of parameters) from the
+main node, rendering these tasks, performing inference, and then returning
+the results to the main node for inference.
+
+Users should not have to modify or even view this file in order to use and
+extend 3DB.
+"""
+
+import argparse
+import importlib
 import sys
 import time
-from os import path
-import importlib
-import cv2
-import argparse
-import sandbox
-from glob import glob
-
-from sandbox.utils import load_inference_model
-from sandbox.rendering.utils import ControlsApplier
 from types import SimpleNamespace
+from typing import Optional
+from uuid import uuid4
+
+import numpy as np
+import torch as ch
+import zmq
+from tqdm import tqdm
+
+from sandbox.rendering.utils import ControlsApplier
+from sandbox.utils import load_inference_model
 
 arguments = sys.argv[1:]
 try:
@@ -25,41 +34,78 @@ except ValueError:
 
 COUNTER = 0
 
-def send_array(socket, A, flags=0, copy=True, track=False):
+def send_array(sock, arr, flags=0, copy=True, track=False):
     """send a numpy array with metadata"""
-    if ch.is_tensor(A):
-        A = A.data.cpu().numpy()
-    A = np.ascontiguousarray(A)
-    md = dict(
-        dtype=str(A.dtype),
-        shape=A.shape,
+    if ch.is_tensor(arr):
+        arr = arr.data.cpu().numpy()
+    arr = np.ascontiguousarray(arr)
+    message_dict = dict(
+        dtype=str(arr.dtype),
+        shape=arr.shape,
     )
-    socket.send_json(md, flags | zmq.SNDMORE)
-    return socket.send(A, flags, copy=copy, track=track)
+    sock.send_json(message_dict, flags | zmq.SNDMORE)
+    return sock.send(arr, flags, copy=copy, track=track)
 
+def query(kind:str, worker_id:str, result_data:Optional[dict]=None, **kwargs):
+    """
+    Send a request back to the server and receive a response. Additional
+    named arguments are forwarded to the server as-is as part of the request.
+
+    Arguments:
+    - kind (str): what kind of request to send (``'info'``, ``'push'``, or ``'pull'``)
+    - worker_id (str): the client id sending the request
+    - result_data (dict or None): if ``kind == 'push'``, this should be a
+        list of the form ``[images, outputs, corrects]`` to send back to the
+        server.
+    Returns:
+    - response (dict): the response from the server for to the sent message
+    """
+    to_send = {
+        'kind': kind,
+        'worker_id': worker_id,
+        **kwargs
+    }
+
+    channel_names = []
+    if result_data is not None:
+        channel_names = list(result_data[0].keys())
+        to_send['result_channel_names'] = channel_names
+
+        socket.send_json(to_send, flags=zmq.SNDMORE)
+
+        images, outputs, corrects = result_data
+        for channel_name in channel_names:
+            send_array(socket, images[channel_name], flags=zmq.SNDMORE)
+        send_array(socket, outputs, flags=zmq.SNDMORE)
+        socket.send_pyobj(corrects)
+    else:
+        socket.send_json(to_send, flags=0)
+
+    response = socket.recv_pyobj()
+    if response['kind'] == 'die':
+        print("==> [Received closed request from master]")
+        sys.exit()
+    return response
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(
         description='Render worker for the robustness sandbox')
-
     parser.add_argument('root_folder', type=str,
                         help='folder containing all data (models, environments, etc)')
-
     parser.add_argument('--master-address', '-a', type=str,
                         help='How to contact the master node',
                         default='localhost:5555')
-    parser.add_argument('--gpu-id', help='The GPU to use to render (-1 for cpu)', 
+    parser.add_argument('--gpu-id', help='The GPU to use to render (-1 for cpu)',
                         default=-1, type=int,)
-    parser.add_argument('--cpu-cores', help='number of cpu cores to use (default uses all)', 
+    parser.add_argument('--cpu-cores', help='number of cpu cores to use (default uses all)',
                         default=None, type=int,)
     parser.add_argument('--tile-size', help='The size of tiles used for GPU rendering',
                         default=32, type=int)
     parser.add_argument('--batch-size', help='How many task to ask for in a batch',
                         default=1, type=int)
     parser.add_argument('--fake-results', action='store_true',
-                        help='Always return the same result regardless of the parameters' + 
-                        '\nThis is useful to debug and produce large amount of data quickly')
+                        help='Always return the same result regardless of the parameters'
+                             '\n useful to debug and produce large amount of data quickly')
 
     args = parser.parse_args(arguments)
     print(args)
@@ -69,39 +115,10 @@ if __name__ == '__main__':
     socket = context.socket(zmq.REQ)
     socket.connect("tcp://" + args.master_address)
 
-    worker_id = str(uuid4())
-
+    WORKER_ID = str(uuid4())
     LAST_RESULT = []  # This is used to store the first render when --fake-result is set
-
-    def query(kind, result=None, **args):
-        to_send = {
-            'kind': kind,
-            'worker_id': worker_id,
-            **args
-        }
-
-        channel_names = []
-        if result is not None:
-            channel_names = list(result[0].keys())
-            to_send['result_channel_names'] = channel_names
-
-        socket.send_json(to_send, flags=zmq.SNDMORE if result is not None else 0)
-
-        if result is not None:
-            images, outputs, is_correct = result
-            for channel_name in channel_names:
-                send_array(socket, images[channel_name], flags=zmq.SNDMORE)
-            send_array(socket, outputs, flags=zmq.SNDMORE)
-            socket.send_pyobj(is_correct)
-
-        result = socket.recv_pyobj()
-        if result['kind'] == 'die':
-            print("==> [Received closed request from master]")
-            exit()
-        return result
-
     # while True:
-    infos = query('info')
+    infos = query('info', WORKER_ID)
     render_args = infos['render_args']
 
     rendering_engine = importlib.import_module(render_args['engine'])
@@ -126,7 +143,8 @@ if __name__ == '__main__':
     pbar = tqdm(smoothing=0)
 
     while True:
-        job_description = query('pull', batch_size=args.batch_size,
+        job_description = query('pull', WORKER_ID,
+                                batch_size=args.batch_size,
                                 last_environment=last_env,
                                 last_model=last_model)
         parameters = job_description['params_to_render']
@@ -140,7 +158,6 @@ if __name__ == '__main__':
         for job in parameters:
             if LAST_RESULT:
                 data = LAST_RESULT[0]
-                continue
             else:
                 current_env = job.environment
                 current_model = job.model
@@ -187,13 +204,15 @@ if __name__ == '__main__':
                     print(result.keys())
                     lab = result['segmentation']
                 else:
-                    raise ValueError(f'Label type {evaluator_module.Evaluator.label_type} not found')
+                    err_msg = f'Label type {evaluator_module.Evaluator.label_type} not found'
+                    raise ValueError(err_msg)
 
                 is_correct = evaluator.is_correct(prediction, lab)
-                prediction_tens = evaluator.to_tensor(prediction, inference_args['output_shape'], input_shape)
+                out_shape =  inference_args['output_shape']
+                prediction_tens = evaluator.to_tensor(prediction, out_shape, input_shape)
                 # loss = evaluator.loss(prediction, lab)
                 data = (result, prediction_tens, is_correct)
                 if args.fake_results:
                     LAST_RESULT.append(data)
-            query('push', job=job.id, result=data)
+            query('push', WORKER_ID, result_data=data, job=job.id)
             pbar.update(1)

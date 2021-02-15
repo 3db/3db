@@ -152,8 +152,8 @@ if __name__ == '__main__':
 
         # Warning the logger that we are done
         logger_manager.log(None)
-        print("==>[Waiting for any pending logging]")
+        print("==> [Waiting for any pending logging]")
         # We have to wait until it has processed everything left in the queue
         logger_manager.join()
-        print("==>[Have a nice day!]")
+        print("==> [Have a nice day!]")
 
