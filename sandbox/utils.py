@@ -1,30 +1,36 @@
 import importlib
-import numpy as np
-import cv2
-import requests
-import io
-from urllib.parse import urljoin
+import ssl
 from copy import deepcopy
-import torch as ch
-from torchvision import transforms
-import numpy as np
 from multiprocessing import Queue
 from queue import Empty
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
+import torch as ch
+from torch.types import _dtype
+from torchvision import transforms
 
 
-# Concurrent cyclic buffer with reference counting to store the result
-# and avoid copying them to every sub process
 class BigChungusCyclicBuffer:
+    """
+    A concurrent cyclic buffer with reference counting to store the result
+    and avoid copying them to every sub process.
 
-    def __init__(self, output_channels, output_shape, resolution=(256, 256), size=1001):
-        self.image_buffers = {}
 
-        for channel_name, channels, dtype in output_channels:
-            buff = ch.zeros((size, channels, *resolution), dtype=dtype).share_memory_()
-            self.image_buffers[channel_name] = buff
+    """
+    def __init__(self, buffers: Optional[Dict[str,Tuple[List[int], _dtype]]],
+                       size: int = 1001) -> None:
+        # self.image_buffers = {}
+        self.buffers = {}
+        
+        for buf_name, (buf_size, buf_dtype) in buffers.items():
+            buf = ch.zeros((size, *buf_size), dtype=buf_dtype).share_memory_()
+            self.buffers[buf_name] = buf
+            # self.buffers['images'][buf_name] = buf
 
-        self.outputs_buffer = ch.zeros((size, *output_shape), dtype=ch.float32).share_memory_()
-        self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
+        # self.outputs_buffer = ch.zeros((size, *output_shape), dtype=ch.float32).share_memory_()
+        # self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
+        
         self.used_buffer = np.zeros(size, dtype='uint8')
         self.free_idx = list(range(size))
         self.first = 0
@@ -34,12 +40,13 @@ class BigChungusCyclicBuffer:
         self.registration_count = 0
         self.events = Queue()
 
-    def __getitem__(self, ix):
-        image_results = {k: v[ix] for (k, v) in self.image_buffers.items()}
-        return image_results, self.outputs_buffer[ix], self.correct_buffer[ix].item()
+    def __getitem__(self, ind: int) -> Dict[str, ch.Tensor]:
+        return {k: v[ind] for (k, v) in self.buffers.items()}
+        # image_results = {k: v[ix] for (k, v) in self.image_buffers.items()}
+        # return image_results, self.outputs_buffer[ix], self.correct_buffer[ix].item()
 
-    def free(self, ix, reg_id):
-        self.events.put((ix, reg_id))
+    def free(self, ind: int, reg_id: int):
+        self.events.put((ind, reg_id))
 
     def register(self):
         self.registration_count += 1
@@ -62,29 +69,29 @@ class BigChungusCyclicBuffer:
             except Empty:
                 break
 
-    def next_find_index(self):
+    def next_find_index(self) -> int:
         while True:
             self.process_events()
             try:
-                ix = self.free_idx.pop()
-                assert self.used_buffer[ix] == 0
-                self.used_buffer[ix] = self.mask
-                return ix
+                ind = self.free_idx.pop()
+                assert self.used_buffer[ind] == 0
+                self.used_buffer[ind] = self.mask
+                return ind
             except IndexError:
+                # Should we add some kind of logging here?
                 np.save('/tmp/used_buffer.npy', self.used_buffer)
-                pass
 
-    def allocate(self, images, outputs, is_correct):
-        ix = self.next_find_index()
+    # def allocate(self, images, outputs, is_correct):
+    def allocate(self, data: Dict[str, ch.Tensor]):
+        next_ind = self.next_find_index()
 
-        for channel_name, image_data in images.items():
-            assert channel_name in self.image_buffers, "Unexpected channel " + channel_name
-            self.image_buffers[channel_name][ix] = image_data
+        for buf_key, buf_data in data.items():
+            assert buf_key in self.buffers, "Unexpected channel " + buf_key
+            assert buf_data.dtype == self.buffers[buf_key].dtype, \
+                f"Expected datatype {self.buffers[buf_key].dtype}, got {buf_data.dtype}"
+            self.buffers[buf_key][next_ind] = buf_data
 
-        self.outputs_buffer[ix] = outputs
-        self.correct_buffer[ix] = is_correct
-        return ix
-
+        return next_ind
 
 def overwrite_control(control, data):
 
@@ -114,10 +121,10 @@ def init_control(description, root_folder, engine_name):
         full_module_path = f"sandbox.controls.{engine_name.lower()}.{full_module_path}"
         module = importlib.import_module(full_module_path)
 
-    Control = getattr(module, f"{engine_name.capitalize()}Control")
-    control = Control(**args, root_folder=root_folder)
-    d = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
-    overwrite_control(control,  d)
+    control_module = getattr(module, f"{engine_name.capitalize()}Control")
+    control = control_module(**args, root_folder=root_folder)
+    filtered_desc = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
+    overwrite_control(control,  filtered_desc)
     return control
 
 
@@ -127,7 +134,6 @@ def init_policy(description):
 
 
 def load_inference_model(args):
-    import ssl
     try:
         _create_unverified_https_context = ssl._create_unverified_context
     except AttributeError:
@@ -145,10 +151,8 @@ def load_inference_model(args):
 
     ssl._create_default_https_context = previous_context
 
-    def resize(x):
-        x = x.unsqueeze(0)
-        x = ch.nn.functional.interpolate(x, size=args['resolution'], mode='bilinear')
-        return x[0]
+    def resize(tens):
+        return ch.nn.functional.interpolate(tens[None], size=args['resolution'], mode='bilinear')[0]
 
     my_preprocess = transforms.Compose([
         resize,

@@ -5,6 +5,7 @@ from sandbox.evaluators import base_evaluator
 class SimpleClassificationEvaluator(base_evaluator.Evaluator): 
     label_type = 'classes'
     output_type = 'classes'
+    extra_info = {}
 
     def __init__(self, *, topk):
         super().__init__()

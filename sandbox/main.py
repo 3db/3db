@@ -1,4 +1,6 @@
 import os
+from typing import Type
+
 # Making sure that we don't spawn some crazy multithreaded stuff
 # All good since we do threading ourselves
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -8,23 +10,22 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 import argparse
-from itertools import product
+import importlib
 import json
+from collections import defaultdict
+from itertools import product
+from os import makedirs, path
+
+import torch as ch
 import yaml
 from tqdm import tqdm
-from glob import glob
-from os import path, makedirs
-from collections import defaultdict
-import importlib
-import torch as ch
 
-import sandbox
+from sandbox.log import ImageLogger, JSONLogger, LoggerManager, TbLogger
 from sandbox.scheduling.dynamic_scheduler import schedule_work
+from sandbox.rendering.base_renderer import BaseRenderer
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.SearchSpace import SearchSpace
-from sandbox.utils import init_control, BigChungusCyclicBuffer
-from sandbox.log import JSONLogger, TbLogger, ImageLogger, LoggerManager
-
+from sandbox.utils import BigChungusCyclicBuffer, init_control
 
 parser = argparse.ArgumentParser(
     description='Run a synthetic-sandbox experiment')
@@ -38,12 +39,11 @@ parser.add_argument('--logdir', type=str, default=None,
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
 parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
-                    help='Which loggers to use. Comma dilimited list. e.g. JSONLogger,TbLogger,ImageLogger')
+                    help='Loggers to use (comma-delimited), e.g. JSONLogger,TbLogger,ImageLogger')
 parser.add_argument('--single-model', action='store_true',
                     help='If given, only do one model and one environment (for debugging)')
 parser.add_argument('--max-concurrent-policies', '-m', type=int, default=10,
-                    help='Maximum number of concurrent policies, can keep memory usage under control')
-
+                    help='Maximum number of concurrent policies, can keep memory under control')
 
 DEFAULT_RENDER_ARGS = {
     'engine': 'sandbox.rendering.blender',
@@ -54,7 +54,6 @@ DEFAULT_RENDER_ARGS = {
     'with_segmentation': False,
     'max_depth': 10
 }
-
 
 if __name__ == '__main__':
     args = parser.parse_args()
@@ -70,13 +69,13 @@ if __name__ == '__main__':
             render_args.update(config['render_args'])
 
         print("ARGS", render_args)
-        rendering_engine = importlib.import_module(render_args['engine'])
+        rendering_module: Type[BaseRenderer] = getattr(importlib.import_module(render_args['engine']), 'Renderer')
 
-        all_models = rendering_engine.enumerate_models(args.root_folder)
-        all_envs = rendering_engine.enumerate_environments(args.root_folder)
+        all_models = rendering_module.enumerate_models(args.root_folder)
+        all_envs = rendering_module.enumerate_environments(args.root_folder)
 
         if config['controls']:
-            controls = [init_control(x, args.root_folder, rendering_engine.NAME)
+            controls = [init_control(x, args.root_folder, rendering_module.NAME)
                         for x in config['controls']]
         else:
             controls = []
@@ -100,19 +99,22 @@ if __name__ == '__main__':
 
         # We need to know the resolution and number of classes to allocate
         # the memory beforehand and share it with other processes
-        render_channels = [('rgb', 3, ch.float32)]
+        imsize = [render_args['resolution'], render_args['resolution']]
+        buffer_channels = {'rgb': ([3, *imsize], ch.float32)}
+        # render_channels = [('rgb', 3, ch.float32)]
         if render_args['with_uv']:
-            render_channels.append(('uv', 3, ch.float32))
+            buffer_channels['uv'] = ([3, *imsize], ch.float32)
+            # render_channels.append(('uv', 3, ch.float32))
         if render_args['with_depth']:
-            render_channels.append(('depth', 3, ch.float32))
+            buffer_channels['depth'] = ([3, *imsize], ch.float32)
+            # render_channels.append(('depth', 3, ch.float32))
         if render_args['with_segmentation']:
-            render_channels.append(('segmentation', 1, ch.int32))
+            buffer_channels['segmentation'] = ([1, *imsize], ch.int32)
+            # render_channels.append(('segmentation', 1, ch.int32))
+        buffer_channels['output'] = (config['inference']['output_shape'], ch.float32)
+        buffer_channels['is_correct'] = ([], ch.bool)
 
-        big_chungus = BigChungusCyclicBuffer(
-            render_channels,
-            output_shape=config['inference']['output_shape'],
-            resolution=[render_args['resolution']] * 2,
-        )
+        big_chungus = BigChungusCyclicBuffer(buffer_channels)
         policy_regid = big_chungus.register()  # Register a single policy for each output
         assert policy_regid == 1
 
@@ -129,19 +131,16 @@ if __name__ == '__main__':
             logger_manager.append(ImageLogger(imgdir, big_chungus, config))
         logger_manager.start()
 
-        class Done(Exception): pass 
-        try:
-            for env, model in tqdm(list(product(all_envs, all_models)), desc="Init policies"):
-                    env = env.split('/')[-1]
-                    model = model.split('/')[-1]
-                    policy_controllers.append(
-                        PolicyController(env, search_space, model, {
-                            'continuous_dim': continuous_dim,
-                            'discrete_sizes': discrete_sizes,
-                            **config['policy']}, logger_manager, big_chungus))
-                    if args.single_model: raise Done
-        except Done:
-            pass
+        for env, model in tqdm(list(product(all_envs, all_models)), desc="Init policies"):
+            env = env.split('/')[-1]
+            model = model.split('/')[-1]
+            policy_controllers.append(
+                PolicyController(env, search_space, model, {
+                    'continuous_dim': continuous_dim,
+                    'discrete_sizes': discrete_sizes,
+                    **config['policy']}, logger_manager, big_chungus))
+            if args.single_model: 
+                break
 
         print("==>[Starting the scheduler]")
         import multiprocessing

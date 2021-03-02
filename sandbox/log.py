@@ -29,12 +29,12 @@ def clean_value(val: object):
     """
     return val.numpy() if ch.is_tensor(val) else val
 
-def default(obj: np.float64) -> str:
+def default(obj: np.ndarray) -> str:
     """
     Another utility function; turns floats into strings, otherwise (if the
     input does not have type ``np.float64`` raises a ``TypeError``.
     """
-    if isinstance(obj, np.float64):
+    if isinstance(obj, np.ndarray):
         return str(obj)
     raise TypeError
 
@@ -83,7 +83,7 @@ class Logger(Process):
         Arguments:
         - item (dict) : must have keys: ``outputs``, ``is_correct`` and ``output_type``:
             - ``outputs`` should be a tensor of model outputs (predictions)
-            - ``outputs
+            - ``outputs TODO
         """
         raise NotImplementedError
 
@@ -111,7 +111,6 @@ class JSONLogger(Logger):
         self.result_buffer = result_buffer
         self.regid = self.result_buffer.register()
         self.queue = Queue()
-        self.json_opts = json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE
         self.evaluator = importlib.import_module(self.config['evaluation']['module']).Evaluator
         if 'label_map' in config['inference']:
             classmap_fname = path.join(root_dir, 'class_maps.json')
@@ -122,12 +121,14 @@ class JSONLogger(Logger):
     def log(self, item):
         item = copy.deepcopy(item)
         rix = item['result_ix']
-        _, outputs, is_correct = self.result_buffer[rix]
-        item['outputs'] = outputs.numpy()
-        item['is_correct'] = is_correct
+        # _, outputs, is_correct = self.result_buffer[rix]
+        buffer_data = self.result_buffer[rix]
+        item['output'] = buffer_data['output']
+        item['is_correct'] = buffer_data['corrects']
         item['output_type'] = self.evaluator.output_type
         cleaned = clean_log(item)
-        encoded = json.dumps(cleaned, default=default, option=self.json_opts)
+        encoded = json.dumps(cleaned, default=default, 
+                             option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
         self.result_buffer.free(rix, self.regid)
         self.handle.write(encoded)
 
@@ -169,9 +170,10 @@ class TbLogger(Logger):
     def log(self, item):
         self.count += 1
         rix = item['result_ix']
-        image, _, is_correct = self.result_buffer[rix]
+        buf_data = self.result_buffer[rix]
+        print(buf_data.keys(), item.keys())
         information = {k: v for k, v in item.items() if k != 'result_ix'}
-        information['is_correct'] = is_correct
+        information['is_correct'] = buf_data
 
         self.numeric_data.append(information)
         self.images[item['id']] = image['rgb'].clone()
@@ -190,11 +192,11 @@ class ImageLogger(Logger):
         self.result_buffer = result_buffer
         self.regid = self.result_buffer.register()
         self.folder = save_dir
-        print(f'==>[Logging images to {dir} with regid {self.regid}]')
+        print(f'==> [Logging images to {dir} with regid {self.regid}]')
 
     def log(self, item):
         rix = item['result_ix']
-        images, _, __ = self.result_buffer[rix]
+        buf_data = self.result_buffer[rix]
         for channel_name, image in images.items():
             if channel_name == 'segmentation':
                 img_path = path.join(self.folder,

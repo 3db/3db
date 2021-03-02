@@ -8,6 +8,7 @@ from PIL import Image
 class SimpleDetectionEvaluator(base_evaluator.Evaluator):
     label_type = 'segmentation_map'
     output_type = 'bboxes'
+    output_shape = [100, 6]
 
     def __init__(self, iou_threshold, min_recall=1.0, min_precision=0.0):
         self.iou_threshold = iou_threshold

@@ -7,6 +7,8 @@ class Evaluator:
 
     def loss(self, pred, label): raise NotImplementedError
 
+    def extra_info(self, pred, label): pass
+
     def to_tensor(self, pred, output_shape, input_shape): 
         if isinstance(pred, ch.Tensor):
             assert list(pred.shape) == list(output_shape), \

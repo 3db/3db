@@ -1,19 +1,18 @@
+from typing import Any, Dict, List, Tuple
 import numpy as np
 from collections import defaultdict
 import importlib
+import mathutils
 
-
-def sample_upper_sphere():
-    import mathutils
+def sample_upper_sphere() -> mathutils.Vector:
     vec = np.random.randn(3)
     vec /= np.linalg.norm(vec)
     vec[2] = np.abs(vec[2])
 
     return mathutils.Vector(vec)
 
-
-def lookat_viewport(target, location):
-    import mathutils
+def lookat_viewport(target: mathutils.Vector, 
+                    location: mathutils.Vector) -> mathutils.Vector:
     diff = location - target
     diff = diff.normalized()
     rot_z = (np.arctan(diff.y / diff.x))
@@ -26,8 +25,10 @@ def lookat_viewport(target, location):
 
 class ControlsApplier:
 
-    def __init__(self, control_list, render_args, controls_args, root_folder):
-
+    def __init__(self, control_list: List[Tuple[str, str]], 
+                       render_args: Dict[Tuple[str, str], Any],
+                       controls_args: Dict[str, Dict[str, Any]],
+                       root_folder: str):
         control_classes = []
 
         for module, classname in control_list:
@@ -46,8 +47,7 @@ class ControlsApplier:
         self.control_classes = control_classes
         self.grouped_args = grouped_args
 
-    def apply_pre_controls(self, context):
-
+    def apply_pre_controls(self, context: Dict[str, Any]) -> None:
         for control_class in self.control_classes:
             if control_class.kind == 'pre':
                 classname = type(control_class).__name__
@@ -55,12 +55,12 @@ class ControlsApplier:
                 control_class.apply(context=context, **control_params)
 
     # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
-    def unapply(self, context):
+    def unapply(self, context: Dict[str, Any]) -> None:
         for control_class in self.control_classes:
             control_class.unapply(context)
 
     # post-processing controls
-    def apply_post_controls(self, context, img):
+    def apply_post_controls(self, img):
         for control_class in self.control_classes:
             if control_class.kind == 'post':
                 classname = type(control_class).__name__

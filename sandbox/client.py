@@ -14,7 +14,7 @@ import importlib
 import sys
 import time
 from types import SimpleNamespace
-from typing import Optional
+from typing import Optional, Type, cast
 from uuid import uuid4
 
 import numpy as np
@@ -23,6 +23,7 @@ import zmq
 from tqdm import tqdm
 
 from sandbox.rendering.utils import ControlsApplier
+from sandbox.rendering.base_renderer import BaseRenderer
 from sandbox.utils import load_inference_model
 
 arguments = sys.argv[1:]
@@ -46,7 +47,7 @@ def send_array(sock, arr, flags=0, copy=True, track=False):
     sock.send_json(message_dict, flags | zmq.SNDMORE)
     return sock.send(arr, flags, copy=copy, track=track)
 
-def query(kind:str, worker_id:str, result_data:Optional[dict]=None, **kwargs):
+def query(sock: zmq.Socket, kind: str, worker_id: str, result_data: Optional[dict] = None, **kwargs):
     """
     Send a request back to the server and receive a response. Additional
     named arguments are forwarded to the server as-is as part of the request.
@@ -68,20 +69,21 @@ def query(kind:str, worker_id:str, result_data:Optional[dict]=None, **kwargs):
 
     channel_names = []
     if result_data is not None:
-        channel_names = list(result_data[0].keys())
-        to_send['result_channel_names'] = channel_names
+        result_keys = list(result_data.keys())
+        to_send['result_keys'] = result_keys
 
-        socket.send_json(to_send, flags=zmq.SNDMORE)
+        sock.send_json(to_send, flags=zmq.SNDMORE)
 
-        images, outputs, corrects = result_data
-        for channel_name in channel_names:
-            send_array(socket, images[channel_name], flags=zmq.SNDMORE)
-        send_array(socket, outputs, flags=zmq.SNDMORE)
-        socket.send_pyobj(corrects)
+        # images, outputs, corrects = result_data
+        for channel_name in result_keys:
+            send_array(sock, result_data[channel_name], flags=zmq.SNDMORE)
+        sock.send_string('done')
+        # send_array(socket, outputs, flags=zmq.SNDMORE)
+        # socket.send_pyobj(corrects)
     else:
-        socket.send_json(to_send, flags=0)
+        sock.send_json(to_send, flags=0)
 
-    response = socket.recv_pyobj()
+    response = sock.recv_pyobj()
     if response['kind'] == 'die':
         print("==> [Received closed request from master]")
         sys.exit()
@@ -118,20 +120,17 @@ if __name__ == '__main__':
     WORKER_ID = str(uuid4())
     LAST_RESULT = []  # This is used to store the first render when --fake-result is set
     # while True:
-    infos = query('info', WORKER_ID)
+    infos = query(socket, 'info', WORKER_ID)
     render_args = infos['render_args']
 
-    rendering_engine = importlib.import_module(render_args['engine'])
-    all_models = rendering_engine.enumerate_models(args.root_folder)
-    all_envs = rendering_engine.enumerate_environments(args.root_folder)
+    rendering_module: Type[BaseRenderer] = getattr(importlib.import_module(render_args['engine']), 'Renderer')
+    rendering_engine: BaseRenderer = rendering_module(args.root_folder, {**render_args, **vars(args)})
 
     evaluation_args = infos['evaluation_args']
     evaluator_module = importlib.import_module(evaluation_args['module'])
     evaluator = evaluator_module.Evaluator(**infos['evaluation_args']['args'])
 
     # Gather all experiment-wide parameters
-    assert set(infos['models']) == set(all_models)
-    assert set(infos['environments']) == set(all_envs)
     uid_to_targets = infos['uid_to_targets']
     inference_args = infos['inference']
     controls_args = infos['controls_args']
@@ -143,7 +142,7 @@ if __name__ == '__main__':
     pbar = tqdm(smoothing=0)
 
     while True:
-        job_description = query('pull', WORKER_ID,
+        job_description = query(socket, 'pull', WORKER_ID,
                                 batch_size=args.batch_size,
                                 last_environment=last_env,
                                 last_model=last_model)
@@ -165,15 +164,14 @@ if __name__ == '__main__':
                 # We reload model and env if we got assigned to something
                 # different this time
                 if current_env != last_env or current_model != last_model:
-                    print("==>[Loading new environment/model pair]")
-                    loaded_env = rendering_engine.load_env(args.root_folder,
-                                                        current_env)
-                    loaded_model = rendering_engine.load_model(args.root_folder,
-                                                            current_model)
+                    print("==> [Loading new environment/model pair]")
+                    loaded_env = rendering_engine.load_env(current_env)
+                    loaded_model = rendering_engine.load_model(current_model)
                     model_uid = rendering_engine.get_model_uid(loaded_model)
                     renderer_settings = SimpleNamespace(**vars(args),
                                                         **render_args)
-                    rendering_engine.setup_render(renderer_settings)
+                    rendering_engine.setup_render(loaded_model, loaded_env)
+                    # rendering_engine.setup_render(renderer_settings)
                     last_env = current_env
                     last_model = current_model
 
@@ -182,7 +180,13 @@ if __name__ == '__main__':
                                                 controls_args,
                                                 args.root_folder)
 
-                context = {}
+                # context = {}
+                result = rendering_engine.render_and_apply(model_uid,
+                                                           uid_to_targets[model_uid][0],
+                                                           controls_applier,
+                                                           loaded_model,
+                                                           loaded_env)
+                """
                 result = rendering_engine.render(context,
                                                     model_uid,
                                                     uid_to_targets[model_uid][0],
@@ -191,9 +195,7 @@ if __name__ == '__main__':
                                                     controls_applier,
                                                     loaded_model,
                                                     loaded_env)
-                result['rgb'] = controls_applier.apply_post_controls(context, result['rgb'])
-                controls_applier.unapply(context)
-                result = {k: v[:3] for (k, v) in result.items()}
+                """
 
                 with ch.no_grad():
                     prediction, input_shape = inference_model(result['rgb'])
@@ -201,7 +203,6 @@ if __name__ == '__main__':
                 if evaluator_module.Evaluator.label_type == 'classes':
                     lab = uid_to_targets[model_uid]
                 elif evaluator_module.Evaluator.label_type == 'segmentation_map':
-                    print(result.keys())
                     lab = result['segmentation']
                 else:
                     err_msg = f'Label type {evaluator_module.Evaluator.label_type} not found'
@@ -210,9 +211,16 @@ if __name__ == '__main__':
                 is_correct = evaluator.is_correct(prediction, lab)
                 out_shape =  inference_args['output_shape']
                 prediction_tens = evaluator.to_tensor(prediction, out_shape, input_shape)
-                # loss = evaluator.loss(prediction, lab)
-                data = (result, prediction_tens, is_correct)
+                loss = evaluator.loss(prediction, lab)
+                # extra_info = evaluator.extra_info
+                data = {
+                    **result,
+                    'output': prediction_tens,
+                    'is_correct': is_correct,
+                    # 'loss': loss
+                }
+                # data = (result, prediction_tens, is_correct)
                 if args.fake_results:
                     LAST_RESULT.append(data)
-            query('push', WORKER_ID, result_data=data, job=job.id)
+            query(socket, 'push', WORKER_ID, result_data=data, job=job.id)
             pbar.update(1)

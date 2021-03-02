@@ -7,6 +7,9 @@ import random
 from tqdm import tqdm
 import torch as ch
 import json
+from sandbox.utils import BigChungusCyclicBuffer
+from typing import List, Dict, Any
+from sandbox.scheduling.policy_controller import PolicyController
 
 TQDM_FREQ = 0.1
 
@@ -20,25 +23,29 @@ def recv_array(socket, flags=0, copy=True, track=False):
     A = ch.from_numpy(A.copy())
     return A
 
-def my_recv(socket, cyclic_buffer):
+def my_recv(socket: zmq.Socket, cyclic_buffer: BigChungusCyclicBuffer) -> dict:
     main_message = socket.recv_json()
 
-    if 'result_channel_names' in main_message:
-        channel_names = main_message['result_channel_names']
-        images = {}
-        for channel_name in channel_names:
-            images[channel_name] = recv_array(socket)
+    if 'result_keys' in main_message:
+        result_keys = main_message['result_keys']
+        buf_data = {}
+        for result_key in result_keys:
+            buf_data[result_key] = recv_array(socket)
 
-        outputs = recv_array(socket)
-        is_correct = socket.recv_pyobj()
+        # outputs = recv_array(socket)
+        # is_correct = socket.recv_pyobj()
+        assert socket.recv_string() == 'done', 'Did not get done message'
 
-        ix = cyclic_buffer.allocate(images, outputs, is_correct)
-        main_message['result'] = ix
+        # ix = cyclic_buffer.allocate(images, outputs, is_correct)
+        idx = cyclic_buffer.allocate(buf_data)
+        main_message['result'] = idx
 
     return main_message
 
-def schedule_work(policy_controllers, port, max_running_policies, list_envs,
-                  list_models, render_args, inference_args, controls_args,
+def schedule_work(policy_controllers: List[PolicyController], 
+                  port: int, max_running_policies: int, 
+                  environments: List[str], list_models: List[str], 
+                  render_args: Dict[str, Any], inference_args, controls_args,
                   evaluation_args, result_buffer):
     context = zmq.Context(io_threads=1)
     socket = context.socket(zmq.REP)
@@ -100,7 +107,7 @@ def schedule_work(policy_controllers, port, max_running_policies, list_envs,
         if message['kind'] == 'info':
             socket.send_pyobj({
                 'kind': 'info',
-                'environments': list_envs,
+                'environments': environments,
                 'models': list_models,
                 'render_args': render_args,
                 'uid_to_targets': uid_to_targets,
