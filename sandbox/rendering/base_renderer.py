@@ -1,6 +1,6 @@
 import torch as ch
 from abc import ABC, abstractmethod
-from typing import TypeVar, List, Dict, Any, Optional, Iterable, NoReturn
+from typing import List, Dict, Any, Optional, Tuple
 from sandbox.rendering.utils import ControlsApplier
 
 class RenderEnv(ABC): pass
@@ -34,6 +34,29 @@ class BaseRenderer(ABC):
         have extensions in ENV_EXTENSIONS above.
         """
         raise NotImplementedError
+
+    # @abstractmethod
+    def declare_outputs(self) -> Dict[str, Tuple[List[int], str]]:
+        """
+        This function declares what the output of render() will be, based on the
+        renderer settings. Returns a dictionary mapping keys to (dtype, size)
+        tuples---the output of render() is string-to-tensor dictionary whose
+        tensors will be checked against the return value of this function for
+        both size and type.
+
+        A basic implementation which suffices for most applications is provided
+        in the abstract class :cla:`sandbox.rendering.base_renderer.BaseRenderer`.
+        """
+        imsize = [self.args['resolution'], self.args['resolution']]
+        output_channels: Dict[str, Tuple[List[int], str]] = {'rgb': ([3, *imsize], 'float32')}
+        if self.args['with_uv']:
+            output_channels['uv'] = ([3, *imsize], 'float32')
+        if self.args['with_depth']:
+            output_channels['depth'] = ([3, *imsize], 'float32')
+        if self.args['with_segmentation']:
+            output_channels['segmentation'] = ([1, *imsize], 'int32')
+
+        return output_channels
 
     @abstractmethod
     def load_model(self, model: str) -> RenderObject:

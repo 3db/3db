@@ -53,11 +53,12 @@ def query(sock: zmq.Socket, kind: str, worker_id: str, result_data: Optional[dic
     named arguments are forwarded to the server as-is as part of the request.
 
     Arguments:
-    - kind (str): what kind of request to send (``'info'``, ``'push'``, or ``'pull'``)
+    - kind (str): what kind of request to send (``'info'``, ``'push'``,
+      ``'pull'``, or ``'startup'``)
     - worker_id (str): the client id sending the request
     - result_data (dict or None): if ``kind == 'push'``, this should be a
-        list of the form ``[images, outputs, corrects]`` to send back to the
-        server.
+        dictionary of results (e.g. ``{'images': images, 'outputs': outputs,
+        'corrects': corrects}``) to send back to the server.
     Returns:
     - response (dict): the response from the server for to the sent message
     """
@@ -67,23 +68,21 @@ def query(sock: zmq.Socket, kind: str, worker_id: str, result_data: Optional[dic
         **kwargs
     }
 
-    channel_names = []
     if result_data is not None:
         result_keys = list(result_data.keys())
         to_send['result_keys'] = result_keys
 
         sock.send_json(to_send, flags=zmq.SNDMORE)
-
-        # images, outputs, corrects = result_data
         for channel_name in result_keys:
             send_array(sock, result_data[channel_name], flags=zmq.SNDMORE)
         sock.send_string('done')
-        # send_array(socket, outputs, flags=zmq.SNDMORE)
-        # socket.send_pyobj(corrects)
     else:
         sock.send_json(to_send, flags=0)
 
     response = sock.recv_pyobj()
+    if kind == 'decl':
+        assert response['kind'] == 'ack', 'Received a non-ack message from the server, abort.'
+        
     if response['kind'] == 'die':
         print("==> [Received closed request from master]")
         sys.exit()
@@ -140,6 +139,14 @@ if __name__ == '__main__':
     last_model = None
 
     pbar = tqdm(smoothing=0)
+
+    image_shapes = rendering_engine.declare_outputs()
+    declared_outputs = {
+        **image_shapes,
+        'output': (inference_args['output_shape'], 'float32'),
+        'is_correct': ([], 'bool')
+    }
+    query(socket, 'decl', WORKER_ID, declared_outputs=declared_outputs)
 
     while True:
         job_description = query(socket, 'pull', WORKER_ID,

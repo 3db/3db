@@ -197,7 +197,8 @@ class ImageLogger(Logger):
     def log(self, item):
         rix = item['result_ix']
         buf_data = self.result_buffer[rix]
-        for channel_name, image in images.items():
+        for channel_name in ['rgb']: 
+            image = buf_data[channel_name]
             if channel_name == 'segmentation':
                 img_path = path.join(self.folder,
                                      item['id'] + '_' + channel_name + '.npy')

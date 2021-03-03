@@ -15,7 +15,7 @@ evaluation:
   args:
     topk: 1
 render_args:
-  engine: 'sandbox.rendering.blender'
+  engine: 'sandbox.rendering.render_blender'
   resolution: 256
   samples: 16
 policy:

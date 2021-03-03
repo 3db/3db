@@ -13,4 +13,5 @@ tmux new-session -d -s main_session zsh
 tmux send-keys -t main_session.0 "cd /code && python sandbox/main.py /data examples/very_simple_random_search.yaml 5555 --logdir /logs --loggers JSONLogger,TbLogger,ImageLogger --single-model" ENTER
 
 tmux new-session -d -s client_session zsh
-tmux send-keys -t client_session.0 "/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/ --master-address localhost:5555" ENTER
+# tmux send-keys -t client_session.0 "/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/ --master-address localhost:5555" ENTER
+tmux send-keys -t client_session.0 "cd /code && python sandbox/client.py -- /data/ --master-address localhost:5555" ENTER

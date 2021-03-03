@@ -7,9 +7,12 @@ import random
 from tqdm import tqdm
 import torch as ch
 import json
+from sandbox.scheduling import policy_controller
 from sandbox.utils import BigChungusCyclicBuffer
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from sandbox.scheduling.policy_controller import PolicyController
+from sandbox.scheduling.search_space import SearchSpace
+from sandbox.log import Logger, LoggerManager
 
 TQDM_FREQ = 0.1
 
@@ -23,10 +26,11 @@ def recv_array(socket, flags=0, copy=True, track=False):
     A = ch.from_numpy(A.copy())
     return A
 
-def my_recv(socket: zmq.Socket, cyclic_buffer: BigChungusCyclicBuffer) -> dict:
-    main_message = socket.recv_json()
+def my_recv(socket: zmq.Socket, 
+            cyclic_buffer: BigChungusCyclicBuffer) -> Dict[str, Any]:
+    main_message: Dict[str, Any] = socket.recv_json()
 
-    if 'result_keys' in main_message:
+    if cyclic_buffer.initialized and ('result_keys' in main_message):
         result_keys = main_message['result_keys']
         buf_data = {}
         for result_key in result_keys:
@@ -42,23 +46,36 @@ def my_recv(socket: zmq.Socket, cyclic_buffer: BigChungusCyclicBuffer) -> dict:
 
     return main_message
 
-def schedule_work(policy_controllers: List[PolicyController], 
-                  port: int, max_running_policies: int, 
-                  environments: List[str], list_models: List[str], 
-                  render_args: Dict[str, Any], inference_args, controls_args,
-                  evaluation_args, result_buffer):
+def schedule_work(port: int, 
+                  max_running_policies: int, 
+                  environments: List[str], 
+                  list_models: List[str], 
+                  controls: List[Any],
+                  config: Dict[str, Dict[str, Any]],
+                  result_buffer: BigChungusCyclicBuffer,
+                  logger_manager: LoggerManager,
+                  single_model: bool):
+                #   render_args: Dict[str, Any], inference_args, controls_args,
+                #   evaluation_args):
+                #   result_buffer: BigChungusCyclicBuffer):
+
+    # Open a socket for communicating with the clients
     context = zmq.Context(io_threads=1)
     socket = context.socket(zmq.REP)
     socket.bind("tcp://*:%s" % port)
 
     seen_workers = set()
+    policy_controllers = []
+
+    search_space = SearchSpace(controls)
+    continuous_dim, discrete_sizes = search_space.generate_description()
 
     controllers_to_start = policy_controllers[:]
     running_policies = set()
     done_policies = set()
 
     # Load the mapping for UIDs to target indices
-    with open(inference_args['uid_to_targets'], 'r') as f:
+    with open(config['inference']['uid_to_targets'], 'r') as f:
         uid_to_targets = json.load(f)
 
     buffer_usage_bar = tqdm(smoothing=0, unit='slots', total=result_buffer.size)
@@ -68,53 +85,73 @@ def schedule_work(policy_controllers: List[PolicyController],
     policies_bar = tqdm(total=len(policy_controllers), unit=' policies')
     policies_bar.set_description('Policies')
     work_queue = {}
-    renders_to_report = 0
-    valid_renders = 0
-    total_renders = 0
-    last_tqdm = 0
+    renders_to_report, valid_renders, total_renders, last_tqdm = 0, 0, 0, 0
 
     wait_before_start_new = False
 
+    info_to_send = {
+        'kind': 'info',
+        'environments': environments,
+        'models': list_models,
+        'render_args': config['render_args'],
+        'uid_to_targets': uid_to_targets,
+        'inference': config['inference'],
+        'controls_args': config['controls'],
+        'evaluation_args': config['evaluation']
+    }
 
     while True:
-        if len(done_policies) == len(policy_controllers):
+        if len(done_policies) == len(policy_controllers) > 0:
             break  # We finished all the policies
 
-        # Pulling all the work to be done
-        pulled_count = 0
-        for policy in running_policies:
-            pulled = policy.pull_work()
-            if pulled is None:
-                continue
-            pulled_count += 1
-            if pulled_count > 10:  # Do not pull too much work at once, it stalls the main thread
-                break
-            wait_before_start_new = False
-            work_queue[pulled.id] = (policy, pulled, 0, time.time())
-
-        # If there is not enough work we start a new policy
-        if len(work_queue) < 2 * len(seen_workers) and not wait_before_start_new and len(controllers_to_start) and len(running_policies) < max_running_policies:
-            selected_policy = controllers_to_start.pop()
-            selected_policy.start()
-            running_policies.add(selected_policy)
-            wait_before_start_new = True
-
         message = my_recv(socket, result_buffer)
-
         wid = message['worker_id']
         seen_workers.add(wid)
 
+        if result_buffer.initialized:
+
+            # Pulling all the work to be done
+            pulled_count = 0
+            for policy in running_policies:
+                pulled = policy.pull_work()
+                if pulled is None:
+                    continue
+                pulled_count += 1
+                if pulled_count > 10:  # Do not pull too much work at once, it stalls the main thread
+                    break
+                wait_before_start_new = False
+                work_queue[pulled.id] = (policy, pulled, 0, time.time())
+
+            # If there is not enough work we start a new policy
+            if len(work_queue) < 2 * len(seen_workers) and not wait_before_start_new and len(controllers_to_start) and len(running_policies) < max_running_policies:
+                selected_policy = controllers_to_start.pop()
+                selected_policy.start()
+                running_policies.add(selected_policy)
+                wait_before_start_new = True
+        else:
+            assert message['kind'] in {'info', 'decl'}, \
+                'message #1 was not "kind" == "info" or "decl", maybe race condition?'
+
         if message['kind'] == 'info':
-            socket.send_pyobj({
-                'kind': 'info',
-                'environments': environments,
-                'models': list_models,
-                'render_args': render_args,
-                'uid_to_targets': uid_to_targets,
-                'inference': inference_args,
-                'controls_args': controls_args,
-                'evaluation_args': evaluation_args
-            })
+            socket.send_pyobj(info_to_send)
+        elif message['kind'] == 'decl':
+            matches_decl = result_buffer.declare_buffers(message['declared_outputs'])
+            assert matches_decl, 'Attempted to initialize buffer with different channels'
+            socket.send_pyobj({'kind': 'ack'})
+
+            for env, model in tqdm(list(itertools.product(environments, list_models)), desc="Init policies"):
+                env = env.split('/')[-1]
+                model = model.split('/')[-1]
+                policy_controllers.append(
+                    PolicyController(env, search_space, model, {
+                        'continuous_dim': continuous_dim,
+                        'discrete_sizes': discrete_sizes,
+                        **config['policy']}, logger_manager, result_buffer))
+                if single_model: 
+                    break
+            
+            controllers_to_start = policy_controllers[:]
+
         elif message['kind'] == 'pull':
             bs = message['batch_size']
             last_env = message['last_environment']
@@ -164,7 +201,6 @@ def schedule_work(policy_controllers: List[PolicyController],
             socket.send_pyobj({
                 'kind': 'ack'
             })
-
 
             if time.time() > last_tqdm + TQDM_FREQ:
                 last_tqdm = time.time()

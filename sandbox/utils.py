@@ -7,9 +7,12 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import torch as ch
+from torch.tensor import Tensor
 from torch.types import _dtype
 from torchvision import transforms
 
+def str_to_dtype(dtype_str: str) -> _dtype:
+    return getattr(ch, dtype_str)
 
 class BigChungusCyclicBuffer:
     """
@@ -18,34 +21,42 @@ class BigChungusCyclicBuffer:
 
 
     """
-    def __init__(self, buffers: Optional[Dict[str,Tuple[List[int], _dtype]]],
+    def __init__(self, buffers: Optional[Dict[str,Tuple[List[int], str]]] = None,
                        size: int = 1001) -> None:
-        # self.image_buffers = {}
         self.buffers = {}
-        
-        for buf_name, (buf_size, buf_dtype) in buffers.items():
-            buf = ch.zeros((size, *buf_size), dtype=buf_dtype).share_memory_()
-            self.buffers[buf_name] = buf
-            # self.buffers['images'][buf_name] = buf
+        if buffers is None:
+            buffers = {}
+            self.initialized = False
+        else:
+            self.declare_buffers(buffers)
 
-        # self.outputs_buffer = ch.zeros((size, *output_shape), dtype=ch.float32).share_memory_()
-        # self.correct_buffer = ch.zeros(size, dtype=ch.uint8).share_memory_()
-        
         self.used_buffer = np.zeros(size, dtype='uint8')
         self.free_idx = list(range(size))
+        self.size = size
+
         self.first = 0
         self.last = 0
-        self.size = size
         self.mask = 0
         self.registration_count = 0
         self.events = Queue()
+    
+    def declare_buffers(self, buffers: Dict[str,Tuple[List[int], str]]) -> bool:
+        if self.initialized and (buffers != self.declare_buffers):
+            return False
+
+        self.initialized = True
+        self.declared_buffers = buffers
+        for buf_name, (buf_size, buf_dtype) in buffers.items():
+            buf = ch.zeros((self.size, *buf_size), dtype=str_to_dtype(buf_dtype)).share_memory_()
+            self.buffers[buf_name] = buf
+        return True
 
     def __getitem__(self, ind: int) -> Dict[str, ch.Tensor]:
+        assert self.initialized, 'Buffer has not been initialized'
         return {k: v[ind] for (k, v) in self.buffers.items()}
-        # image_results = {k: v[ix] for (k, v) in self.image_buffers.items()}
-        # return image_results, self.outputs_buffer[ix], self.correct_buffer[ix].item()
 
     def free(self, ind: int, reg_id: int):
+        assert self.initialized, 'Buffer has not been initialized'
         self.events.put((ind, reg_id))
 
     def register(self):
@@ -56,6 +67,7 @@ class BigChungusCyclicBuffer:
         return self.registration_count
 
     def process_events(self):
+        assert self.initialized, 'Buffer has not been initialized'
         while True:
             try:
                 (event, reg_id) = self.events.get(block=False)
@@ -70,6 +82,7 @@ class BigChungusCyclicBuffer:
                 break
 
     def next_find_index(self) -> int:
+        assert self.initialized, 'Buffer has not been initialized'
         while True:
             self.process_events()
             try:
@@ -83,6 +96,7 @@ class BigChungusCyclicBuffer:
 
     # def allocate(self, images, outputs, is_correct):
     def allocate(self, data: Dict[str, ch.Tensor]):
+        assert self.initialized, 'Buffer has not been initialized'
         next_ind = self.next_find_index()
 
         for buf_key, buf_data in data.items():

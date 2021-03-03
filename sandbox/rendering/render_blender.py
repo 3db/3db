@@ -48,10 +48,6 @@ class Blender(BaseRenderer):
 
     @staticmethod
     def enumerate_environments(search_dir: str) -> List[str]:
-        # """
-        # Given a root folder, returns all files in root/blender_environments/ which
-        # have extensions in ENV_EXTENSIONS above.
-        # """
         all_files = map(lambda x: path.basename(x), glob(_get_env_path(search_dir, '*.*')))
         return list(filter(lambda x: x.split('.')[-1] in ENV_EXTENSIONS, all_files))
 
@@ -132,7 +128,7 @@ class Blender(BaseRenderer):
         for node in self.post_process_nodes:
             node.mute = False
     
-    def _setup_render_device(self, scene: Any, prefs: ):
+    def _setup_render_device(self, scene: Any, prefs: Any):
         gpu_id: int = self.args['gpu_id']
         cpu_cores: Optional[int] = self.args['cpu_cores']
 
