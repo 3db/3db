@@ -13,13 +13,11 @@ We assume that the blender environments and models are in `$BLENDER_DATA/blender
 #### With docker
 
 - `docker build -t sandbox ./docker`
-- `bash ./docker/run_renderer.sh $BLENDER_DATA/blender_environments $BLENDER_DATA/blender_models`
-- `/blender/blender --python-use-system-env -b -P /code/sandbox/client.py -- /data/ --master-address localhost:5555`
+- `bash ./docker/run_renderer.sh $BLENDER_DATA`
+- `cd /code`
+- `bash start_sandbox.sh`
 
-#### Wihtout docker
-
-You are a grown up you can read the docker files and figure it out. Or run with docker :P
-
+3 Tmux sessions running the client, server, and tensorboard will be started for you!
 
 ## Basic Data Collection
 This shows you how to collect a dataset using blender to analyze the quality of the models generated. We assume that the blender environments are in `$BLENDER_ENVS`, models are in `$BLENDER_MODELS`, and the desired output directory is in `$OUTDIR`.

@@ -1,0 +1,217 @@
+import itertools
+from tqdm import tqdm
+from typing import Any, Dict, Set, List
+from sandbox.scheduling.policy_controller import PolicyController
+from sandbox.scheduling.search_space import SearchSpace
+from sandbox.scheduling.utils import MultiBar, recv_into_buffer
+from sandbox.utils import BigChungusCyclicBuffer
+from sandbox.log import LoggerManager, JSONLogger, TbLogger, ImageLogger
+import time
+import os
+import json
+import zmq
+
+class Scheduler:
+    def __init__(self, port: int,
+                       max_running_policies: int,
+                       envs: List[str],
+                       models: List[str],
+                       policy_controller_args: List[List[Any]],
+                       config: Dict[str, Dict[str, Any]],
+                       loggers_list: List[str],
+                       logdir: str) -> None:
+        self.running = False
+
+        self.envs = envs
+        self.models = models
+        self.buffer = BigChungusCyclicBuffer()
+        self.config = config
+        self.loggers_list = loggers_list
+        self.policy_controller_args = policy_controller_args
+        self.logdir = logdir
+
+        # Open a socket for communicating with the clients
+        context = zmq.Context(io_threads=1)
+        self.socket = context.socket(zmq.REP)
+        self.socket.bind("tcp://*:%s" % port)
+
+        with open(config['inference']['uid_to_targets'], 'r') as f:
+            self.uid_to_targets = json.load(f)
+
+        # Keep track of the workers
+        self.linked_workers: Set[str] = set()
+        self.policy_controllers = set()
+        self.done_policies = set()
+        self.running_policies = set()
+        self.max_running_policies = max_running_policies
+        self.work_queue = {}
+
+        # TQDM bars
+        self.bars = MultiBar(['Buffer left', 'Policies', 'Renderings'],
+                             ['slots', 'policies', 'images'], smoothing=0.1)
+
+    def start(self, declared_outputs):
+        """
+        Inputs:
+        - declared_outputs: map of key -> shape for what outputs the client will
+          relay back to the server.
+        
+        Outputs:
+        - None
+
+        Side effects: will create the buffer using the specified shapes, start
+        the policy controllers, and also the loggers.
+        """
+        assert self.buffer.declare_buffers(declared_outputs)
+        self.socket.send_pyobj({'kind': 'ack'})
+
+        logger_manager = LoggerManager()
+        if "JSONLogger" in self.loggers_list:
+            logger_manager.append(JSONLogger(self.logdir, self.buffer, self.config))
+        if "TbLogger" in self.loggers_list:
+            logger_manager.append(TbLogger(self.logdir, self.buffer, self.config))
+        if "ImageLogger" in self.loggers_list:
+            print("STARTING IMAGE LOGGER")
+            imgdir = os.path.join(self.logdir, 'images')
+            if not os.path.exists(imgdir):
+                os.makedirs(imgdir)
+            logger_manager.append(ImageLogger(imgdir, self.buffer, self.config))
+        logger_manager.start()
+        self.loggers_manager = logger_manager
+
+        # Make the buffer, loggers, and policy controllers
+        for arg_list in self.policy_controller_args:
+            controller_args = [*arg_list, logger_manager, self.buffer]
+            self.policy_controllers.add(PolicyController(*controller_args))
+            
+        self.running = True
+
+    def send_info(self):
+        self.socket.send_pyobj({
+            'kind': 'info',
+            'environments': self.envs,
+            'models': self.models,
+            'render_args': self.config['render_args'],
+            'uid_to_targets': self.uid_to_targets,
+            'inference': self.config['inference'],
+            'controls_args': self.config['controls'],
+            'evaluation_args': self.config['evaluation']
+        })
+
+    def handle_pull(self, message: Dict[str, Any]) -> None:
+        """
+        Handles a "pull" request from the client, asking for work. Should send a
+        new list of jobs to work on
+        """
+        bs = message['batch_size']
+        last_env = message['last_environment']
+        last_model = message['last_model']
+
+        to_work_on = []
+        to_send = []
+
+        def custom_order(arg):
+            _, job, num_scheduled, time_scheduled = arg
+            return (num_scheduled,
+                    int(job.environment != last_env) + int(job.model != last_model),
+                    time_scheduled, job.id)
+
+        to_work_on = sorted(self.work_queue.values(), key=custom_order)[: bs]
+
+        for _, job,  __, ___ in to_work_on:
+            policy, job, num_scheduled, time_scheduled = self.work_queue[job.id]
+            to_send.append(job)
+            # Remember that we sent this job to one extra worker
+            self.work_queue[job.id] = (policy, job, num_scheduled + 1, time_scheduled)
+
+        # Send the job information to the worker node
+        self.socket.send_pyobj({
+            'kind': 'work',
+            'params_to_render': to_send,
+        })
+
+    def handle_push(self, message: Dict[str, Any]) -> None:
+        # Extract the result from the message
+        jobid, result = message['job'], message['result']
+
+        # total_renders += 1
+
+        if jobid in self.work_queue:
+            # Recover the policy associated to this job entry
+            selected_policy, job, _, _ = self.work_queue[jobid]
+            del self.work_queue[job.id]  # This is done do not give it to anyone else 
+            selected_policy.push_result(job.id, result)
+            # renders_to_report += 1
+            # valid_renders += 1
+        else:
+            # This task has been completed earlier by another worker
+            self.buffer.free(result, -1) # We have to free the result
+
+        self.socket.send_pyobj({'kind': 'ack'})
+
+    def shutdown(self):
+        for _ in tqdm(range(len(self.linked_workers)), desc='Shutting down', unit=' workers'):
+            message = recv_into_buffer(self.socket, self.buffer)
+            self.socket.send_pyobj({
+                'kind': 'die'
+            })
+            try:
+                self.linked_workers.remove(message['worker_id'])
+            except:  # This worker didn't do work yet, we still shut it down
+                pass
+
+        # Warning the logger that we are done
+        self.logger_manager.log(None)
+        print("==> [Waiting for any pending logging]")
+        # We have to wait until it has processed everything left in the queue
+        self.logger_manager.join()
+        print("==> [Have a nice day!]")
+
+    def schedule_work(self):
+        wait_before_start_new = False
+
+        while True:
+            if len(self.done_policies) == len(self.policy_controller_args):
+                break  # We finished all the policies
+
+            message = recv_into_buffer(self.socket, self.buffer)
+            wid = message['worker_id']
+            self.linked_workers.add(wid)
+
+            if self.running:
+                pulled_count = 0
+                for policy in self.running_policies:
+                    pulled = policy.pull_work()
+                    if pulled is None: continue
+                    pulled_count += 1
+                    if pulled_count > 10:  break
+                    wait_before_start_new = False
+                    self.work_queue[pulled.id] = (policy, pulled, 0, time.time())
+
+                # If there is not enough work we start a new policy
+                little_work = len(self.work_queue) < 2 * len(self.linked_workers)
+                policies_left = len(self.policy_controllers) > 0
+                running_max_policies = len(self.running_policies) >= self.max_running_policies
+                if little_work and (not wait_before_start_new) and policies_left and (not running_max_policies):
+                    selected_policy = self.policy_controllers.pop()
+                    selected_policy.start()
+                    self.running_policies.add(selected_policy)
+                    wait_before_start_new = True
+            else:
+                assert message['kind'] in {'info', 'decl'}, \
+                    'message #1 was not "kind" == "info" or "decl", maybe race condition?'
+
+            if message['kind'] == 'info':
+                self.send_info()
+            elif message['kind'] == 'decl':
+                self.start(message['declared_outputs'])
+            elif message['kind'] == 'pull':
+                self.handle_pull(message)
+            elif message['kind'] == 'push':
+                self.handle_push(message)
+            else:
+                self.socket.send_pyobj({'kind': 'bad_query'})
+
+        print("==> [Received all the results]")
+        print("==> [Shutting down workers]")
+        self.shutdown()

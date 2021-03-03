@@ -21,10 +21,11 @@ import yaml
 from tqdm import tqdm
 
 from sandbox.log import ImageLogger, JSONLogger, LoggerManager, TbLogger
-from sandbox.scheduling.dynamic_scheduler import schedule_work
+# from sandbox.scheduling.dynamic_scheduler import schedule_work
+from sandbox.scheduling.base_scheduler import Scheduler
 from sandbox.rendering.base_renderer import BaseRenderer
 from sandbox.scheduling.policy_controller import PolicyController
-# from sandbox.scheduling.SearchSpace import SearchSpace
+from sandbox.scheduling.search_space import SearchSpace
 from sandbox.utils import BigChungusCyclicBuffer, init_control
 from typing import Dict, List, Any, Optional
 
@@ -96,49 +97,42 @@ if __name__ == '__main__':
         with open(config['inference']['uid_to_targets'], 'r') as f:
             uid_to_targets = json.load(f)
 
-        """
-        # We need to know the resolution and number of classes to allocate
-        # the memory beforehand and share it with other processes
-        imsize = [render_args['resolution'], render_args['resolution']]
-        buffer_channels = {'rgb': ([3, *imsize], ch.float32)}
-        # render_channels = [('rgb', 3, ch.float32)]
-        if render_args['with_uv']:
-            buffer_channels['uv'] = ([3, *imsize], ch.float32)
-            # render_channels.append(('uv', 3, ch.float32))
-        if render_args['with_depth']:
-            buffer_channels['depth'] = ([3, *imsize], ch.float32)
-            # render_channels.append(('depth', 3, ch.float32))
-        if render_args['with_segmentation']:
-            buffer_channels['segmentation'] = ([1, *imsize], ch.int32)
-            # render_channels.append(('segmentation', 1, ch.int32))
-        buffer_channels['output'] = (config['inference']['output_shape'], ch.float32)
-        buffer_channels['is_correct'] = ([], ch.bool)
-        """
-        # big_chungus = BigChungusCyclicBuffer()
-        # policy_regid = big_chungus.register()  # Register a single policy for each output
-        # assert policy_regid == 1
+        search_space = SearchSpace(controls)
+        continuous_dim, discrete_sizes = search_space.generate_description()
+
+        policy_controllers_args = []
+
+        # Set up the policy controllers
+        for env, model in tqdm(list(product(all_envs, all_models)), desc="Init policies"):
+            env = env.split('/')[-1]
+            model = model.split('/')[-1]
+            space_info = {
+                'continuous_dim': continuous_dim,
+                'discrete_sizes': discrete_sizes,
+                **config['policy']
+            }
+            policy_controllers_args.append([env, search_space, model, space_info])
+            if args.single_model: 
+                break
 
         # Initialize the results buffer and register a single process
         result_buffer: BigChungusCyclicBuffer = BigChungusCyclicBuffer()
         policy_regid = result_buffer.register()  # Register a single policy for each output
         assert policy_regid == 1
 
-        logger_manager = LoggerManager()
-        loggers_list = [logger for logger in args.loggers.split(',')]
-        print(loggers_list)
-        if "JSONLogger" in loggers_list:
-            logger_manager.append(JSONLogger(args.logdir, result_buffer, config))
-        if "TbLogger" in loggers_list:
-            logger_manager.append(TbLogger(args.logdir, result_buffer, config))
-        if "ImageLogger" in loggers_list:
-            print("STARTING IMAGE LOGGER")
-            imgdir = os.path.join(args.logdir, 'images')
-            if not os.path.exists(imgdir):
-                os.makedirs(imgdir)
-            logger_manager.append(ImageLogger(imgdir, result_buffer, config))
-        logger_manager.start()
-
         print("==> [Starting the scheduler]")
+        loggers_list = [logger for logger in args.loggers.split(',')]
+        s = Scheduler(args.port,
+                      args.max_concurrent_policies, 
+                      all_envs, 
+                      all_models,
+                      policy_controllers_args,
+                      config,
+                      loggers_list, 
+                      args.logdir)
+        s.schedule_work()
+        
+        """
         schedule_work(args.port,
                       args.max_concurrent_policies, 
                       all_envs, 
@@ -148,11 +142,5 @@ if __name__ == '__main__':
                       result_buffer,
                       logger_manager,
                       args.single_model)
-
-        # Warning the logger that we are done
-        logger_manager.log(None)
-        print("==> [Waiting for any pending logging]")
-        # We have to wait until it has processed everything left in the queue
-        logger_manager.join()
-        print("==> [Have a nice day!]")
+        """
 

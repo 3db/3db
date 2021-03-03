@@ -124,7 +124,7 @@ class JSONLogger(Logger):
         # _, outputs, is_correct = self.result_buffer[rix]
         buffer_data = self.result_buffer[rix]
         item['output'] = buffer_data['output']
-        item['is_correct'] = buffer_data['corrects']
+        item['is_correct'] = buffer_data['is_correct']
         item['output_type'] = self.evaluator.output_type
         cleaned = clean_log(item)
         encoded = json.dumps(cleaned, default=default, 
