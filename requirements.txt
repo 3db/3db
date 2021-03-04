@@ -15,3 +15,4 @@ pytest
 pytest-xdist
 flask
 flask_cors
+tensorboard

@@ -11,18 +11,18 @@ inference:
   args:
     pretrained: True
 evaluation:
-  module: 'sandbox.evaluators.classification'
+  module: 'threedb.evaluators.classification'
   args:
     topk: 1
 render_args:
-  engine: 'sandbox.rendering.blender'
+  engine: 'threedb.rendering.blender'
   resolution: 256
   with_uv: True
   with_depth: True
   with_segmentation: False
   samples: 16
 policy:
-  module: "sandbox.policies.grid_search"
+  module: "threedb.policies.grid_search"
   samples_per_dim: 5
 controls:
   - module: "mug_controller"

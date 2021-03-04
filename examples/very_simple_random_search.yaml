@@ -11,15 +11,15 @@ inference:
   args:
     pretrained: True
 evaluation:
-  module: 'sandbox.evaluators.classification'
+  module: 'threedb.evaluators.classification'
   args:
     topk: 1
 render_args:
-  engine: 'sandbox.rendering.render_blender'
+  engine: 'threedb.rendering.render_blender'
   resolution: 256
   samples: 16
 policy:
-  module: "sandbox.policies.random_search"
+  module: "threedb.policies.random_search"
   samples: 10
 controls:
   - module: "background"
@@ -28,5 +28,5 @@ controls:
 logging:
   root_dir: '/logs'
   logger_modules:
-    - "sandbox.result_logging.image_logger"
-    - "sandbox.result_logging.json_logger"
+    - "threedb.result_logging.image_logger"
+    - "threedb.result_logging.json_logger"

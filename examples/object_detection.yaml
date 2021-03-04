@@ -11,16 +11,16 @@ inference:
   args:
     pretrained: True
 evaluation:
-  module: "sandbox.evaluators.detection"
+  module: "threedb.evaluators.detection"
   args:
     iou_threshold: 0.5
 render_args:
-  engine: 'sandbox.rendering.blender'
+  engine: 'threedb.rendering.blender'
   resolution: 500
   with_segmentation: True
   samples: 16
 policy:
-  module: "sandbox.policies.random_search"
+  module: "threedb.policies.random_search"
   samples: 10
 controls:
   - module: "background"
