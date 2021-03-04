@@ -35,38 +35,3 @@ def recv_into_buffer(socket: zmq.Socket,
         main_message['result'] = idx
 
     return main_message
-
-class MultiBar:
-    def __init__(self, titles: List[str],
-                       units: Union[List[str], str] = "",
-                       smoothing: Union[List[float], float] = 1.0,
-                       update_freq: float = 0.1):
-
-        if isinstance(smoothing, float):
-            smoothing = [smoothing] * len(titles)
-        if isinstance(units, str):
-            units = [units] * len(titles)
-
-        print(titles, units, smoothing)
-        self.update_freq = update_freq
-        self.last_update = time.time()
-        self.bars = {t: tqdm(unit=u, smoothing=s, total=0) for (u, t, s) in zip(units, titles, smoothing)}
-        for k in self.bars:
-            self.bars[k].set_description(k)
-
-    def update_bars(self):
-        if time.time() > self.last_update + self.update_freq:
-            self.last_update = time.time()
-            rendering_bar.update(renders_to_report)
-            renders_to_report = 0
-            buffer_usage_bar.reset()
-            buffer_usage_bar.update(len(result_buffer.free_idx))
-            buffer_usage_bar.refresh()
-            policies_bar.set_postfix({
-                'concurrent running': len(running_policies)
-            })
-            rendering_bar.set_postfix({
-                'workers': len(seen_workers),
-                'pending': len(work_queue),
-                'waste%': (1 - valid_renders / total_renders) * 100
-            })

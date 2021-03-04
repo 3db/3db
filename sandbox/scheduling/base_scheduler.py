@@ -4,8 +4,11 @@ from typing import Any, Dict, Set, List
 from sandbox.scheduling.policy_controller import PolicyController
 from sandbox.scheduling.search_space import SearchSpace
 from sandbox.scheduling.utils import MultiBar, recv_into_buffer
+from sandbox.result_logging.logger_manager import LoggerManager
+from sandbox.result_logging.base_logger import BaseLogger
 from sandbox.utils import BigChungusCyclicBuffer
-from sandbox.log import LoggerManager, JSONLogger, TbLogger, ImageLogger
+# from sandbox.log import LoggerManager, JSONLogger, TbLogger, ImageLogger
+
 import time
 import os
 import json
@@ -16,19 +19,18 @@ class Scheduler:
                        max_running_policies: int,
                        envs: List[str],
                        models: List[str],
-                       policy_controller_args: List[List[Any]],
                        config: Dict[str, Dict[str, Any]],
-                       loggers_list: List[str],
-                       logdir: str) -> None:
+                       policy_controllers: Set[PolicyController],
+                       buffer: BigChungusCyclicBuffer,
+                       logger_manager: LoggerManager,
+                       with_tqdm: bool = True) -> None:
         self.running = False
 
         self.envs = envs
         self.models = models
-        self.buffer = BigChungusCyclicBuffer()
+        self.buffer = buffer
         self.config = config
-        self.loggers_list = loggers_list
-        self.policy_controller_args = policy_controller_args
-        self.logdir = logdir
+        self.logger_manager = logger_manager
 
         # Open a socket for communicating with the clients
         context = zmq.Context(io_threads=1)
@@ -40,15 +42,18 @@ class Scheduler:
 
         # Keep track of the workers
         self.linked_workers: Set[str] = set()
-        self.policy_controllers = set()
+        self.policy_controllers = policy_controllers
+        self.num_policies = len(policy_controllers)
         self.done_policies = set()
         self.running_policies = set()
         self.max_running_policies = max_running_policies
         self.work_queue = {}
 
         # TQDM bars
-        self.bars = MultiBar(['Buffer left', 'Policies', 'Renderings'],
-                             ['slots', 'policies', 'images'], smoothing=0.1)
+        self.valid_renders, self.total_renders = 0, 0
+        if with_tqdm:
+            self.render_pb = tqdm(unit='images', desc='Renderings', smoothing=0.1)
+            self.policies_pb = tqdm(unit='steps', desc='Policies', total=self.num_policies)
 
     def start(self, declared_outputs):
         """
@@ -65,25 +70,7 @@ class Scheduler:
         assert self.buffer.declare_buffers(declared_outputs)
         self.socket.send_pyobj({'kind': 'ack'})
 
-        logger_manager = LoggerManager()
-        if "JSONLogger" in self.loggers_list:
-            logger_manager.append(JSONLogger(self.logdir, self.buffer, self.config))
-        if "TbLogger" in self.loggers_list:
-            logger_manager.append(TbLogger(self.logdir, self.buffer, self.config))
-        if "ImageLogger" in self.loggers_list:
-            print("STARTING IMAGE LOGGER")
-            imgdir = os.path.join(self.logdir, 'images')
-            if not os.path.exists(imgdir):
-                os.makedirs(imgdir)
-            logger_manager.append(ImageLogger(imgdir, self.buffer, self.config))
-        logger_manager.start()
-        self.loggers_manager = logger_manager
-
-        # Make the buffer, loggers, and policy controllers
-        for arg_list in self.policy_controller_args:
-            controller_args = [*arg_list, logger_manager, self.buffer]
-            self.policy_controllers.add(PolicyController(*controller_args))
-            
+        self.logger_manager.start()
         self.running = True
 
     def send_info(self):
@@ -116,7 +103,7 @@ class Scheduler:
                     int(job.environment != last_env) + int(job.model != last_model),
                     time_scheduled, job.id)
 
-        to_work_on = sorted(self.work_queue.values(), key=custom_order)[: bs]
+        to_work_on = sorted(self.work_queue.values(), key=custom_order)[:bs]
 
         for _, job,  __, ___ in to_work_on:
             policy, job, num_scheduled, time_scheduled = self.work_queue[job.id]
@@ -134,15 +121,15 @@ class Scheduler:
         # Extract the result from the message
         jobid, result = message['job'], message['result']
 
-        # total_renders += 1
+        self.total_renders += 1
 
         if jobid in self.work_queue:
             # Recover the policy associated to this job entry
             selected_policy, job, _, _ = self.work_queue[jobid]
             del self.work_queue[job.id]  # This is done do not give it to anyone else 
             selected_policy.push_result(job.id, result)
-            # renders_to_report += 1
-            # valid_renders += 1
+            self.render_pb.update(1)
+            self.valid_renders += 1
         else:
             # This task has been completed earlier by another worker
             self.buffer.free(result, -1) # We have to free the result
@@ -160,9 +147,14 @@ class Scheduler:
             except:  # This worker didn't do work yet, we still shut it down
                 pass
 
+        self.buffer.close()
+        self.render_pb.close()
+        self.policies_pb.close()
+
         # Warning the logger that we are done
         self.logger_manager.log(None)
         print("==> [Waiting for any pending logging]")
+
         # We have to wait until it has processed everything left in the queue
         self.logger_manager.join()
         print("==> [Have a nice day!]")
@@ -171,7 +163,7 @@ class Scheduler:
         wait_before_start_new = False
 
         while True:
-            if len(self.done_policies) == len(self.policy_controller_args):
+            if len(self.done_policies) == self.num_policies:
                 break  # We finished all the policies
 
             message = recv_into_buffer(self.socket, self.buffer)
@@ -211,6 +203,19 @@ class Scheduler:
                 self.handle_push(message)
             else:
                 self.socket.send_pyobj({'kind': 'bad_query'})
+
+            for policy in list(self.running_policies):
+                if not policy.is_alive():
+                    self.policies_pb.update(1)
+                    self.running_policies.remove(policy)
+                    self.done_policies.add(policy)
+
+            self.render_pb.set_postfix({
+                'workers': len(self.linked_workers),
+                'pending': len(self.work_queue),
+                'waste%': (1 - self.valid_renders / max(1e-10, self.total_renders)) * 100
+            })
+            self.policies_pb.set_postfix({'running': len(self.running_policies)})
 
         print("==> [Received all the results]")
         print("==> [Shutting down workers]")

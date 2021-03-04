@@ -1,3 +1,11 @@
+"""
+Sandbox utilities. Includes:
+
+- BigChungusCyclicBuffer, a buffer that
+
+[TODO]
+"""
+
 import importlib
 import ssl
 from copy import deepcopy
@@ -10,6 +18,7 @@ import torch as ch
 from torch.tensor import Tensor
 from torch.types import _dtype
 from torchvision import transforms
+from tqdm import tqdm
 
 def str_to_dtype(dtype_str: str) -> _dtype:
     return getattr(ch, dtype_str)
@@ -21,8 +30,8 @@ class BigChungusCyclicBuffer:
 
 
     """
-    def __init__(self, buffers: Optional[Dict[str,Tuple[List[int], str]]] = None,
-                       size: int = 1001) -> None:
+    def __init__(self, buffers: Optional[Dict[str, Tuple[List[int], str]]] = None,
+                 size: int = 1001, with_tqdm: bool = True) -> None:
         self.buffers = {}
         if buffers is None:
             buffers = {}
@@ -31,7 +40,7 @@ class BigChungusCyclicBuffer:
             self.declare_buffers(buffers)
 
         self.used_buffer = np.zeros(size, dtype='uint8')
-        self.free_idx = list(range(size))
+        self._free_idx = list(range(size))
         self.size = size
 
         self.first = 0
@@ -39,8 +48,13 @@ class BigChungusCyclicBuffer:
         self.mask = 0
         self.registration_count = 0
         self.events = Queue()
-    
-    def declare_buffers(self, buffers: Dict[str,Tuple[List[int], str]]) -> bool:
+
+        self.progress_bar = None
+        if with_tqdm:
+            self.progress_bar = tqdm(unit='slots', desc='Buffer left',
+                                     total=self.size, smoothing=0)
+
+    def declare_buffers(self, buffers: Dict[str, Tuple[List[int], str]]) -> bool:
         if self.initialized and (buffers != self.declare_buffers):
             return False
 
@@ -77,7 +91,9 @@ class BigChungusCyclicBuffer:
                 else:
                     self.used_buffer[event] ^= 1 << (reg_id - 1)
                 if self.used_buffer[event] == 0:
-                    self.free_idx.append(event)
+                    self._free_idx.append(event)
+                    if self.progress_bar is not None:
+                        self.progress_bar.update(1)
             except Empty:
                 break
 
@@ -86,7 +102,9 @@ class BigChungusCyclicBuffer:
         while True:
             self.process_events()
             try:
-                ind = self.free_idx.pop()
+                ind = self._free_idx.pop()
+                if self.progress_bar is not None:
+                    self.progress_bar.update(-1)
                 assert self.used_buffer[ind] == 0
                 self.used_buffer[ind] = self.mask
                 return ind
@@ -106,6 +124,10 @@ class BigChungusCyclicBuffer:
             self.buffers[buf_key][next_ind] = buf_data
 
         return next_ind
+
+    def close(self):
+        if self.progress_bar is not None:
+            self.progress_bar.close()
 
 def overwrite_control(control, data):
 
@@ -138,7 +160,7 @@ def init_control(description, root_folder, engine_name):
     control_module = getattr(module, f"{engine_name.capitalize()}Control")
     control = control_module(**args, root_folder=root_folder)
     filtered_desc = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
-    overwrite_control(control,  filtered_desc)
+    overwrite_control(control, filtered_desc)
     return control
 
 

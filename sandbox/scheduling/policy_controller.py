@@ -5,9 +5,10 @@ import multiprocessing
 from uuid import uuid4
 import cv2
 import numpy as np
-from typing import List, Dict, Optional
-
-from sandbox.utils import init_policy
+from typing import List, Dict, Optional, Any
+from sandbox.scheduling.search_space import SearchSpace
+from sandbox.result_logging.logger_manager import LoggerManager
+from sandbox.utils import init_policy, BigChungusCyclicBuffer
 
 
 JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
@@ -17,8 +18,12 @@ JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
 
 class PolicyController(Process):
 
-    def __init__(self, env_file, search_space, model_name, policy_args,
-                 logger_manager, result_buffer):
+    def __init__(self, search_space: SearchSpace,
+                       env_file: str,
+                       model_name: str,
+                       policy_args: Dict[str, Any],
+                       logger_manager: LoggerManager,
+                       result_buffer: BigChungusCyclicBuffer):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()

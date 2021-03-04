@@ -25,3 +25,8 @@ controls:
   - module: "background"
     S: .4
     V: .4
+logging:
+  root_dir: '/logs'
+  logger_modules:
+    - "sandbox.result_logging.image_logger"
+    - "sandbox.result_logging.json_logger"

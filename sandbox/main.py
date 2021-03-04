@@ -20,8 +20,9 @@ import torch as ch
 import yaml
 from tqdm import tqdm
 
-from sandbox.log import ImageLogger, JSONLogger, LoggerManager, TbLogger
+# from sandbox.logging import ImageLogger, JSONLogger, LoggerManager, TbLogger
 # from sandbox.scheduling.dynamic_scheduler import schedule_work
+from sandbox.result_logging.logger_manager import LoggerManager
 from sandbox.scheduling.base_scheduler import Scheduler
 from sandbox.rendering.base_renderer import BaseRenderer
 from sandbox.scheduling.policy_controller import PolicyController
@@ -40,8 +41,8 @@ parser.add_argument('--logdir', type=str, default=None,
                     help='Log information about each sample into a folder')
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
-parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
-                    help='Loggers to use (comma-delimited), e.g. JSONLogger,TbLogger,ImageLogger')
+# parser.add_argument('--loggers', type=str, default='JSONLogger,TbLogger',
+                    # help='Loggers to use (comma-delimited), e.g. JSONLogger,TbLogger,ImageLogger')
 parser.add_argument('--single-model', action='store_true',
                     help='If given, only do one model and one environment (for debugging)')
 parser.add_argument('--max-concurrent-policies', '-m', type=int, default=10,
@@ -66,6 +67,7 @@ if __name__ == '__main__':
         assert 'policy' in config, 'Missing policy in config file'
         assert 'controls' in config, 'Missing control list in config file'
         assert 'inference' in config, 'Missing `inference` key in config file'
+        assert 'logging' in config, 'Missing `logging` key in config file'
 
         # render_args = DEFAULT_RENDER_ARGS
         if 'render_args' in config:
@@ -100,36 +102,56 @@ if __name__ == '__main__':
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
 
-        policy_controllers_args = []
-
-        # Set up the policy controllers
-        for env, model in tqdm(list(product(all_envs, all_models)), desc="Init policies"):
-            env = env.split('/')[-1]
-            model = model.split('/')[-1]
-            space_info = {
-                'continuous_dim': continuous_dim,
-                'discrete_sizes': discrete_sizes,
-                **config['policy']
-            }
-            policy_controllers_args.append([env, search_space, model, space_info])
-            if args.single_model: 
-                break
-
         # Initialize the results buffer and register a single process
         result_buffer: BigChungusCyclicBuffer = BigChungusCyclicBuffer()
         policy_regid = result_buffer.register()  # Register a single policy for each output
         assert policy_regid == 1
 
+        logger_manager = LoggerManager()
+        logging_root = config['logging']['root_dir']
+        for module_path in config['logging']['logger_modules']:
+            logger_module = importlib.import_module(module_path).Logger
+            logger_manager.append(logger_module(logging_root, result_buffer, config))
+
+        """
+        if "JSONLogger" in config[].loggers_list:
+            logger_manager.append(JSONLogger(self.logdir, self.buffer, self.config))
+        if "TbLogger" in self.loggers_list:
+            logger_manager.append(TbLogger(self.logdir, self.buffer, self.config))
+        if "ImageLogger" in self.loggers_list:
+            imgdir = os.path.join(self.logdir, 'images')
+            if not os.path.exists(imgdir):
+                os.makedirs(imgdir)
+            logger_manager.append(ImageLogger(imgdir, self.buffer, self.config))
+        logger_manager.start()
+        self.loggers_manager = logger_manager
+        """
+
+        # Set up the policy controllers
+        policy_controllers = set()
+        for env, model in tqdm(list(product(all_envs, all_models)), desc="Init policies"):
+            env = env.split('/')[-1]
+            model = model.split('/')[-1]
+            policy_args = {
+                'continuous_dim': continuous_dim,
+                'discrete_sizes': discrete_sizes,
+                **config['policy']
+            }
+            controller = PolicyController(search_space, env, model, 
+                                policy_args, logger_manager, result_buffer)
+            policy_controllers.add(controller)
+            if args.single_model: 
+                break
+
         print("==> [Starting the scheduler]")
-        loggers_list = [logger for logger in args.loggers.split(',')]
         s = Scheduler(args.port,
                       args.max_concurrent_policies, 
                       all_envs, 
                       all_models,
-                      policy_controllers_args,
                       config,
-                      loggers_list, 
-                      args.logdir)
+                      policy_controllers,
+                      result_buffer,
+                      logger_manager)
         s.schedule_work()
         
         """
