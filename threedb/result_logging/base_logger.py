@@ -1,3 +1,8 @@
+"""base_logger.py
+
+Implements an abstract class for logging results.
+"""
+
 from multiprocessing import Process, Queue
 from typing import Any, Dict, Optional
 from threedb.utils import BigChungusCyclicBuffer
@@ -16,9 +21,10 @@ class BaseLogger(Process, ABC):
         ``log()`` on them.
     [TODO]
     """
-    def __init__(self, root_dir: str, 
-                       result_buffer: BigChungusCyclicBuffer, 
-                       config: Optional[Dict[str, Dict[str, Any]]]) -> None:
+    def __init__(self,
+                 root_dir: str,
+                 result_buffer: BigChungusCyclicBuffer,
+                 config: Optional[Dict[str, Dict[str, Any]]]) -> None:
         """Creates an instance of the logger
 
         Args:
@@ -27,7 +33,7 @@ class BaseLogger(Process, ABC):
                 results are written
             config (Optional[Dict[str, Dict[str, Any]]]): the 3DB experiment
                 config (see TODO [link to docs])
-        """        
+        """
         super().__init__()
         self.root_dir: str = root_dir
         self.buffer = result_buffer
@@ -42,7 +48,7 @@ class BaseLogger(Process, ABC):
         ----------
         item : Dict[str, Any]
             The item to be logged.
-        """        
+        """
         self.queue.put(item)
 
     @abstractmethod
@@ -60,7 +66,7 @@ class BaseLogger(Process, ABC):
     def end(self) -> None:
         """Performs cleanup operations for the logger. No-op by default, should
         be overriden with code for closing any open file handles, ports, etc.
-        """        
+        """
         pass
 
     def run(self) -> None:

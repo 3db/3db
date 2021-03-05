@@ -2,6 +2,13 @@ import torch as ch
 from abc import ABC, abstractmethod
 
 class Evaluator(ABC):
+    """Abstract Base Class for Evaluators
+
+    An evaluator is in charge of taking the output of an inference model,
+    analyzing it, and returning the relevant summary outputs (e.g.,
+    correctness for classification, IoU for detection, MSE for segmentation,
+    etc.)
+    """
     def __init__(self):
         pass
 

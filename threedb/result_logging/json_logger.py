@@ -1,13 +1,19 @@
-from threedb.result_logging.base_logger import BaseLogger
-import orjson as json
-from threedb.utils import BigChungusCyclicBuffer
-from typing import Dict, Any, Iterable, Tuple
-from os import path
+"""JSONLogger
+
+Subclass of :mod:`threedb.result_logging.base_logger.BaseLogger`.
+"""
+
+import copy
 import importlib
 import shutil
-import copy
-import torch as ch
+from os import path
+from typing import Any, Dict, Iterable, Tuple
+
 import numpy as np
+import orjson as json
+import torch as ch
+from threedb.result_logging.base_logger import BaseLogger
+from threedb.utils import BigChungusCyclicBuffer
 
 def clean_key(k: Iterable[str]) -> str:
     """
@@ -49,9 +55,10 @@ def clean_log(log_d: dict, key_blacklist: Tuple[str, str] = ('image', 'result_ix
 
 
 class JSONLogger(BaseLogger):
-    def __init__(self, root_dir: str, 
-                       result_buffer: BigChungusCyclicBuffer, 
-                       config: Dict[str, Dict[str, Any]]) -> None:
+    def __init__(self,
+                 root_dir: str,
+                 result_buffer: BigChungusCyclicBuffer,
+                 config: Dict[str, Dict[str, Any]]) -> None:
         """
         TODO
         """
@@ -69,13 +76,13 @@ class JSONLogger(BaseLogger):
     def log(self, item):
         item = copy.deepcopy(item)
         rix = item['result_ix']
-        # _, outputs, is_correct = self.result_buffer[rix]
         buffer_data = self.buffer[rix]
-        item['output'] = buffer_data['output']
-        item['is_correct'] = buffer_data['is_correct']
+        item = {k: v for (k, v) in buffer_data if k in self.evaluator.KEYS}
+        # item['output'] = buffer_data['output']
+        # item['is_correct'] = buffer_data['is_correct']
         item['output_type'] = self.evaluator.output_type
         cleaned = clean_log(item)
-        encoded = json.dumps(cleaned, default=json_default, 
+        encoded = json.dumps(cleaned, default=json_default,
                              option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
         self.buffer.free(rix, self.regid)
         self.handle.write(encoded)

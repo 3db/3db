@@ -32,7 +32,8 @@ def _setup_nice_PNG(input_node: Any) -> None:
     input_node.format.color_depth = "16"
 
 class Blender(BaseRenderer):
-    NAME = 'Blender'
+    NAME: str = 'Blender'
+    KEYS: List[str] = ['rgb', 'segmentation', 'uv']
 
     def __init__(self, root_dir: str, render_settings: Dict[str, Any], _ = None) -> None:
         super().__init__(root_dir, render_settings, ENV_EXTENSIONS)

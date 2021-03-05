@@ -11,6 +11,9 @@ Welcome to 3DB's documentation!
    :caption: Contents:
 
    usage/quickstart
+   usage/custom_evaluator
+   usage/custom_logger
+   usage/custom_renderer
    api_doc
 
 Indices and tables

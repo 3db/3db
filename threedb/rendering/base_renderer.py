@@ -2,12 +2,14 @@ import torch as ch
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Tuple
 from threedb.rendering.utils import ControlsApplier
+from typing import List
 
 class RenderEnv(ABC): pass
 class RenderObject(ABC): pass
 
 class BaseRenderer(ABC):
-    NAME = 'BaseRenderer'
+    NAME: str = 'BaseRenderer'
+    KEYS: List[str] = ['rgb']
 
     def __init__(self, 
                  root_dir: str, 
