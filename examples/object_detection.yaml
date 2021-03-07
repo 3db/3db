@@ -1,21 +1,21 @@
 inference:
   module: 'torchvision.models.detection'
   class: 'retinanet_resnet50_fpn'
-  label_map: './data_collection/coco_mapping.json'
+  label_map: './resources/coco_mapping.json'
   output_shape: [100, 6]
   normalization:
     mean: [0., 0., 0.]
     std: [1., 1., 1.]
   resolution: [500, 500]
-  uid_to_targets: './data_collection/uid_to_IN.json'
   args:
     pretrained: True
 evaluation:
   module: "threedb.evaluators.detection"
   args:
     iou_threshold: 0.5
+    classmap_path: './resources/uid_to_COCO.json'
 render_args:
-  engine: 'threedb.rendering.blender'
+  engine: 'threedb.rendering.render_blender'
   resolution: 500
   with_segmentation: True
   samples: 16
@@ -33,3 +33,8 @@ controls:
     zoom_factor: (0.3, 1.2)
     aperture: 8
     focal_length: 50
+logging:
+  root_dir: '/logs'
+  logger_modules:
+    - "threedb.result_logging.image_logger"
+    - "threedb.result_logging.json_logger"

@@ -1,45 +1,100 @@
-from torch import nn
+"""Implements a basic evaluator for classification-based tasks.
+"""
+
+import json
+from typing import Dict, List, Tuple, Union, Any
+
 import torch as ch
-from threedb.evaluators import base_evaluator
+from torch import nn, Tensor
+from threedb.evaluators.base_evaluator import BaseEvaluator, Output, LabelType
+from typeguard import check_type
 
-class SimpleClassificationEvaluator(base_evaluator.Evaluator): 
-    label_type = 'classes'
+
+class SimpleClassificationEvaluator(BaseEvaluator):
+    """SimpleClassificationEvaluator
+
+    A concrete implementation of the abstract
+    :class:`threedb.evaluators.base_evaluator.BaseEvaluator` that is designed
+    for classification tasks.
+    """
     output_type = 'classes'
-    extra_info = {}
+    KEYS = ['is_correct', 'loss']
 
-    def __init__(self, *, topk):
+    def __init__(self, *, topk: int, classmap_path: str):
+        """Initialize an Evaluator for classification
+
+        Parameters
+        ----------
+        topk : int
+
+        classmap_path : str
+            a path to a JSON file mapping model UIDs to class numbers.
+        """
         super().__init__()
-        self.crit = nn.CrossEntropyLoss()
-        self.topk = topk
+        self.crit: nn.Module = nn.CrossEntropyLoss()
+        self.topk: int = topk
+        self.uid_to_targets: Dict[str, LabelType] = json.load(open(classmap_path))
+        check_type('uid_to_targets', self.uid_to_targets, Dict[str, LabelType])
 
-    def fix_type(self, label):
-        """
-        Takes a label in any valid format (list of ints/tensors, single int, single tensor).
-        Returns a unified format (list of integers).
-        """
-        assert isinstance(label, (int, list, ch.Tensor)), \
-            "Label must be an int, list, or torch tensor"
-        if isinstance(label, int):
-            return [label]
-        elif isinstance(label, ch.Tensor):
-            if len(label.shape) == 0: return [label.item()]
-            else: return label.tolist()
+    def get_segmentation_label(self, model_uid: str) -> int:
+        label = self.uid_to_targets[model_uid]
+        if isinstance(label, list):
+            return label[0]
         return label
 
-    def is_correct(self, pred, label):
+    def get_target(self, model_uid: str, render_output: Dict[str, Tensor]) -> LabelType:
+        """See the docstring of
+        :meth:`threedb.evaluators.base_evaluator.BaseEvaluator.get_target`.
         """
-        Takes in a prediction (tensor of size (# logits)) and a label (list, int, or tensor).
-        Returns true if any of the valid labels is within the topk predicted labels.
+        return self.uid_to_targets[model_uid]
+
+    def declare_outputs(self) -> Dict[str, Tuple[List[int], str]]:
+        """See the docstring of
+        :meth:`threedb.evaluators.base_evaluator.BaseEvaluator.declare_outputs`.
+
+        Returns
+        -------
+        Dict[str, Tuple[List[int], type]]
+
         """
-        label = self.fix_type(label)
-        return any([pred_lab in label for pred_lab in pred.topk(self.topk).indices])
+        return {
+            'is_correct': ([], 'bool'),
+            'loss': ([], 'float32')
+        }
+
+    def summary_stats(self, pred: ch.Tensor, label: LabelType) -> Dict[str, Output]:
+        """Concrete implementation of
+        :meth:`threedb.evaluators.base_evaluator.BaseEvaluator.summary_stats`
+        (see that docstring for information on the abstract function). Returns
+        correctness (binary value) and cross-entropy loss of the prediction.
+
+        Parameters
+        ----------
+        pred : ch.Tensor
+            The output of the inference model: expected to be a 1D tensor of
+            size (n_classes).
+        label : LabelType
+            An integer or list of integers representing the target label
+
+        Returns
+        -------
+        Dict[str, Output]
+            A dictionary containing the results to log from this evaluator,
+            namely the correctness and the cross-entropy loss.
+        """
+        if isinstance(label, int):
+            label = [label]
+        _, topk_inds = pred.topk(self.topk)
+        is_correct = any([pred_lab in label for pred_lab in topk_inds])
+        stacked_pred: Tensor = ch.stack([pred for _ in range(len(label))])
+        im_loss: float = float(self.crit(stacked_pred, ch.tensor(label)).item())
+        return {
+            'is_correct': is_correct,
+            'loss': im_loss
+        }
     
-    def loss(self, pred, label):
-        """
-        Takes in a prediction (tensor of size (# logits)) and a label (list, int, or tensor).
-        Returns the minimum (cross-entropy) loss over valid target labels.
-        """
-        label = self.fix_type(label)
-        return min([self.crit(pred[None,...], ch.tensor([l])) for l in label])
+    @staticmethod
+    def to_tensor(pred: Any, output_shape: List[int], input_shape: List[int]) -> Tensor:
+        return pred
 
 Evaluator = SimpleClassificationEvaluator

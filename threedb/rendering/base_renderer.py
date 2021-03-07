@@ -37,7 +37,7 @@ class BaseRenderer(ABC):
         """
         raise NotImplementedError
 
-    # @abstractmethod
+    @abstractmethod
     def declare_outputs(self) -> Dict[str, Tuple[List[int], str]]:
         """
         This function declares what the output of render() will be, based on the
@@ -49,16 +49,7 @@ class BaseRenderer(ABC):
         A basic implementation which suffices for most applications is provided
         in the abstract class :cla:`threedb.rendering.base_renderer.BaseRenderer`.
         """
-        imsize = [self.args['resolution'], self.args['resolution']]
-        output_channels: Dict[str, Tuple[List[int], str]] = {'rgb': ([3, *imsize], 'float32')}
-        if self.args['with_uv']:
-            output_channels['uv'] = ([3, *imsize], 'float32')
-        if self.args['with_depth']:
-            output_channels['depth'] = ([3, *imsize], 'float32')
-        if self.args['with_segmentation']:
-            output_channels['segmentation'] = ([1, *imsize], 'int32')
-
-        return output_channels
+        raise NotImplementedError
 
     @abstractmethod
     def load_model(self, model: str) -> RenderObject:

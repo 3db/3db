@@ -34,9 +34,6 @@ class Scheduler:
         self.socket = context.socket(zmq.REP)
         self.socket.bind("tcp://*:%s" % port)
 
-        with open(config['inference']['uid_to_targets'], 'r') as f:
-            self.uid_to_targets = json.load(f)
-
         # Keep track of the workers
         self.linked_workers: Set[str] = set()
         self.policy_controllers = policy_controllers
@@ -76,7 +73,6 @@ class Scheduler:
             'environments': self.envs,
             'models': self.models,
             'render_args': self.config['render_args'],
-            'uid_to_targets': self.uid_to_targets,
             'inference': self.config['inference'],
             'controls_args': self.config['controls'],
             'evaluation_args': self.config['evaluation']

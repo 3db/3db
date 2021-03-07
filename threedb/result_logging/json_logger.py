@@ -77,7 +77,7 @@ class JSONLogger(BaseLogger):
         item = copy.deepcopy(item)
         rix = item['result_ix']
         buffer_data = self.buffer[rix]
-        item = {k: v for (k, v) in buffer_data if k in self.evaluator.KEYS}
+        item = {k: v for (k, v) in buffer_data.items() if k in self.evaluator.KEYS}
         # item['output'] = buffer_data['output']
         # item['is_correct'] = buffer_data['is_correct']
         item['output_type'] = self.evaluator.output_type

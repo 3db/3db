@@ -24,22 +24,23 @@ from tqdm import tqdm
 
 from threedb.rendering.utils import ControlsApplier
 from threedb.rendering.base_renderer import BaseRenderer
+from threedb.evaluators.base_evaluator import BaseEvaluator
 from threedb.utils import load_inference_model
-
-arguments = sys.argv[1:]
-try:
-    index = arguments.index('--')
-    arguments = arguments[index + 1:]
-except ValueError:
-    pass
 
 COUNTER = 0
 
-def send_array(sock, arr, flags=0, copy=True, track=False):
+def send_array(sock: zmq.Socket,
+               arr: Any,
+               dtype: Optional[str]=None,
+               flags: int=0,
+               copy: bool=True,
+               track: bool=False):
     """send a numpy array with metadata"""
     if ch.is_tensor(arr):
         arr = arr.data.cpu().numpy()
     arr = np.ascontiguousarray(arr)
+    if dtype is not None:
+        arr = arr.astype(dtype)
     message_dict = dict(
         dtype=str(arr.dtype),
         shape=arr.shape,
@@ -48,7 +49,9 @@ def send_array(sock, arr, flags=0, copy=True, track=False):
     return sock.send(arr, flags, copy=copy, track=track)
 
 def query(sock: zmq.Socket, kind: str, worker_id: str, 
-          result_data: Optional[Dict[str, Any]] = None, **kwargs) -> Dict[str, Any]:
+          result_data: Optional[Dict[str, Any]] = None,
+          result_dtypes: Optional[Dict[str, str]] = None,
+          **kwargs) -> Dict[str, Any]:
     """Send a request back to the server and receive a response. Additional
     named arguments are forwarded to the server as-is as part of the request.
 
@@ -83,7 +86,10 @@ def query(sock: zmq.Socket, kind: str, worker_id: str,
 
         sock.send_json(to_send, flags=zmq.SNDMORE)
         for channel_name in result_keys:
-            send_array(sock, result_data[channel_name], flags=zmq.SNDMORE)
+            send_array(sock,
+                       result_data[channel_name],
+                       result_dtypes.get(channel_name, None),
+                       flags=zmq.SNDMORE)
         sock.send_string('done')
     else:
         sock.send_json(to_send, flags=0)
@@ -117,7 +123,7 @@ if __name__ == '__main__':
                         help='Always return the same result regardless of the parameters'
                              '\n useful to debug and produce large amount of data quickly')
 
-    args = parser.parse_args(arguments)
+    args = parser.parse_args()
     print(args)
 
     context = zmq.Context()
@@ -131,15 +137,14 @@ if __name__ == '__main__':
     infos = query(socket, 'info', WORKER_ID)
     render_args = infos['render_args']
 
-    rendering_module: Type[BaseRenderer] = getattr(importlib.import_module(render_args['engine']), 'Renderer')
-    rendering_engine: BaseRenderer = rendering_module(args.root_folder, {**render_args, **vars(args)})
+    rendering_class: Type[BaseRenderer] = getattr(importlib.import_module(render_args['engine']), 'Renderer')
+    rendering_engine: BaseRenderer = rendering_class(args.root_folder, {**render_args, **vars(args)})
 
     evaluation_args = infos['evaluation_args']
     evaluator_class = getattr(importlib.import_module(evaluation_args['module']), 'Evaluator')
-    evaluator = evaluator_class(**infos['evaluation_args']['args'])
+    evaluator: BaseEvaluator = evaluator_class(**infos['evaluation_args']['args'])
 
     # Gather all experiment-wide parameters
-    uid_to_targets = infos['uid_to_targets']
     inference_args = infos['inference']
     controls_args = infos['controls_args']
     inference_model = load_inference_model(inference_args)
@@ -150,13 +155,20 @@ if __name__ == '__main__':
     pbar = tqdm(smoothing=0)
 
     image_shapes = rendering_engine.declare_outputs()
+    assert set(image_shapes.keys()).issubset(rendering_class.KEYS), \
+        'Return value of declare_outputs() should match the declared KEYS var'
+    eval_shapes = evaluator.declare_outputs()
+    assert set(eval_shapes.keys()).issubset(evaluator_class.KEYS), \
+        'Return value of declare_outputs() should match the declared KEYS var'
     declared_outputs = {
         **image_shapes,
+        **eval_shapes,
         'output': (inference_args['output_shape'], 'float32'),
-        'is_correct': ([], 'bool')
     }
     query(socket, 'decl', WORKER_ID, declared_outputs=declared_outputs)
 
+    # These will be assigned in the if statement below
+    model_uid = ''
     while True:
         job_description = query(socket, 'pull', WORKER_ID,
                                 batch_size=args.batch_size,
@@ -169,7 +181,6 @@ if __name__ == '__main__':
             time.sleep(1)
             continue
 
-        print("do some work")
         for job in parameters:
             if LAST_RESULT:
                 data = LAST_RESULT[0]
@@ -184,10 +195,7 @@ if __name__ == '__main__':
                     loaded_env = rendering_engine.load_env(current_env)
                     loaded_model = rendering_engine.load_model(current_model)
                     model_uid = rendering_engine.get_model_uid(loaded_model)
-                    renderer_settings = SimpleNamespace(**vars(args),
-                                                        **render_args)
                     rendering_engine.setup_render(loaded_model, loaded_env)
-                    # rendering_engine.setup_render(renderer_settings)
                     last_env = current_env
                     last_model = current_model
 
@@ -196,9 +204,9 @@ if __name__ == '__main__':
                                                 controls_args,
                                                 args.root_folder)
 
-                # context = {}
+                scalar_label = evaluator.get_segmentation_label(model_uid)
                 result = rendering_engine.render_and_apply(model_uid,
-                                                           uid_to_targets[model_uid][0],
+                                                           scalar_label,
                                                            controls_applier,
                                                            loaded_model,
                                                            loaded_env)
@@ -206,28 +214,22 @@ if __name__ == '__main__':
                 with ch.no_grad():
                     prediction, input_shape = inference_model(result['rgb'])
 
-                if evaluator_class.label_type == 'classes':
-                    lab = uid_to_targets[model_uid]
-                elif evaluator_class.label_type == 'segmentation_map':
-                    lab = result['segmentation']
-                else:
-                    err_msg = f'Label type {evaluator_class.label_type} not found'
-                    raise ValueError(err_msg)
-
-                is_correct = evaluator.is_correct(prediction, lab)
+                lab = evaluator.get_target(model_uid, result)
+                evaluation = evaluator.summary_stats(prediction, lab)
+                assert evaluation.keys() == eval_shapes.keys(), \
+                    'Outputs do not match declared outputs'
                 out_shape =  inference_args['output_shape']
                 prediction_tens = evaluator.to_tensor(prediction, out_shape, input_shape)
-                loss = evaluator.loss(prediction, lab)
-                # extra_info = evaluator.extra_info
                 data = {
-                    **result,
                     'output': prediction_tens,
-                    'is_correct': is_correct,
-                    # 'loss': loss
+                    **result,
+                    **evaluation
                 }
 
                 if args.fake_results:
                     LAST_RESULT.append(data)
 
-            query(socket, 'push', WORKER_ID, result_data=data, job=job.id)
+            result_dtypes = {k: v[1] for (k, v) in declared_outputs.items()}
+            query(socket, 'push', WORKER_ID, result_data=data,
+                  result_dtypes=result_dtypes, job=job.id)
             pbar.update(1)

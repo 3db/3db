@@ -87,9 +87,6 @@ if __name__ == '__main__':
                 controls_args[name] = control_config['args']
         config['controls'] = controls_args
 
-        with open(config['inference']['uid_to_targets'], 'r') as f:
-            uid_to_targets = json.load(f)
-
         search_space = SearchSpace(controls)
         continuous_dim, discrete_sizes = search_space.generate_description()
 

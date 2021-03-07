@@ -120,7 +120,7 @@ class BigChungusCyclicBuffer:
         for buf_key, buf_data in data.items():
             assert buf_key in self.buffers, "Unexpected channel " + buf_key
             assert buf_data.dtype == self.buffers[buf_key].dtype, \
-                f"Expected datatype {self.buffers[buf_key].dtype}, got {buf_data.dtype}"
+                f"Expected datatype {self.buffers[buf_key].dtype}, got {buf_data.dtype} for key {buf_key}"
             self.buffers[buf_key][next_ind] = buf_data
 
         return next_ind

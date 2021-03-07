@@ -33,7 +33,7 @@ def _setup_nice_PNG(input_node: Any) -> None:
 
 class Blender(BaseRenderer):
     NAME: str = 'Blender'
-    KEYS: List[str] = ['rgb', 'segmentation', 'uv']
+    KEYS: List[str] = ['rgb', 'segmentation', 'uv', 'depth']
 
     def __init__(self, root_dir: str, render_settings: Dict[str, Any], _ = None) -> None:
         super().__init__(root_dir, render_settings, ENV_EXTENSIONS)
@@ -51,6 +51,18 @@ class Blender(BaseRenderer):
     def enumerate_environments(search_dir: str) -> List[str]:
         all_files = map(lambda x: path.basename(x), glob(_get_env_path(search_dir, '*.*')))
         return list(filter(lambda x: x.split('.')[-1] in ENV_EXTENSIONS, all_files))
+
+    def declare_outputs(self) -> Dict[str, Tuple[List[int], str]]:
+        imsize = [self.args['resolution'], self.args['resolution']]
+        output_channels: Dict[str, Tuple[List[int], str]] = {'rgb': ([3, *imsize], 'float32')}
+        if self.args['with_uv']:
+            output_channels['uv'] = ([3, *imsize], 'float32')
+        if self.args['with_depth']:
+            output_channels['depth'] = ([3, *imsize], 'float32')
+        if self.args['with_segmentation']:
+            output_channels['segmentation'] = ([1, *imsize], 'int32')
+
+        return output_channels
 
     def load_model(self, model: str) -> RenderObject:
         basename, filename = path.split(_get_model_path(self.root_dir, model))
