@@ -1,10 +1,28 @@
-import bpy
-from bpy import context as C
-from math import tan
-import numpy as np
+"""Common utils function for blender controls"""
 from os import path
+from typing import Tuple
+import bpy
 
-def load_model(model):
+
+def load_model(model: str):
+    """Load an object from a blender file and insert it in the scene
+
+    Note
+    ----
+    Since .blend files can contain many object we go under the assumption
+    that in the file `XXXXXX.blend`, there will be an object named `XXXXXX`,
+    and this is this one we will load
+
+    Parameters
+    ----------
+    model
+        The parth to the blender file that needs to be loaded
+
+    Returns
+    -------
+    str
+        The uid of the object loaded
+    """
     basename, filename = path.split(model)
     uid = filename.replace('.blend', '')
     blendfile = path.join(basename, uid + '.blend')
@@ -26,27 +44,73 @@ def load_model(model):
 TRANSLATE_PREFIX = 'translation_control_'
 
 
-def cleanup_translate_containers(object):
-    object.parent = None
+def cleanup_translate_containers(obj):
+    """Remove all translations containers
+
+    Note
+    ----
+    To know what translate containers are please refer to `post_translate`
+
+    Parameters
+    ----------
+    obj: blender object
+        The object to remove containers on
+
+    """
+    obj.parent = None
     for other in bpy.data.objects:
         if other.type == 'EMPTY' and len(other.children) == 0:
             bpy.data.objects.remove(other, do_unlink=True)
 
 
-def post_translate(object, offset):
+def post_translate(obj, offset: Tuple[float, float, float]):
+    """Apply a translation on an object but ensure it happens after rotations
+
+    Note
+    ----
+    To work this function creates a container around the object and apply
+    the translation on the parent. This way, any rotation on the object
+    itself will always be applied before the translation
+    The container name will start by TRANSLATE_PREFIX so that is can easily
+    be detected and removed in `cleanup_translate_containers`
+
+    Parameters
+    ----------
+    obj: blender object
+        The object to translate
+    offset
+        The vector to translate by
+    """
     import bpy
-    if (object.parent is None
-            or not object.parent.name.startswith(TRANSLATE_PREFIX)):
+    if (obj.parent is None
+            or not obj.parent.name.startswith(TRANSLATE_PREFIX)):
         bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD',
                                  location=(0, 0, 0), scale=(1, 1, 1))
         container = bpy.context.object
-        container.name = TRANSLATE_PREFIX + object.name
-        object.parent = container
-    object.parent.location += offset
+        container.name = TRANSLATE_PREFIX + obj.name
+        obj.parent = container
+    obj.parent.location += offset
 
 
-def clamp(x, minimum, maximum):
-    return max(minimum, min(x, maximum))
+def clamp(value: float, minimum: float, maximum: float) -> float:
+    """Clamp a value between two numbers
+
+    Parameters
+    ----------
+    value
+        The value to clamp
+    minimum
+        Minimum acceptable value
+    maximum
+        Maximum acceptable value
+
+    Returns
+    -------
+    float
+        The clamped value
+    """
+
+    return max(minimum, min(value, maximum))
 
 
 def camera_view_bounds_2d(scene, cam_ob, me_ob):
