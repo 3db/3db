@@ -1,7 +1,26 @@
+"""Defines the PoseControl blender Control"""
+
 import numpy as np
 from threedb.controls.base_control import BaseControl
 
+
 class PoseControl(BaseControl):
+    """This control change the pose of the object (i.e. rotates it)
+
+    Note
+    ----
+    This control relies on Eulerian Rotations (X, Y, Z)
+
+    Continuous Parameters
+    ---------------------
+    rotation_X
+        The X component of the Eulerian rotation
+    rotation_Y
+        The Y component of the Eulerian rotation
+    rotation_Z
+        The Z component of the Eulerian rotation
+    """
+
     kind = 'pre'
 
     continuous_dims = {
@@ -13,15 +32,23 @@ class PoseControl(BaseControl):
     discrete_dims = {}
 
     def apply(self, context, rotation_X, rotation_Y, rotation_Z):
+        """Rotates the object according to the given parameters
+        Parameters
+        ----------
+        context
+            The scene context object
+        rotation_X
+            The X component of the Eulerian rotation
+        rotation_Y
+            The Y component of the Eulerian rotation
+        rotation_Z
+            The Z component of the Eulerian rotation
+        """
         import bpy
         import mathutils
 
-        # eul = mathutils.Euler((rotation_X, rotation_Y, rotation_Z), 'XYZ')
         ob = context['object']
         ob.rotation_euler = (rotation_X, rotation_Y, rotation_Z)
-        # ob.rotation_quaternion = eul.to_quaternion()
 
-        # bpy.ops.object.select_all(action='SELECT')
-        # bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
 
 BlenderControl = PoseControl
