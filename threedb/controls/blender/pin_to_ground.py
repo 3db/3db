@@ -9,6 +9,23 @@ except:
 
 
 class PinToGroundControl(BaseControl):
+    """Control that moves an object vertically to touch the ground
+    Useful when you want a slightly more realistic rendering 
+    (i.e. avoid flying objects)
+
+    Continuous Dimensions
+    ---------------------
+    z_ground
+        the Z-coordinate of the surface underneath the object to which
+        you want to pin the object. Takes any real number.
+
+    Note
+    ----
+    This control shall be used after the `PositionControl` and 
+    `OrientationControl` controls, i.e., move the object to a location of
+    interest, then drag it to the ground under that location. 
+
+    """
     kind = 'pre'
 
     continuous_dims = {
@@ -18,6 +35,16 @@ class PinToGroundControl(BaseControl):
     discrete_dims = {}
 
     def apply(self, context, z_ground):
+        """Pins the object to the ground
+
+        Parameters
+        ----------
+        context
+            The scene context object
+        z_ground
+            the Z-coordinate of the surface underneath the object to which
+            you want to pin the object. Takes any real number.
+        """
         import bpy
         from bpy import context as C
         from mathutils import Vector

@@ -11,7 +11,7 @@ class ImagenetCControl(PostProcessControl):
     Continuous Dimensions
     ---------------------
     severity
-        Imagenet-C serverity parameter
+        Imagenet-C severity parameter
 
     Discrete Dimensions
     -------------------

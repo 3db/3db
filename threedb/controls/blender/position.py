@@ -8,6 +8,22 @@ except:
     pass
 
 class PositionControl(BaseControl):
+    """This control changes the position of the object (i.e. rotates it)
+
+    Note
+    ----
+    The change in position is relative to the object's original position
+
+    Continuous Parameters
+    ---------------------
+    offset_X
+        Translation compnonent along the world's X-axis
+    offset_Y
+        Translation compnonent along the world's Y-axis
+    offset_Z
+        Translation compnonent along the world's Z-axis
+    """
+
     kind = 'pre'
 
     continuous_dims = {
@@ -19,6 +35,18 @@ class PositionControl(BaseControl):
     discrete_dims = {}
 
     def apply(self, context, offset_X, offset_Y, offset_Z):
+        """Rotates the object according to the given parameters
+        Parameters
+        ----------
+        context
+            The scene context object
+        offset_X
+            Translation compnonent along the world's X-axis
+        offset_Y
+            Translation compnonent along the world's Y-axis
+        offset_Z
+            Translation compnonent along the world's Z-axis
+        """
         from mathutils import Vector
 
         ob = context['object']

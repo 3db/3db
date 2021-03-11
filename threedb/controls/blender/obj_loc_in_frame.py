@@ -3,6 +3,24 @@ from ..base_control import BaseControl
 from .blender_utils import post_translate, cleanup_translate_containers
 
 class ObjLocInFrameControl(BaseControl):
+    """Control that moves the object of interest in the image frame.
+    This is done by moving the object in a plane parallel to the camera
+    plane and passing through the object's position.
+
+    Continuous Dimensions
+    ---------------------
+    x_shift
+        The normalized X-coordinate of the center of the object in the frame.
+        Takes any value between -1 (left of the frame) and 1 (right of the frame).
+    Y_shift
+        The normalized Y-coordinate of the center of the object in the frame
+        Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
+
+    Note
+    ----
+    Setting x_shift and y_shift to zeros would keep the object in the middle of the
+    frame.
+    """
     kind = 'pre'
 
     continuous_dims = {
@@ -13,6 +31,20 @@ class ObjLocInFrameControl(BaseControl):
     discrete_dims = {}
 
     def apply(self, context, x_shift, y_shift):
+        """Move the object in the frame
+
+        Parameters
+        ----------
+        context
+            The scene context
+        x_shift
+            The normalized X-coordinate of the center of the object in the frame.
+            Takes any value between -1 (left of the frame) and 1 (right of the frame).
+        Y_shift
+            The normalized Y-coordinate of the center of the object in the frame
+            Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
+
+        """
         import bpy
         from bpy import context as C
         from math import tan
