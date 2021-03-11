@@ -1,7 +1,6 @@
 inference:
   module: 'torchvision.models'
   label_map: './resources/imagenet_mapping.json'
-  class_grouping: './resources/imagenet_to_custom.json'
   class: 'resnet18'
   output_shape: [1000]
   normalization:
@@ -31,3 +30,4 @@ logging:
   logger_modules:
     - "threedb.result_logging.image_logger"
     - "threedb.result_logging.json_logger"
+    - "threedb.result_logging.tb_logger"

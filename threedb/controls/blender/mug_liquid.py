@@ -1,35 +1,34 @@
-"""Defines the MugLiquidController"""
+"""Defines the MugLiquidControl"""
 
-from threedb.controls.base_control import BaseControl
+from typing import Any, Dict, Tuple
+from ..base_control import PreProcessControl
 
 
-class MugLiquidController(BaseControl):
+class MugLiquidControl(PreProcessControl):
     """Change the material of the liquid present in the mug object
 
     Note
     ----
-    It assumes that the surface of the liquid has a manterial named "liquid"
-    and that the object we want to modify is the target of this render
+    This control assumes that the surface of the liquid has a manterial named
+    "liquid" and that the object we want to modify is the target of this render.
 
     The ratio of water will be 1 - ratio_milk - ratio_coffee
 
     Continuous Dimensions
     ---------------------
-    ratio_milk
+    ratio_milk : float
         The ratio of milk
-    ratio_coffee
+    ratio_coffee : float
         The ratio of coffee
     """
-    kind = 'pre'
+    @property
+    def continuous_dims(self) -> Dict[str, Tuple[float, float]]:
+        return {
+            'ratio_milk': (0, 1),
+            'ratio_coffee': (0, 1),
+        }
 
-    continuous_dims = {
-        'ratio_milk': (0, 1),
-        'ratio_coffee': (0, 1),
-    }
-
-    discrete_dims = {}
-
-    def apply(self, context, ratio_milk, ratio_coffee):
+    def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Change the material of the liquid
 
         Parameters
@@ -53,4 +52,4 @@ class MugLiquidController(BaseControl):
         material.nodes["water_ratio"].outputs[0].default_value = ratio_water
 
 
-BlenderControl = MugLiquidController
+BlenderControl = MugLiquidControl

@@ -84,5 +84,8 @@ class ImageLogger(BaseLogger):
                 img_to_write = cv2.cvtColor(img_arr, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(img_path, img_to_write)
         self.result_buffer.free(rix, self.regid)
+    
+    def end(self) -> None:
+        pass
 
 Logger = ImageLogger

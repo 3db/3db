@@ -2,13 +2,13 @@
 """
 
 import json
-from typing import Dict, List, Tuple, Union, Any
+from typing import Dict, List, Tuple, Any
 
 import torch as ch
 from torch import nn, Tensor
-from threedb.evaluators.base_evaluator import BaseEvaluator, Output, LabelType
 from typeguard import check_type
 
+from threedb.evaluators.base_evaluator import BaseEvaluator, Output, LabelType
 
 class SimpleClassificationEvaluator(BaseEvaluator):
     """SimpleClassificationEvaluator
@@ -92,9 +92,8 @@ class SimpleClassificationEvaluator(BaseEvaluator):
             'is_correct': is_correct,
             'loss': im_loss
         }
-    
-    @staticmethod
-    def to_tensor(pred: Any, output_shape: List[int], input_shape: List[int]) -> Tensor:
+
+    def to_tensor(self, pred: Any, *_) -> Tensor:
         return pred
 
 Evaluator = SimpleClassificationEvaluator

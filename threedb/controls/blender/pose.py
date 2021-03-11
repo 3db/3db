@@ -44,11 +44,7 @@ class PoseControl(BaseControl):
         rotation_Z
             The Z component of the Eulerian rotation
         """
-        import bpy
-        import mathutils
-
         ob = context['object']
         ob.rotation_euler = (rotation_X, rotation_Y, rotation_Z)
-
 
 BlenderControl = PoseControl

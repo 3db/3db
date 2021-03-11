@@ -51,5 +51,8 @@ class TbLogger(BaseLogger):
             self._write()
 
         self.result_buffer.free(rix, self.regid)
+    
+    def end(self) -> None:
+        pass
 
 Logger = TbLogger

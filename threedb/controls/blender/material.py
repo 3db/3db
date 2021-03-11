@@ -2,11 +2,12 @@
 
 from os import path
 from glob import glob
+from typing import Any, Dict, List
 
-from threedb.controls.base_control import BaseControl
+import bpy
+from ..base_control import PreProcessControl
 
-
-class MaterialControl(BaseControl):
+class MaterialControl(PreProcessControl):
     """Control that swap material of an object with another one
 
     Discrete Dimensions
@@ -22,15 +23,12 @@ class MaterialControl(BaseControl):
     Each of these file should have a single material in it otherwise it
     is ambiguous which material should be applied to the object
     """
-    kind = 'pre'
 
-    continuous_dims = {}
+    @property
+    def discrete_dims(self) -> Dict[str, List[Any]]:
+        return self._discrete_dims
 
-    discrete_dims = {
-        "replacement_material": None
-    }
-
-    def __init__(self, root_folder):
+    def __init__(self, root_folder: str):
         super().__init__(root_folder)
         self.files_in_folder = list(sorted(glob(path.join(
             root_folder,
@@ -40,21 +38,25 @@ class MaterialControl(BaseControl):
         self.root_folder = root_folder
         self.files_in_folder.append('keep_original')
         self.files_in_folder = [x.replace(root_folder, '') for x in self.files_in_folder]
-        self.discrete_dims["replacement_material"] = self.files_in_folder
+        self._discrete_dims = {
+            "replacement_material": self.files_in_folder
+        }
 
 
-    def apply(self, context, replacement_material: str):
+    def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Replace the material of the target object with the material
-        corresponding to `replacement_material`
+        corresponding to ``replacement_material``.
 
         Parameters
         ----------
-        context
-            The blender scene context
-        replaced_materials
-            The name of the material to apply
+        context : Dict[str, Any]
+            The blender scene context.
+        control_args : Dict[str, Any]
+            Must have key ``replacement_material`` containing the file name of the
+            replacement material to use.
         """
-        import bpy
+        arg_check = self.check_arguments(control_args)
+        assert arg_check[0], arg_check[1]
 
         state = {
             'added_materials': [],
@@ -63,6 +65,7 @@ class MaterialControl(BaseControl):
 
         context['material_control_state'] = state
 
+        replacement_material = control_args['replacement_material']
         if replacement_material == "keep_original":
             return
 
@@ -83,16 +86,13 @@ class MaterialControl(BaseControl):
         for slot in context['object'].material_slots:
             try:
                 state['replaced_materials'].append(slot.material.name)
-            except:
+            except Exception:
                 state['replaced_materials'].append(None)
 
             slot.material = bpy.data.materials[replacing_with]
 
 
-
-    def unapply(self, context):
-        import bpy
-
+    def unapply(self, context: Dict[str, Any]) -> None:
         state = context['material_control_state']
 
         for slot, material_name in zip(context['object'].material_slots,

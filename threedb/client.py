@@ -217,7 +217,8 @@ if __name__ == '__main__':
                 lab = evaluator.get_target(model_uid, result)
                 evaluation = evaluator.summary_stats(prediction, lab)
                 assert evaluation.keys() == eval_shapes.keys(), \
-                    'Outputs do not match declared outputs'
+                    'Outputs do not match declared outputs' \
+                   f'{list(evaluation.keys())}, {list(eval_shapes.keys())}'
                 out_shape =  inference_args['output_shape']
                 prediction_tens = evaluator.to_tensor(prediction, out_shape, input_shape)
                 data = {

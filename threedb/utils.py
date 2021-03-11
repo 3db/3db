@@ -93,7 +93,7 @@ class BigChungusCyclicBuffer:
                 if self.used_buffer[event] == 0:
                     self._free_idx.append(event)
                     if self.progress_bar is not None:
-                        self.progress_bar.update(1)
+                        self.progress_bar.update(-1)
             except Empty:
                 break
 
@@ -104,7 +104,7 @@ class BigChungusCyclicBuffer:
             try:
                 ind = self._free_idx.pop()
                 if self.progress_bar is not None:
-                    self.progress_bar.update(-1)
+                    self.progress_bar.update(1)
                 assert self.used_buffer[ind] == 0
                 self.used_buffer[ind] = self.mask
                 return ind
@@ -112,7 +112,6 @@ class BigChungusCyclicBuffer:
                 # Should we add some kind of logging here?
                 np.save('/tmp/used_buffer.npy', self.used_buffer)
 
-    # def allocate(self, images, outputs, is_correct):
     def allocate(self, data: Dict[str, ch.Tensor]):
         assert self.initialized, 'Buffer has not been initialized'
         next_ind = self.next_find_index()

@@ -6,7 +6,6 @@ See [TODO] for further details.
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Union, Any
 
-import torch as ch
 from torch import Tensor
 
 Output = Union[bool, int, float, str]
@@ -46,7 +45,7 @@ class BaseEvaluator(ABC):
     def get_target(self, model_uid: str, render_output: Dict[str, Tensor]) -> Any:
         """Given a model_uid, returns the corresponding label for that 3D model,
         which will be used to evaluate accuracy, loss, and other statistics.
-        
+
         Parameters
         ----------
         model_uid : str
@@ -102,7 +101,7 @@ class BaseEvaluator(ABC):
     def to_tensor(pred: Any, output_shape: List[int], input_shape: List[int]) -> Tensor:
         """Turns the output of the inference model into a PyTorch tensor. Useful
         for, e.g., detection models, where the model typically outputs a
-        dictionary. 
+        dictionary.
 
         Parameters
         ----------

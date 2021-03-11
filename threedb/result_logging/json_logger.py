@@ -73,13 +73,19 @@ class JSONLogger(BaseLogger):
             shutil.copyfile(config['inference']['label_map'], classmap_fname)
         print(f'==> [Logging to the JSON file {fname} with regid {self.regid}]')
 
-    def log(self, item):
+    def log(self, item: Dict[str, Any]) -> None:
+        """Concrete implementation of
+        :meth:`threedb.result_logging.base_logger.BaseLogger.log`.
+
+        Parameters
+        ----------
+        item : Dict[str, Any]
+            The item to be logged.
+        """
         item = copy.deepcopy(item)
         rix = item['result_ix']
         buffer_data = self.buffer[rix]
         item = {k: v for (k, v) in buffer_data.items() if k in self.evaluator.KEYS}
-        # item['output'] = buffer_data['output']
-        # item['is_correct'] = buffer_data['is_correct']
         item['output_type'] = self.evaluator.output_type
         cleaned = clean_log(item)
         encoded = json.dumps(cleaned, default=json_default,
@@ -88,6 +94,11 @@ class JSONLogger(BaseLogger):
         self.handle.write(encoded)
 
     def end(self):
+        """Concrete implementation of
+        :meth:`threedb.result_logging.base_logger.BaseLogger.end`. 
+        
+        Closes the necessary file handle.
+        """
         self.handle.close()
 
 Logger = JSONLogger

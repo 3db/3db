@@ -1,9 +1,7 @@
 from multiprocessing import Process, Queue
 from queue import Empty
 from collections import namedtuple
-import multiprocessing
 from uuid import uuid4
-import cv2
 import numpy as np
 from typing import List, Dict, Optional, Any
 from threedb.scheduling.search_space import SearchSpace
@@ -14,7 +12,6 @@ from threedb.utils import init_policy, BigChungusCyclicBuffer
 JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
                                              'model', 'render_args',
                                              'control_order'])
-
 
 class PolicyController(Process):
 
@@ -73,19 +70,11 @@ class PolicyController(Process):
                     'result_ix': result_ix
                 })
                 client_results[descriptor.order] = {k: v.clone() for (k, v) in c_result.items()}
-                # outputs[descriptor.order] = c_outputs.clone()
-                # is_correct[descriptor.order] = c_is_correct
                 self.result_buffer.free(result_ix, 1)
 
-            # image_channels = list(images[0].keys())
-            # images = {k: np.stack([image[k] for image in images]) for k in image_channels}
-            # outputs = np.stack(outputs)
-            # is_correct = np.stack(is_correct)
             result_keys = client_results[0].keys()
             stacked_results = {k: np.stack([res[k] for res in client_results]) for k in result_keys}
             return stacked_results
-
-            # return images, outputs, is_correct
 
         policy = init_policy(self.policy_args)
         policy.run(render)

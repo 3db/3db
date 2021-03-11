@@ -1,10 +1,6 @@
 import numpy as np
-from threedb.controls.base_control import BaseControl
-try:
-    from threedb.controls.blender.blender_utils import (
-        post_translate, cleanup_translate_containers)
-except:
-    pass
+from ..base_control import BaseControl
+from .blender_utils import post_translate, cleanup_translate_containers
 
 class ObjLocInFrameControl(BaseControl):
     kind = 'pre'
