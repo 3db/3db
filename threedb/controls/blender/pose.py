@@ -1,11 +1,11 @@
-"""Defines the PoseControl blender Control"""
+"""Defines the OrientationControl blender Control"""
 
 import numpy as np
 from threedb.controls.base_control import BaseControl
 
 
-class PoseControl(BaseControl):
-    """This control change the pose of the object (i.e. rotates it)
+class OrientationControl(BaseControl):
+    """This control changes the orientation of the object
 
     Note
     ----
@@ -33,6 +33,7 @@ class PoseControl(BaseControl):
 
     def apply(self, context, rotation_X, rotation_Y, rotation_Z):
         """Rotates the object according to the given parameters
+
         Parameters
         ----------
         context
@@ -51,4 +52,4 @@ class PoseControl(BaseControl):
         ob.rotation_euler = (rotation_X, rotation_Y, rotation_Z)
 
 
-BlenderControl = PoseControl
+BlenderControl = OrientationControl

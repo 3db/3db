@@ -11,7 +11,7 @@ class ImagenetCControl(BaseControl):
     Continuous Dimensions
     ---------------------
     severity
-        Imagenet-C serverity parameter
+        Imagenet-C severity parameter
 
     Discrete Dimensions
     -------------------
@@ -46,8 +46,8 @@ class ImagenetCControl(BaseControl):
         ----------
         img
             The image to be modified
-        serverity
-            Imagenet-C serverity parameter
+        severity
+            Imagenet-C severity parameter
         corruption_name
             The name of corruption that will be applied
         """
