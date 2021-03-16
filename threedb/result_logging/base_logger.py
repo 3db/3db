@@ -1,7 +1,4 @@
-"""base_logger.py
-
-Implements an abstract class for logging results.
-"""
+"""Implements an abstract class for logging results."""
 
 from multiprocessing import Process, Queue
 from typing import Any, Dict, Optional
@@ -12,12 +9,12 @@ class BaseLogger(Process, ABC):
     """Abstract class for a Logger, inherits from
     ``multiprocessing.Process``. Implements the additional functions:
 
-    - enqueue(): put a new item on the logging queue, to be logged ASAP
-    - log(): the actual logging mechanism, meant to be overwritten by the
-        user for each unique subclass. This should not be called directly,
-        but rather will be called by ``run()``
-    - run(): main loop, waits for logs to be added to the queue, and calls
-        ``log()`` on them.
+    - ``enqueue()``: put a new item on the logging queue, to be logged ASAP
+    - ``log()``: the actual logging mechanism, meant to be overwritten by the
+      user for each unique subclass. This should not be called directly,
+      but rather will be called by ``run()``
+    - ``run()``: main loop, waits for logs to be added to the queue, and calls
+      ``log()`` on them.
     [TODO]
     """
     def __init__(self,

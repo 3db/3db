@@ -3,8 +3,8 @@
 The goal of control is two-fold:
 
 - They declare a number of parameters, discrete or continuous.
-- Based on values for these parameters they influence the image that
-    will be rendered
+- Based on values for these parameters they influence the image that will be
+  rendered.
 
 There are two kinds of Controls:
 
