@@ -56,5 +56,3 @@ class BackgroundControl(PostProcessControl):
         rgb_color = hsv_to_rgb(control_args['H'], control_args['S'], control_args['V'])
         img *= ch.tensor(rgb_color)[:, None, None].float()
         return img
-
-BlenderControl = BackgroundControl

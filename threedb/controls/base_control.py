@@ -73,6 +73,8 @@ class BaseControl(ABC):
             is an error message.
         """
         all_keys = self.continuous_dims.keys() | self.discrete_dims.keys()
+        assert len(all_keys) == len(self.continuous_dims) + len(self.discrete_dims), \
+            'Keys cannot be duplicated between continuous_dims and discrete_dims'
         if control_args.keys() != all_keys:
             return False, 'Keys in control arguments do not match declared keys'
         if not all(isinstance(control_args[k], float) for k in self.continuous_dims):

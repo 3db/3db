@@ -4,8 +4,38 @@ Getting started with 3DB
 In this page, we'll go through all the steps to run a 3DB experiment
 out-of-the-box.
 
-.. image:: /_static/client_side_diagram.png
+Super-Quickstart
+----------------
 
+To get started with sandbox, right away, download our models and environments
+from [HERE]. Place these in a folder on your filesystem. Then, to run the master
+node, run: 
+
+.. code-block:: bash
+
+    docker build docker/ -t threedb
+    ./run_docker.sh MODEL_PATH
+
+This will launch a docker instance with all the required modules installed. (See
+[here] for information on setup without docker). In the docker instance, you can
+run your first experiment with: 
+
+.. code-block:: bash
+
+    bash /start_sandbox.sh examples/EXAMPLE.yaml
+
+where EXAMPLE is the example yaml file you want to run. A few seconds later, you
+will have your first results! You can explore them in a web interface by
+running: 
+
+.. code-block:: bash
+
+    nodejs chungus.chungus
+
+In the sections below, we'll break down how to write your own config files,
+and other ways to view your results. For advanced users, the [Extending 3DB]
+section of the documentation will help you customize and exploit the
+modularity of 3DB.
 
 Data Collection
 ---------------

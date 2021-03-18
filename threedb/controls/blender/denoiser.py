@@ -26,4 +26,4 @@ class DenoiseControl(PreProcessControl):
         bpy.context.scene.cycles.denoiser = 'OPENIMAGEDENOISE'
 
 
-BlenderControl = DenoiseControl
+Control = DenoiseControl

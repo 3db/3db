@@ -25,15 +25,15 @@ policy:
   module: "threedb.policies.grid_search"
   samples_per_dim: 5
 controls:
-  - module: "mug_controller"
-  - module: "denoiser"
-  - module: "position"
+  - module: "threedb.controls.blender_controls.mug_controller"
+  - module: "threedb.controls.blender_controls.denoiser"
+  - module: "threedb.controls.blender_controls.position"
     offset_X: 0
     offset_Y: 0.3
     offset_Z: 0.4
-  - module: "pin_to_ground"
+  - module: "threedb.controls.blender_controls.pin_to_ground"
     z_ground: 0.23
-  - module: "camera"
+  - module: "threedb.controls.blender_controls.camera"
     view_point_x: (-.5, .5)
     view_point_y: -1
     view_point_z: (-.2, 1.)
