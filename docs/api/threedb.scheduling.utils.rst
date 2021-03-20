@@ -1,6 +1,3 @@
-threedb.scheduling.utils module
-===============================
-
 .. automodule:: threedb.scheduling.utils
    :members:
    :undoc-members:

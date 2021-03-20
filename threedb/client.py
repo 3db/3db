@@ -1,5 +1,6 @@
 """
-3DB Client
+threedb.client
+==============
 
 The client is responsible for receiving tasks (sets of parameters) from the
 main node, rendering these tasks, performing inference, and then returning
@@ -205,11 +206,13 @@ if __name__ == '__main__':
                                                 args.root_folder)
 
                 scalar_label = evaluator.get_segmentation_label(model_uid)
-                result = rendering_engine.render_and_apply(model_uid,
-                                                           scalar_label,
-                                                           controls_applier,
-                                                           loaded_model,
-                                                           loaded_env)
+                render_context = rendering_engine.get_context_dict(model_uid, scalar_label)
+                controls_applier.apply_pre_controls(render_context)
+                result = rendering_engine.render(model_uid,
+                                                 loaded_model,
+                                                 loaded_env)
+                result['rgb'] = controls_applier.apply_post_controls(result['rgb'])
+                controls_applier.unapply(render_context)
 
                 with ch.no_grad():
                     prediction, input_shape = inference_model(result['rgb'])

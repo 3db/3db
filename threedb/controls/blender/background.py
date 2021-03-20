@@ -1,4 +1,9 @@
-"""Defines the transparent background control"""
+"""
+threedb.controls.blender.background
+===================================
+
+Defines the transparent background control
+"""
 
 from typing import Any, Dict, Tuple
 from colorsys import hsv_to_rgb
@@ -23,13 +28,14 @@ class BackgroundControl(PostProcessControl):
     will be incorrect.
     """
 
-    @property
-    def continuous_dims(self) -> Dict[str, Tuple[float, float]]:
-        return {
-            'H': (0, 1),
-            'S': (0, 1),
-            'V': (0, 1),
+    def __init__(self, root_folder: str):
+        continuous_dims = {
+            'H': (0., 1.),
+            'S': (0., 1.),
+            'V': (0., 1.),
         }
+        super().__init__(root_folder, 
+                         continuous_dims=continuous_dims)
 
     def apply(self, render: ch.Tensor, control_args: Dict[str, Any]) -> ch.Tensor:
         """Fill the alpha channel of an image with a HSV color.
@@ -56,3 +62,5 @@ class BackgroundControl(PostProcessControl):
         rgb_color = hsv_to_rgb(control_args['H'], control_args['S'], control_args['V'])
         img *= ch.tensor(rgb_color)[:, None, None].float()
         return img
+
+Control = BackgroundControl

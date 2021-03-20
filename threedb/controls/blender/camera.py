@@ -1,4 +1,9 @@
-"""Defines the Blender Camera Control"""
+"""
+threedb.controls.blender.camera
+===============================
+
+Defines the Blender Camera Control
+"""
 
 from typing import Any, Dict
 
@@ -44,16 +49,18 @@ class CameraControl(PreProcessControl):
     As a result in most cases, the final position of the camera will be
     quite different from the view_point parameter.
     """
-    continuous_dims = {
-        'view_point_x': (-1, 1),
-        'view_point_y': (-1, 1),
-        'view_point_z': (0, 1),
-        'zoom_factor': (0.5, 2),
-        'aperture': (1, 32),
-        'focal_length': (10, 400),
-    }
+    def __init__(self, root_folder: str):
+        super().__init__(root_folder)
+        self._continuous_dims = {
+            'view_point_x': (-1, 1),
+            'view_point_y': (-1, 1),
+            'view_point_z': (0, 1),
+            'zoom_factor': (0.5, 2),
+            'aperture': (1, 32),
+            'focal_length': (10, 400),
+        }
 
-    discrete_dims = {}
+        self._discrete_dims = {}
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Move and update the camera settings.
@@ -115,4 +122,7 @@ class CameraControl(PreProcessControl):
                 space.lens = previous_lens
                 camera.data.dof.focus_object = obj
 
-BlenderControl = CameraControl
+    def unapply(self, context: Dict[str, Any]) -> None:
+        pass
+
+Control = CameraControl

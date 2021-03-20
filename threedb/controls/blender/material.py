@@ -1,4 +1,9 @@
-"""Defines the MaterialControl Blender Control"""
+"""
+threedb.controls.blender.material
+=================================
+
+Defines the MaterialControl Blender Control
+"""
 
 from os import path
 from glob import glob
@@ -29,18 +34,17 @@ class MaterialControl(PreProcessControl):
         return self._discrete_dims
 
     def __init__(self, root_folder: str):
-        super().__init__(root_folder)
-        self.files_in_folder = list(sorted(glob(path.join(
+        files_in_folder = list(sorted(glob(path.join(
             root_folder,
             'blender_control_material',
             '*.blend'))))
 
-        self.root_folder = root_folder
-        self.files_in_folder.append('keep_original')
-        self.files_in_folder = [x.replace(root_folder, '') for x in self.files_in_folder]
-        self._discrete_dims = {
-            "replacement_material": self.files_in_folder
+        files_in_folder.append('keep_original')
+        files_in_folder = [x.replace(root_folder, '') for x in files_in_folder]
+        discrete_dims = {
+            "replacement_material": files_in_folder
         }
+        super().__init__(root_folder, discrete_dims=discrete_dims)
 
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:

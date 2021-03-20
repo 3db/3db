@@ -1,4 +1,9 @@
-"""Defines the OrientationControl blender Control"""
+"""
+threedb.controls.blender.pose
+==============================
+
+[TODO]
+"""
 
 import numpy as np
 from threedb.controls.base_control import BaseControl

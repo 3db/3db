@@ -1,8 +1,16 @@
+"""
+Rendering Utils
+===============
+
+[TODO]
+"""
+
 from typing import Any, Dict, List, Tuple
 import numpy as np
 from collections import defaultdict
 import importlib
 import mathutils
+from ..controls.base_control import PreProcessControl, PostProcessControl
 
 def sample_upper_sphere() -> mathutils.Vector:
     vec = np.random.randn(3)
@@ -32,7 +40,7 @@ class ControlsApplier:
         control_classes = []
 
         for module, classname in control_list:
-            imported = importlib.import_module(f'{module}')
+            imported = importlib.import_module(module)
             control_classes.append(
                 getattr(imported, classname)(
                     root_folder=root_folder,
@@ -49,21 +57,22 @@ class ControlsApplier:
 
     def apply_pre_controls(self, context: Dict[str, Any]) -> None:
         for control_class in self.control_classes:
-            if control_class.kind == 'pre':
+            if isinstance(control_class, PreProcessControl):
                 classname = type(control_class).__name__
                 control_params = self.grouped_args[classname]
-                control_class.apply(context=context, **control_params)
+                control_class.apply(context=context, control_args=control_params)
 
     # Unapply controls (e.g. delete occlusion objects, rescale object, etc)
     def unapply(self, context: Dict[str, Any]) -> None:
         for control_class in self.control_classes:
-            control_class.unapply(context)
+            if isinstance(control_class, PreProcessControl):
+                control_class.unapply(context)
 
     # post-processing controls
     def apply_post_controls(self, img):
         for control_class in self.control_classes:
-            if control_class.kind == 'post':
+            if isinstance(control_class, PostProcessControl):
                 classname = type(control_class).__name__
                 control_params = self.grouped_args[classname]
-                img = control_class.apply(img=img, **control_params)
+                img = control_class.apply(render=img, control_args=control_params)
         return img

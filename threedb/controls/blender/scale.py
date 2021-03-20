@@ -1,3 +1,10 @@
+"""
+threedb.controls.blender.scale
+==============================
+
+[TODO]
+"""
+
 from threedb.controls.base_control import BaseControl
 
 class ObjScaleControl(BaseControl):

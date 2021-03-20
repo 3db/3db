@@ -1,4 +1,9 @@
-"""Defines the Blender Denoiser Control"""
+"""
+threedb.controls.blender.denoiser
+=================================
+
+Defines the Blender Denoiser Control
+"""
 
 from typing import Any, Dict, List, Tuple
 import bpy

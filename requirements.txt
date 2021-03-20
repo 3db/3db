@@ -18,3 +18,5 @@ flask
 flask_cors
 tensorboard
 mathutils
+typeguard
+sphinx_rtd_theme

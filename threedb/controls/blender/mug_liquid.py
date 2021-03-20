@@ -1,4 +1,9 @@
-"""Defines the MugLiquidControl"""
+"""
+threedb.controls.blender.mug_liquid
+===================================
+
+Defines the MugLiquidControl
+"""
 
 from typing import Any, Dict, Tuple
 from ..base_control import PreProcessControl

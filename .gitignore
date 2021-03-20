@@ -1,3 +1,5 @@
+logs/
+
 # Model files
 *.pth
 

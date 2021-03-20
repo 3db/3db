@@ -1,3 +1,9 @@
+"""
+threedb.policies.grid_search
+============================
+
+[TODO]
+"""
 import numpy as np
 from itertools import product
 
@@ -8,7 +14,6 @@ def chunks(lst, n):
 
 
 class GridSearchPolicy:
-
     def __init__(self, continuous_dim, discrete_sizes, samples_per_dim):
         self.continuous_dim = continuous_dim
         self.discrete_sizes = discrete_sizes

@@ -1,7 +1,16 @@
+"""
+threedb.controls.blender.occlusion
+==================================
+
+[TODO]
+"""
+
 import numpy as np
 from os import path
 from glob import glob
 from threedb.controls.base_control import BaseControl
+from .utils import camera_view_bounds_2d, load_model
+from bpy import context as C
 
 class OcclusionControl(BaseControl):
     """Control that adds an occlusion object infront of the 
@@ -160,9 +169,6 @@ class OcclusionControl(BaseControl):
         scale 
             Scale factor of the occlusion object
         """
-        from .blender_utils import camera_view_bounds_2d, load_model
-        import mathutils
-        from bpy import context as C
 
         ob = context["object"]
         occluder = load_model(self.occluders_paths[occluder])

@@ -1,3 +1,10 @@
+"""
+threedb.rendering.render_blender
+================================
+
+[TODO]
+"""
+
 import re
 from glob import glob
 from multiprocessing import cpu_count
@@ -9,8 +16,8 @@ import bpy
 import cv2
 import numpy as np
 import torch as ch
-from threedb.rendering.base_renderer import BaseRenderer, RenderEnv, RenderObject
-from threedb.rendering.utils import ControlsApplier
+from .base_renderer import BaseRenderer, RenderEnv, RenderObject
+from .utils import ControlsApplier
 
 IMAGE_FORMAT = 'png'
 
@@ -258,15 +265,19 @@ class Blender(BaseRenderer):
         file_output_node.format.color_depth = "8"
         links.new(input_image.outputs["Image"], file_output_node.inputs["rgb"])
     
-    def render_and_apply(self, model_uid: str, object_class: int, applier: ControlsApplier, 
-                         loaded_model: RenderObject, 
-                         loaded_env: RenderEnv) -> Dict[str, ch.Tensor]:
-        context = {'object': bpy.context.scene.objects[model_uid]}
+    def get_context_dict(self, model_uid: str, object_class: int) -> Dict[str, Any]:
+        obj  = bpy.context.scene.objects[model_uid]
+
         # 0 is background so we shift everything by 1
-        context['object'].pass_index = object_class + 1
+        obj.pass_index = object_class + 1
 
-        applier.apply_pre_controls(context)
+        return {'object': obj}
 
+
+    def render(self,
+               model_uid: str,
+               loaded_model: RenderObject, 
+               loaded_env: RenderEnv) -> Dict[str, ch.Tensor]:
         output = {}
 
         with TemporaryDirectory() as temp_folder:
@@ -305,8 +316,6 @@ class Blender(BaseRenderer):
             # Avoid memory leak by keeping all EXR rendered so far in memory
             bpy.data.images.remove(blender_loaded_image)
 
-        output['rgb'] = applier.apply_post_controls(output['rgb'])
-        applier.unapply(context)
-        return {k: v[:3] for (k, v) in output.items()}
+        return output
     
 Renderer = Blender

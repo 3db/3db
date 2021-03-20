@@ -1,3 +1,10 @@
+"""
+threedb.controls.blender.pointlight
+===================================
+
+[TODO]
+"""
+
 import numpy as np
 from colorsys import hsv_to_rgb
 from threedb.controls.base_control import BaseControl

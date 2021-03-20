@@ -1,4 +1,9 @@
-"""Implements an abstract class for logging results."""
+"""
+threedb.result_logging.base_logger
+==================================
+
+Implements an abstract class for logging results.
+"""
 
 from multiprocessing import Process, Queue
 from typing import Any, Dict, Optional
@@ -58,7 +63,7 @@ class BaseLogger(Process, ABC):
         ----------
         item : Dict[str, Any]
             A dictionary containing the results of a single rendering (as
-            returned by :module:`threedb.clent`): see
+            returned by :mod:`threedb.clent`): see
             [TODO] for more detailed information on what this will contiain.
         """
         raise NotImplementedError

@@ -22,11 +22,13 @@ policy:
   module: "threedb.policies.random_search"
   samples: 10
 controls:
-  - module: "background"
+  - module: "threedb.controls.blender.background"
     S: .4
     V: .4
+  - module: "threedb.controls.blender.camera"
+    zoom_factor: 1.
 logging:
-  root_dir: '/logs'
+  root_dir: 'logs/'
   logger_modules:
     - "threedb.result_logging.image_logger"
     - "threedb.result_logging.json_logger"

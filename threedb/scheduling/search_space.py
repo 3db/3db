@@ -1,3 +1,10 @@
+"""
+threedb.scheduling.search_space
+===============================
+
+[TODO]
+"""
+
 from ast import literal_eval
 import numpy as np
 

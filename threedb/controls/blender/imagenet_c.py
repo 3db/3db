@@ -1,4 +1,9 @@
-"""Defines the ImagenetCControl"""
+"""
+threedb.controls.blender.imagenet_c
+====================================
+
+Defines the ImagenetCControl
+"""
 
 from typing import Any, Dict, List, Tuple
 import torch as ch

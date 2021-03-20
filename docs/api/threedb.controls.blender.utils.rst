@@ -1,4 +1,4 @@
-.. automodule:: threedb.scheduling.base_scheduler
+.. automodule:: threedb.controls.blender.utils
    :members:
    :undoc-members:
    :show-inheritance:

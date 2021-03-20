@@ -6,8 +6,6 @@ threedb.rendering package
    :undoc-members:
    :show-inheritance:
 
-Submodules
-----------
 
 .. toctree::
    :maxdepth: 4

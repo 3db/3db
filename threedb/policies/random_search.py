@@ -1,9 +1,12 @@
+"""
+threedb.policies.random_search
+==============================
+
+[TODO]
+"""
+
 import numpy as np
 from itertools import product
-# Vis
-from robustness.tools import vis_tools
-from matplotlib import pyplot as plt
-import torch as ch
 
 class RandomSearchPolicy:
     def __init__(self, continuous_dim, discrete_sizes, samples, seed=None):

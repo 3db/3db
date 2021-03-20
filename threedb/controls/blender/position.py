@@ -1,11 +1,13 @@
+"""
+threedb.controls.blender.position
+=================================
+
+[TODO]
+"""
+
 import numpy as np
 from threedb.controls.base_control import BaseControl
-try:
-    from threedb.controls.blender.blender_utils import (
-        post_translate,
-        cleanup_translate_containers)
-except:
-    pass
+from .utils import post_translate, cleanup_translate_containers
 
 class PositionControl(BaseControl):
     """This control changes the position of the object (i.e. rotates it)

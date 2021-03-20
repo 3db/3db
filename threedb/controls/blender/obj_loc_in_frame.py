@@ -1,6 +1,11 @@
+"""
+threedb.controls.blender.obj_loc_in_frame
+=========================================
+"""
+
 import numpy as np
 from ..base_control import BaseControl
-from .blender_utils import post_translate, cleanup_translate_containers
+from .utils import post_translate, cleanup_translate_containers
 
 class ObjLocInFrameControl(BaseControl):
     """Control that moves the object of interest in the image frame.

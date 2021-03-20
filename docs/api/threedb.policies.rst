@@ -6,8 +6,6 @@ threedb.policies package
    :undoc-members:
    :show-inheritance:
 
-Submodules
-----------
 
 .. toctree::
    :maxdepth: 4

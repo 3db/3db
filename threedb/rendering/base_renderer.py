@@ -1,3 +1,10 @@
+"""
+threedb.rendering.base_renderer
+===============================
+
+[TODO]
+"""
+
 import torch as ch
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Tuple
@@ -47,7 +54,7 @@ class BaseRenderer(ABC):
         both size and type.
 
         A basic implementation which suffices for most applications is provided
-        in the abstract class :cla:`threedb.rendering.base_renderer.BaseRenderer`.
+        in the abstract class :class:`threedb.rendering.base_renderer.BaseRenderer`.
         """
         raise NotImplementedError
 
@@ -86,8 +93,27 @@ class BaseRenderer(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def render_and_apply(self, model_uid: str, object_class: int,
-               applier: ControlsApplier, loaded_model: RenderObject,
+    def get_context_dict(self, model_uid: str, object_class: int) -> Dict[str, Any]:
+        """Returns, for a given model id, a "context" dictionary; this context
+        will be passed to the controls (see [TODO] for more info).
+
+        Parameters
+        ----------
+        model_uid : str
+            The ID of the model being rendered.
+        object_class : int
+            The class label for the model.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A context dictionary 
+        """
+
+    @abstractmethod
+    def render(self, 
+               model_uid: str, 
+               loaded_model: RenderObject, 
                loaded_env: RenderEnv) -> Dict[str, ch.Tensor]:
         """
         Render a model and environment. You can assume that setup_render() has

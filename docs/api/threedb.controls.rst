@@ -6,16 +6,12 @@ threedb.controls package
    :undoc-members:
    :show-inheritance:
 
-Subpackages
------------
 
 .. toctree::
    :maxdepth: 4
 
    threedb.controls.blender
 
-Submodules
-----------
 
 .. toctree::
    :maxdepth: 4

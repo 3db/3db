@@ -1,4 +1,9 @@
-"""Common utils function for blender controls"""
+"""
+Utils
+=====
+
+Common utils function for blender controls
+"""
 from os import path
 from typing import Tuple
 import bpy

@@ -1,4 +1,8 @@
-"""Implements a basic evaluator for classification-based tasks.
+"""
+threedb.evaluators.classification
+==================================
+
+Implements a basic evaluator for classification-based tasks.
 """
 
 import json

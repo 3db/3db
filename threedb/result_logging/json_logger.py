@@ -1,4 +1,6 @@
-"""JSONLogger
+"""
+threedb.result_logging.json_logger
+==================================
 
 Subclass of :mod:`threedb.result_logging.base_logger.BaseLogger`.
 """

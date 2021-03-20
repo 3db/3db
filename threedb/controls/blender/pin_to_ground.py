@@ -1,11 +1,13 @@
+"""
+threedb.controls.blender.pin_to_ground
+======================================
+
+[TODO]
+"""
+
 import numpy as np
 from threedb.controls.base_control import BaseControl
-
-try:
-    from threedb.controls.blender.blender_utils import (
-        cleanup_translate_containers, post_translate)
-except:
-    pass
+from .utils import cleanup_translate_containers, post_translate
 
 
 class PinToGroundControl(BaseControl):

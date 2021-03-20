@@ -1,4 +1,7 @@
 """
+threedb.utils
+=============
+
 threedb utilities. Includes:
 
 - BigChungusCyclicBuffer, a buffer that
@@ -11,7 +14,8 @@ import ssl
 from copy import deepcopy
 from multiprocessing import Queue
 from queue import Empty
-from typing import Dict, List, Optional, Tuple
+from threedb.controls.base_control import BaseControl
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import torch as ch
@@ -128,37 +132,23 @@ class BigChungusCyclicBuffer:
         if self.progress_bar is not None:
             self.progress_bar.close()
 
-def overwrite_control(control, data):
-
-    # Make sure we are not overriding the dict containing the default values
-    control.continuous_dims = deepcopy(control.continuous_dims)
-    control.discrete_dims = deepcopy(control.discrete_dims)
-
-    for k, v in data.items():
-        if k in control.continuous_dims:
-            control.continuous_dims[k] = v
-        elif k in control.discrete_dims:
-            control.discrete_dims[k] = v
+def overwrite_control(control: BaseControl, data: Dict[str, Union[Tuple[float, float], List[Any]]]):
+    for key, val in data.items():
+        if key in control.continuous_dims:
+            control.update_continuous_dim(key, cast(Tuple[float, float], val))
+        elif key in control.discrete_dims:
+            control.update_discrete_dim(key, cast(List[Any], val))
         else:
             raise AttributeError(
-                f"Attribute {k} unknown in {type(control).__name__}")
+                f"Attribute {key} unknown in {type(control).__name__}")
 
+def init_control(cfg: Dict[str, Any], root_folder: str):
+    args = cfg.get('args', {})
+    module = importlib.import_module(cfg['module'])
 
-def init_control(description, root_folder, engine_name):
-    args = {}
-    if 'args' in description:
-        args = description['args']
-    full_module_path = description['module']
-
-    try:
-        module = importlib.import_module(full_module_path)
-    except ModuleNotFoundError:
-        full_module_path = f"threedb.controls.{engine_name.lower()}.{full_module_path}"
-        module = importlib.import_module(full_module_path)
-
-    control_module = getattr(module, f"{engine_name.capitalize()}Control")
+    control_module = getattr(module, f"Control")
     control = control_module(**args, root_folder=root_folder)
-    filtered_desc = {k: v for (k, v) in description.items() if k not in ['args', 'module']}
+    filtered_desc = {k: v for (k, v) in cfg.items() if k not in ['args', 'module']}
     overwrite_control(control, filtered_desc)
     return control
 

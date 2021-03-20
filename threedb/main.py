@@ -1,3 +1,9 @@
+"""
+threedb.main
+============
+
+[ TODO ]
+"""
 import os
 from typing import Type
 
@@ -71,8 +77,7 @@ if __name__ == '__main__':
         all_envs = rendering_module.enumerate_environments(args.root_folder)
 
         if config['controls']:
-            controls = [init_control(x, args.root_folder, rendering_module.NAME)
-                        for x in config['controls']]
+            controls = [init_control(x, args.root_folder) for x in config['controls']]
         else:
             controls = []
 

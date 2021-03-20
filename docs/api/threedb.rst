@@ -6,8 +6,6 @@ threedb package
    :undoc-members:
    :show-inheritance:
 
-Subpackages
------------
 
 .. toctree::
    :maxdepth: 4
@@ -19,8 +17,6 @@ Subpackages
    threedb.result_logging
    threedb.scheduling
 
-Submodules
-----------
 
 .. toctree::
    :maxdepth: 4

@@ -1,4 +1,6 @@
-"""ImageLogger module
+"""
+threedb.result_logging.image_logger
+====================================
 
 Subclass of :mod:`threedb.result_logging.base_logger.BaseLogger`.
 """

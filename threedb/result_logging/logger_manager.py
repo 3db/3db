@@ -1,3 +1,10 @@
+"""
+threedb.result_logging.logger_manager
+=====================================
+
+[TODO]
+"""
+
 from threedb.result_logging.base_logger import BaseLogger
 
 class LoggerManager():

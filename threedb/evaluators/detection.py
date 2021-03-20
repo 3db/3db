@@ -1,4 +1,8 @@
-"""An evaluator for object detection models.
+"""
+threedb.evaluators.detection
+============================
+
+An evaluator for object detection models.
 
 Includes a concrete implementation of
 :class:`threedb.evaluators.base_evaluator.BaseEvaluator`.

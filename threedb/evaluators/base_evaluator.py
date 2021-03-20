@@ -1,4 +1,7 @@
 """
+threedb.evaluators.base_evaluator
+==================================
+
 Provides an abstract base class for implementing evaluators.
 
 See [TODO] for further details.
@@ -92,7 +95,7 @@ class BaseEvaluator(ABC):
         both size and type.
 
         A basic implementation which suffices for most applications is provided
-        in the abstract class :cla:`threedb.rendering.base_renderer.BaseRenderer`.
+        in the abstract class :class:`threedb.rendering.base_renderer.BaseRenderer`.
         """
         raise NotImplementedError
 

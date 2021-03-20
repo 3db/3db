@@ -1,4 +1,8 @@
-"""Abstract base classes for 3DB controls
+"""
+threedb.controls.base_control
+==============================
+
+Abstract base classes for 3DB controls
 
 The goal of control is two-fold:
 
@@ -19,7 +23,7 @@ details).
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple, List, Union
 
 import torch as ch
 
@@ -28,23 +32,77 @@ class BaseControl(ABC):
     controls. Implements the required cross-control properties
     ``continuous_dims`` and ``discrete_dims`` as well as a standard initializer.
     """
+
     @property
     def continuous_dims(self) -> Dict[str, Tuple[float, float]]:
         """Describes the set of continuous parameters this control needs.
 
-        It is of the shape: parameter_name -> (min_value, max_value)
+        Returns
+        -------
+        Dict[str, Tuple[float, float]]
+            Will be of the form: parameter_name -> (min_value, max_value)
+        """        
+        return self._continuous_dims
+    
+    def update_continuous_dim(self, key: str, val: Tuple[float, float]):
+        """Updates a specified continuous dimensions of the control with a
+        user-provided value. Raises a ``ValueError`` if the key does not matched
+        a pre-declared continuous control dimension.
+
+        Parameters
+        ----------
+        key : str
+            The key of the search dimension to override.
+        val : Tuple[float, float]
+            The new search space for that dimension.
+
+        Raises
+        ------
+        ValueError
+            If the key does not matched a pre-declared continuous dimension.
         """
-        return {}
+        if not key in self._continuous_dims:
+            valid_keys = self._continuous_dims.keys()
+            raise ValueError(f'Unrecognized key {key} (expected one of {valid_keys})')
+        self._continuous_dims[key] = val
 
     @property
     def discrete_dims(self) -> Dict[str, List[Any]]:
         """Describes the set of discrete parameters this control needs.
 
-        It is of the shape: parameter_name -> [value_1, value_2, ..., value_n]
-        """
-        return {}
+        Returns
+        -------
+        Dict[str, List[Any]]
+            Will be of the form shape: parameter_name -> [value_1, value_2, ..., value_n]
+        """        
+        return self._discrete_dims
+    
+    def update_discrete_dim(self, key: str, val: List[Any]):
+        """Updates a specified discrete dimensions of the control with a
+        user-provided value. Raises a ``ValueError`` if the key does not matched
+        a pre-declared discrete control dimension.
 
-    def __init__(self, root_folder: str):
+        Parameters
+        ----------
+        key : str
+            The key of the search dimension to override.
+        val : List[Any]
+            The new search space for that dimension.
+
+        Raises
+        ------
+        ValueError
+            If the key does not matched a pre-declared discrete dimension.
+        """
+        if not key in self._discrete_dims:
+            valid_keys = self._discrete_dims.keys()
+            raise ValueError(f'Unrecognized key {key} (expected one of {valid_keys})')
+        self._discrete_dims[key] = val
+
+    def __init__(self, 
+                 root_folder: str, *,
+                 continuous_dims: Dict[str, Tuple[float, float]] = {},
+                 discrete_dims: Dict[str, List[Any]] = {}):
         """Construct a BaseControl
 
         Parameters
@@ -54,6 +112,8 @@ class BaseControl(ABC):
             paths are lative to his folder
         """
         self.root_folder = root_folder
+        self._continuous_dims: Dict[str, Tuple[float, float]] = continuous_dims
+        self._discrete_dims: Dict[str, List[Any]] = discrete_dims
 
     def check_arguments(self, control_args: Dict[str, Any]) -> Tuple[bool, str]:
         """Checks a dictionary of control arguments against the arguments

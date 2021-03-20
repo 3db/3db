@@ -6,8 +6,6 @@ threedb.result\_logging package
    :undoc-members:
    :show-inheritance:
 
-Submodules
-----------
 
 .. toctree::
    :maxdepth: 4

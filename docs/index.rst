@@ -13,10 +13,3 @@ Welcome to 3DB's documentation!
    usage/quickstart
    usage/extending
    api_doc
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
