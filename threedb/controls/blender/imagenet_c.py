@@ -12,31 +12,17 @@ from ..base_control import PostProcessControl
 
 class ImagenetCControl(PostProcessControl):
     """
+    Applies the ImageNet-C corruptions of [TODO].
 
-    Continuous Dimensions
-    ---------------------
-    severity
-        Imagenet-C severity parameter
+    Discrete Dimensions:
 
-    Discrete Dimensions
-    -------------------
-    corruption_name
-        The name of corruption that will be applied
-
-    Note
-    ----
-    To know the list of all the possible values, take a look at the default
-    value of the corruption_name.
+    - ``corruption_name``: The name of corruption that will be applied (see
+      `here <TODO>`_ for list of corruption names)
+    - ``severity``: Imagenet-C severity parameter. (range: {0, 1, 2, 3, 4, 5})
     """
-    @property
-    def continuous_dims(self) -> Dict[str, Tuple[float, float]]:
-        return {
-            'severity': (0, 1),
-        }
-
-    @property
-    def discrete_dims(self) -> Dict[str, List[Any]]:
-        return {
+    def __init__(self, root_folder: str):
+        discrete_dims = {
+            'severity': [1, 2, 3, 4, 5],
             'corruption_name': ['gaussian_noise', 'shot_noise', 'impulse_noise',
                                 'defocus_blur', 'glass_blur', 'motion_blur',
                                 'zoom_blur', 'snow', 'frost', 'fog',
@@ -45,6 +31,8 @@ class ImagenetCControl(PostProcessControl):
                                 'elastic_transform', 'pixelate',
                                 'jpeg_compression']
         }
+        super().__init__(root_folder,
+                         discrete_dims=discrete_dims)
 
     def apply(self, render: ch.Tensor, control_args: Dict[str, Any]) -> ch.Tensor:
         """Apply an Imagenet-C corruption on the rendered image.
@@ -55,7 +43,8 @@ class ImagenetCControl(PostProcessControl):
             Image to transform.
         control_args : Dict[str, Any]
             Corruption parameterization, must have keys ``corruption_name`` and
-            ``severity``.
+            ``severity`` (see class documentation for information about the
+            control arguments).
 
         Returns
         -------
@@ -74,4 +63,4 @@ class ImagenetCControl(PostProcessControl):
         img = img.astype('float32') / 255
         return ch.from_numpy(img)
 
-BlenderControl = ImagenetCControl
+Control = ImagenetCControl

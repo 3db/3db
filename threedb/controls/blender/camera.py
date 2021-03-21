@@ -2,7 +2,7 @@
 threedb.controls.blender.camera
 ===============================
 
-Defines the Blender Camera Control
+Defines a Blender Control for camera-based transformations.
 """
 
 from typing import Any, Dict
@@ -17,41 +17,36 @@ from ...rendering.utils import lookat_viewport
 class CameraControl(PreProcessControl):
     """Control that changes the camera that will be used to render the image
 
-    Continuous Dimensions
-    ---------------------
-    view_point_x
-        The original x coordinate of the camera (see note)
-    view_point_y
-        The original y coordinate of the camera (see note)
-    view_point_z
-        The original z coordinate of the camera (see note)
-    zoom_factor
-        Defines how much should we see of the object. 1 means we completely
-        see the object with a little margin. above 1 we are close. below 1
-        we are further.
-    aperture
-        The aperture of the camera
-    focal_length
-        The focal length of the camera
+    Continuous Dimensions:
 
-    Note
-    ----
-    Since it is impossible to satisfy view_point, zoom and focal length, we
-    do the following:
+    - ``view_point_x``: The original x coordinate of the camera (see the note
+      below). (range: [-1, 1])
+    - ``view_point_y``: The original y coordinate of the camera (see the note
+      below). (range: [-1, 1])
+    - ``view_point_z``: The original z coordinate of the camera (see the note
+      below). (range: [0, 1])
+    - ``zoom_factor``: Defines how much should we see of the object. 1 means we
+      completely see the object with a little margin. above 1 we are close.
+      below 1 we are further. (range: [0.5, 2])
+    - ``aperture``: The aperture of the camera. (range: [1, 32])
+    - ``focal_length``: The focal length of the camera. (range: [10, 400])
 
-    1. We set the aperture and focal_length
+    .. note::
+        Since it is impossible to satisfy view_point, zoom and focal length, we
+        do the following:
 
-    2. We move the camera at view_point and look at the object
+        1. We set the aperture and focal_length
 
-    3. We move closer or further in order to satisfy the zoom_factor
+        2. We move the camera at view_point and look at the object
+
+        3. We move closer or further in order to satisfy the ``zoom_factor``
         constraint
 
-    As a result in most cases, the final position of the camera will be
-    quite different from the view_point parameter.
+        As a result in most cases, the final position of the camera will be
+        quite different from the view_point parameter.
     """
     def __init__(self, root_folder: str):
-        super().__init__(root_folder)
-        self._continuous_dims = {
+        continuous_dims = {
             'view_point_x': (-1, 1),
             'view_point_y': (-1, 1),
             'view_point_z': (0, 1),
@@ -59,8 +54,7 @@ class CameraControl(PreProcessControl):
             'aperture': (1, 32),
             'focal_length': (10, 400),
         }
-
-        self._discrete_dims = {}
+        super().__init__(root_folder, continuous_dims=continuous_dims)
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Move and update the camera settings.
@@ -75,9 +69,9 @@ class CameraControl(PreProcessControl):
             - ``view_point_x``: The original x coordinate of the camera.
             - ``view_point_y``: The original y coordinate of the camera.
             - ``view_point_z``: The original z coordinate of the camera.
-            - ``zoom_factor``: Defines how much should we see of the object.
-                1 means we completely see the object with a little margin.
-                Higher value means closer, lower means further away.
+            - ``zoom_factor``: How much should we see of the object. A
+              zoom_factor of 1 means we completely see the object with a little
+              margin. Higher value means closer, lower means further away.
             - ``aperture``: The aperture of the camera
             - ``focal_length``: The focal length of the camera
         """

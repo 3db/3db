@@ -29,6 +29,8 @@ class DenoiseControl(PreProcessControl):
         """
         bpy.context.scene.cycles.use_denoising = True
         bpy.context.scene.cycles.denoiser = 'OPENIMAGEDENOISE'
-
+    
+    def unapply(self, context: Dict[str, Any]) -> None:
+        bpy.context.scene.cycles.use_denoising = False
 
 Control = DenoiseControl

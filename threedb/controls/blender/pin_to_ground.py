@@ -4,39 +4,37 @@ threedb.controls.blender.pin_to_ground
 
 [TODO]
 """
-
-import numpy as np
-from threedb.controls.base_control import BaseControl
+from typing import Any, Dict
+import bpy
+from mathutils import Vector
+from threedb.controls.base_control import PreProcessControl
 from .utils import cleanup_translate_containers, post_translate
 
 
-class PinToGroundControl(BaseControl):
+class PinToGroundControl(PreProcessControl):
     """Control that moves an object vertically to touch the ground
     Useful when you want a slightly more realistic rendering 
     (i.e. avoid flying objects)
 
-    Continuous Dimensions
-    ---------------------
-    z_ground
-        the Z-coordinate of the surface underneath the object to which
-        you want to pin the object. Takes any real number.
+    Continuous Dimensions:
 
-    Note
-    ----
-    This control shall be used after the `PositionControl` and 
-    `OrientationControl` controls, i.e., move the object to a location of
-    interest, then drag it to the ground under that location. 
+    - z_ground: the Z-coordinate of the surface underneath the object to
+        which you want to pin the object. (range: [0, 1])
 
+    .. note::
+        This control shall be used after the ``PositionControl`` and
+        ``OrientationControl`` controls, i.e., move the object to a location
+        of interest, then drag it to the ground under that location.
     """
-    kind = 'pre'
 
-    continuous_dims = {
-        'z_ground': (0, 1),
-    }
 
-    discrete_dims = {}
+    def __init__(self, root_folder: str):
+        continuous_dims = {
+            'z_ground': (0., 1.),
+        }
+        super().__init__(root_folder, continuous_dims=continuous_dims)
 
-    def apply(self, context, z_ground):
+    def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Pins the object to the ground
 
         Parameters
@@ -47,18 +45,13 @@ class PinToGroundControl(BaseControl):
             the Z-coordinate of the surface underneath the object to which
             you want to pin the object. Takes any real number.
         """
-        import bpy
-        from bpy import context as C
-        from mathutils import Vector
         ob = context["object"]
         bpy.context.view_layer.update()
         obj_min_z = min((ob.matrix_world @ x.co)[2] for x in ob.data.vertices)
-        post_translate(ob, Vector([0, 0, z_ground - obj_min_z]))
+        post_translate(ob, Vector([0, 0, control_args['z_ground'] - obj_min_z]))
         self.ob = ob
 
     def unapply(self, context):
         cleanup_translate_containers(self.ob)
-
-
 
 BlenderControl = PinToGroundControl

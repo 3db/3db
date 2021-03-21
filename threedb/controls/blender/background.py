@@ -2,10 +2,10 @@
 threedb.controls.blender.background
 ===================================
 
-Defines the transparent background control
+Defines a Blender control for solid-color background color modifications.
 """
 
-from typing import Any, Dict, Tuple
+from typing import Any, Dict
 from colorsys import hsv_to_rgb
 import torch as ch
 
@@ -15,17 +15,21 @@ from ..base_control import PostProcessControl
 class BackgroundControl(PostProcessControl):
     """Control that replace the transparent background of a render with a color
 
-    Note
-    ----
+    Continuous parameters:
 
-    This control needs transparent background. Therefore one need to have:
+    - ``H``, ``S`` and ``V``: the hue, saturation, and value of the color to
+      fill the background with. (range: [0, 1])
 
-    `bpy.context.scene.render.film_transparent = True`
+    .. note::
 
-    However since this is a 'post-processing control it cannot set this
-    parameter for the first render. The user has to make sure that a 'pre'
-    control will set this parameter before the first render or the first image
-    will be incorrect.
+        This control needs transparent background. Therefore one need to have:
+
+        `bpy.context.scene.render.film_transparent = True`
+
+        However since this is a 'post-processing control it cannot set this
+        parameter for the first render. The user has to make sure that a
+        'pre' control will set this parameter before the first render or the
+        first image will be incorrect.
     """
 
     def __init__(self, root_folder: str):
@@ -34,11 +38,12 @@ class BackgroundControl(PostProcessControl):
             'S': (0., 1.),
             'V': (0., 1.),
         }
-        super().__init__(root_folder, 
+        super().__init__(root_folder,
                          continuous_dims=continuous_dims)
 
     def apply(self, render: ch.Tensor, control_args: Dict[str, Any]) -> ch.Tensor:
-        """Fill the alpha channel of an image with a HSV color.
+        """Fill the alpha channel of an image with the HSV color specified in
+        the control arguments.
 
         Parameters
         ----------

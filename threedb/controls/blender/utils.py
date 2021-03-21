@@ -1,15 +1,15 @@
 """
-Utils
-=====
+Rendering utils
+===============
 
 Common utils function for blender controls
 """
 from os import path
-from typing import Tuple
+from typing import Any, Tuple
 import bpy
 
 
-def load_model(model: str):
+def load_model(model: str) -> str:
     """Load an object from a blender file and insert it in the scene
 
     Note
@@ -49,7 +49,7 @@ def load_model(model: str):
 TRANSLATE_PREFIX = 'translation_control_'
 
 
-def cleanup_translate_containers(obj):
+def cleanup_translate_containers(obj: Any) -> None:
     """Remove all translations containers
 
     Note
@@ -68,7 +68,7 @@ def cleanup_translate_containers(obj):
             bpy.data.objects.remove(other, do_unlink=True)
 
 
-def post_translate(obj, offset: Tuple[float, float, float]):
+def post_translate(obj: Any, offset: Tuple[float, float, float]) -> None:
     """Apply a translation on an object but ensure it happens after rotations
 
     Note
@@ -86,7 +86,6 @@ def post_translate(obj, offset: Tuple[float, float, float]):
     offset
         The vector to translate by
     """
-    import bpy
     if (obj.parent is None
             or not obj.parent.name.startswith(TRANSLATE_PREFIX)):
         bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD',
@@ -118,26 +117,34 @@ def clamp(value: float, minimum: float, maximum: float) -> float:
     return max(minimum, min(value, maximum))
 
 
-def camera_view_bounds_2d(scene, cam_ob, me_ob):
-    """
-    Returns camera space bounding box of mesh object.
+def camera_view_bounds_2d(scene: bpy.types.Scene,
+                          cam_ob: bpy.types.Object,
+                          mesh: bpy.types.Mesh) -> Tuple[float, float, float, float]:
+    """Returns camera-space bounding box of mesh object.
     Negative 'z' value means the point is behind the camera.
     Takes shift-x/y, lens angle and sensor size into account
     as well as perspective/ortho projections.
-    :arg scene: Scene to use for frame size.
-    :type scene: :class:`bpy.types.Scene`
-    :arg obj: Camera object.
-    :type obj: :class:`bpy.types.Object`
-    :arg me: Untransformed Mesh.
-    :type me: :class:`bpy.types.Mesh´
-    :return: a Box object (call its to_tuple() method to get x, y, width and height)
-    :rtype: :class:`Box`
-    """
+
+    Parameters
+    ----------
+    scene : bpy.types.Scene
+        Scene to use for frame size.
+    cam_ob : bpy.types.Object
+        Camera object
+    me_ob : bpy.types.Mesh
+        Untransformed Mesh.
+
+    Returns
+    -------
+    Tuple[float, float, float, float]
+        A tuple ``(x, y, width, height)`` encoding the camera-space bounding box
+        of the mesh object.
+    """    
     mat = cam_ob.matrix_world.normalized().inverted()
     depsgraph = bpy.context.evaluated_depsgraph_get()
-    mesh_eval = me_ob.evaluated_get(depsgraph)
+    mesh_eval = mesh.evaluated_get(depsgraph)
     me = mesh_eval.to_mesh()
-    me.transform(me_ob.matrix_world)
+    me.transform(mesh.matrix_world)
     me.transform(mat)
     camera = cam_ob.data
     frame = [-v for v in camera.view_frame(scene=scene)[:3]]

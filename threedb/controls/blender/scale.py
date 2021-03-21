@@ -5,26 +5,24 @@ threedb.controls.blender.scale
 [TODO]
 """
 
-from threedb.controls.base_control import BaseControl
+from typing import Any, Dict
+from threedb.controls.base_control import PreProcessControl
 
-class ObjScaleControl(BaseControl):
+class ObjScaleControl(PreProcessControl):
     """This control scales the object
 
-    Continuous Parameters
-    ---------------------
-    factor
-        Scaling factor which takes any positive number. Setting the 
-        factor to 1 maintains the same object size.
+    Continuous Parameters: 
+
+    - factor: scaling factor which takes any positive number. Setting the
+        factor to 1 maintains the same object size. (range: [0.25, 1])
     """
-    kind = 'pre'
+    def __init__(self, root_folder: str):
+        continuous_dims = {
+            'factor': (0.25, 1.),
+        }
+        super().__init__(root_folder, continuous_dims=continuous_dims)
 
-    continuous_dims = {
-        'factor': (0.25, 1),
-    }
-
-    discrete_dims = {}
-
-    def apply(self, context, factor):
+    def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """scales the object in the scene context by a factor `factor`
 
         Parameters
@@ -36,7 +34,7 @@ class ObjScaleControl(BaseControl):
             factor to 1 maintains the same object size.
         """        
         self.ob = context['object']
-        self.ob.scale = (factor,) * 3
+        self.ob.scale = (control_args['factor'],) * 3
 
     def unapply(self, context):
         """Rescales the object to its original dimensions
@@ -48,4 +46,4 @@ class ObjScaleControl(BaseControl):
         """
         self.ob.scale = (1.,) * 3
 
-BlenderControl = ObjScaleControl
+Control = ObjScaleControl

@@ -7,7 +7,7 @@ Defines the MaterialControl Blender Control
 
 from os import path
 from glob import glob
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import bpy
 from ..base_control import PreProcessControl
@@ -15,24 +15,18 @@ from ..base_control import PreProcessControl
 class MaterialControl(PreProcessControl):
     """Control that swap material of an object with another one
 
-    Discrete Dimensions
-    -------------------
-    replacement_material
-        The name of the material that will be replacing the original one
+    Discrete Dimensions:
 
-    Note
-    ----
-    The possible values for `replacement_material` can be any file
-    (without `.blend`) found in ROOT_FOLDER/blender_control_material.
+    - ``replacement_material``: The name of the material that will be
+    replacing the original one.
 
-    Each of these file should have a single material in it otherwise it
-    is ambiguous which material should be applied to the object
+    .. note::
+        The possible values for `replacement_material` can be any file
+        (without `.blend`) found in ROOT_FOLDER/blender_control_material.
+
+        Each of these file should have a single material in it otherwise it
+        is ambiguous which material should be applied to the object
     """
-
-    @property
-    def discrete_dims(self) -> Dict[str, List[Any]]:
-        return self._discrete_dims
-
     def __init__(self, root_folder: str):
         files_in_folder = list(sorted(glob(path.join(
             root_folder,
@@ -110,5 +104,4 @@ class MaterialControl(PreProcessControl):
         for material_name in state['added_materials']:
             bpy.data.materials.remove(bpy.data.materials[material_name])
 
-
-BlenderControl = MaterialControl
+Control = MaterialControl
