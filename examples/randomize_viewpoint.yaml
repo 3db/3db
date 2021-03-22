@@ -1,0 +1,34 @@
+inference:
+  module: 'torchvision.models'
+  label_map: './resources/imagenet_mapping.json'
+  class: 'resnet18'
+  output_shape: [1000]
+  normalization:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+  resolution: [224, 224]
+  args:
+    pretrained: True
+evaluation:
+  module: 'threedb.evaluators.classification'
+  args:
+    classmap_path: './resources/uid_to_IN.json'
+    topk: 1
+render_args:
+  engine: 'threedb.rendering.render_blender'
+  resolution: 256
+  samples: 16
+policy:
+  module: "threedb.policies.random_search"
+  samples: 10
+controls:
+  - module: "threedb.controls.blender.camera"
+    view_point_x: (-0.5, 0.5)
+    view_point_y: -1
+    view_point_z: (-0.2, 1.0)
+  - module: "threedb.controls.blender.denoiser"
+logging:
+  root_dir: 'logs/'
+  logger_modules:
+    - "threedb.result_logging.image_logger"
+    - "threedb.result_logging.json_logger"
