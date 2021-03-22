@@ -1,17 +1,24 @@
 Adding custom controls
 ======================
 
-By default, 3DB comes with a number of `contorls` that allows the user to manipulate the simulation scene. 
+By default, 3DB comes with a number of `controls` that allows the user to
+manipulate the simulated scene.  
+
 We will now go through the steps for implementing a custom control module. To make things
 clearer, we'll actually re-implement: 
- - one preprocess control, ``PositionControl``, that controls the object location in the scene.
- - one postprocess control, ``ImageNetCControl``, that controls the object location in the scene.
 
-PrePorcessControl
+- A "preprocessing" control, ``PositionControl``, that controls the main
+  object's location in the scene. 
+- A "postprocess" control, ``ImageNetCControl``, that adds [TODO] corruptions
+  to the rendered scenes.
+
+PreProcessControl
 -----------------
 
-These type of controls are implemented to change/control the scene before an image of the scene is rendered, e.g., move objects around, add occlusion, change camera properties, change scale of the object, etc.
-All it takes to implement a new preprocess control is to subclass the provided base classes,
+These type of controls are implemented to change/control the scene before an
+image of the scene is rendered, e.g., move objects around, add occlusion,
+change camera properties, change scale of the object, etc. All it takes to
+implement a new preprocess control is to subclass the provided base classes,
 :class:`threedb.controls.base_control.PreProcessControl`:
 
 .. code-block:: python
@@ -76,7 +83,7 @@ Finally, assign the name of the control to a variable ``Control``:
 
 
 
-PostPorcessControl
+PostProcessControl
 ------------------
 
 These type of controls are implemented to modify the rendered image, e.g., add image-level corruptions, change background colorm, etc.

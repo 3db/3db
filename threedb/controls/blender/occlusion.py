@@ -5,56 +5,42 @@ threedb.controls.blender.occlusion
 [TODO]
 """
 
+import bpy
+from typing import Any, Dict
 import numpy as np
 from os import path
 from glob import glob
-from threedb.controls.base_control import BaseControl
+from threedb.controls.base_control import PreProcessControl
 from .utils import camera_view_bounds_2d, load_model
 from bpy import context as C
 
-class OcclusionControl(BaseControl):
+class OcclusionControl(PreProcessControl):
     """Control that adds an occlusion object infront of the 
     main object in the scene.
 
-    Continuous Dimensions
-    ---------------------
-    occlusion_ratio
-        Ratio of the occluded part of the object of interest
-    zoom
-        How far the occluder is from the object of interest
-    scale 
-        Scale factor of the occlusion object
+    Continuous Dimensions: 
+    
+    - occlusion_ratio: Ratio of the occluded part of the object of interest.
+      (range: [0.1, 1.0])
+    - zoom: How far the occluder is from the object of interest. (range: [0.1,
+      0.4])
+    - scale: Scale factor of the occlusion object. (range: [0.25, 1.0])
 
-    Discrete Dimensions
-    ---------------------
-    direction
-        The direction from which the occluder approaches the
-        object of interest. Takes a value between 0 and 7 
-        represeting the indices of the `DIRECTIONS` vectors.
-    occluder
-        The occlusion object. This is an index of the list of the
-        occlusion objects which is automatically initialized when
-        the OcclusionControl is created (see Note). 
+    Discrete Dimensions:
 
-    Note
-    ----
-    The possible occluders are all the `.blend` files found in 
-    ROOT_FOLDER/ood_objects/.
+    - direction: The direction from which the occluder approaches the
+      object of interest. Takes a value between 0 and 7 
+      represeting the indices of the `DIRECTIONS` vectors. 
+    - occluder: The occlusion object. This is an index of the list of the
+      occlusion objects which is automatically initialized when the
+      OcclusionControl is created (see Note).
+
+    .. note::
+    
+        The possible occluders are all the `.blend` files found in 
+        ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
+
     """
-
-    kind = "pre"
-
-    continuous_dims = {
-        "occlusion_ratio": (0.1, 1.0),
-        "zoom": (0.1, 0.4),
-        "scale": (0.25, 1),
-    }
-
-    discrete_dims = {
-        "direction": 0,
-        "occluder": None
-    }
-
     DIRECTIONS = [( 1, -1), ( 1, 0), ( 1, 1),
                   ( 0, -1),          ( 0, 1),
                   (-1, -1), (-1, 0), (-1, 1)]
@@ -68,14 +54,26 @@ class OcclusionControl(BaseControl):
             The root folder where the ood_objects folder containing 
             the possible occluders exist
         """
-        super().__init__(root_folder)
-        self.occluders_paths = [x for x in glob(path.join(root_folder, 'ood_objects', '*.blend'))]
-        self.discrete_dims['occluder'] = len(self.occluders_paths)
-        assert self.discrete_dims['occluder'] >= 1
+        continuous_dims = {
+            "occlusion_ratio": (0.1, 1.0),
+            "zoom": (0.1, 0.4),
+            "scale": (0.25, 1),
+        }
+
+        occluders_paths = list(glob(path.join(root_folder, 'ood_objects', '*.blend')))
+        discrete_dims = {
+            "direction": list(range(len(DIRECTIONS))),
+            "occluder": list(range(len(occluders_paths)))
+        }
+        assert len(discrete_dims['occluder']) >= 1, 'No occluder objects found!'
+        super().__init__(root_folder,
+                         continuous_dims=continuous_dims,
+                         discrete_dims=discrete_dims)
+        self.occluder_paths = occluders_paths
 
     def _move_in_plane(self, ob, x_shift, y_shift):
         """Shifts the `ob` object in a plane passing through the 
-        ob location, and parallel to the camera frame
+        ob location, and parallel to the camera frame.
 
         Parameters
         ----------
@@ -147,13 +145,14 @@ class OcclusionControl(BaseControl):
 
         return (x_out, y_out)
 
-    def apply(self, context, direction, zoom, occlusion_ratio, occluder, scale):
+    def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Occludes the main object in the context by an occluder
 
         Parameters
         ----------
-        context
+        context : Dict[str, Any]
             The scene context
+        control_args : Dict[str, ]
         direction
             The direction from which the occluder approaches the
             object of interest. Takes a value between 0 and 7 
@@ -171,13 +170,15 @@ class OcclusionControl(BaseControl):
         """
 
         ob = context["object"]
-        occluder = load_model(self.occluders_paths[occluder])
+        occluder = load_model(self.occluder_paths[control_args['occluder']])
         self.occluder = C.scene.objects[occluder]
-        self.occluder.location = ob.location + zoom * (C.scene.camera.location - ob.location)
+        self.occluder.location = ob.location + control_args['zoom'] * (C.scene.camera.location - ob.location)
 
         bb = camera_view_bounds_2d(C.scene, C.scene.camera, ob)
         bb_occ = camera_view_bounds_2d(C.scene, C.scene.camera, self.occluder)
-        x_shift, y_shift = self._find_center(bb, bb_occ, self.DIRECTIONS[direction], occlusion_ratio)
+        x_shift, y_shift = self._find_center(bb, bb_occ,
+                                             self.DIRECTIONS[control_args['direction']], 
+                                             control_args['occlusion_ratio'])
         x_shift = (x_shift - C.scene.render.resolution_x / 2) / (
             C.scene.render.resolution_x / 2
         )
@@ -185,18 +186,17 @@ class OcclusionControl(BaseControl):
             C.scene.render.resolution_y / 2
         )
         self._move_in_plane(self.occluder, x_shift, y_shift)
-        self.occluder.scale = (scale,) * 3
+        self.occluder.scale = (control_args['scale'],) * 3
 
-    def unapply(self, context):
+    def unapply(self, context: Dict[str, Any]) -> None:
         """Deletes the occlusion objects. This is important to avoid
         clutering the scene with unneeded objects at the subsequent frames.
 
         Parameters
         ----------
-        context
+        context : Dict[str, Any]
             The scene context object
         """
-        import bpy
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
 BlenderControl = OcclusionControl

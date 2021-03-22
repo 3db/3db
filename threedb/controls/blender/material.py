@@ -18,7 +18,7 @@ class MaterialControl(PreProcessControl):
     Discrete Dimensions:
 
     - ``replacement_material``: The name of the material that will be
-    replacing the original one.
+      replacing the original one.
 
     .. note::
         The possible values for `replacement_material` can be any file
