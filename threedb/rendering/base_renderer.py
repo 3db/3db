@@ -115,19 +115,23 @@ class BaseRenderer(ABC):
                model_uid: str, 
                loaded_model: RenderObject, 
                loaded_env: RenderEnv) -> Dict[str, ch.Tensor]:
-        """
-        Render a model and environment. You can assume that setup_render() has
-        been called with the relevant model and object in context. This function
-        should also handle applying the pre and post-processing controls.
+        """[summary]
 
-        Arguments:
-        - model_uid (str): The uid of the model assigned by the renderer.
-        - object_class (int): The label (e.g., ImageNet class) of the object
-          being rendered.
-        - applier (ControlsApplier): An applier that we will use to apply the
-          pre- and post-processing controls.
-        - loaded_model: the model that was most recently loaded and passed to setup_render.
-        - loaded_env: the environment that was most recently loaded and passed
-          to setup_render.
-        """
+        Parameters
+        ----------
+        model_uid : str
+            Render a model and environment. You can assume that setup_render() has
+            been called with the relevant model and object in context. This function
+            should also handle applying the pre and post-processing controls.
+        loaded_model : RenderObject
+            The model that was most recently loaded and passed to setup_render.
+        loaded_env : RenderEnv
+            the environment that was most recently loaded and passed to setup_render. 
+
+        Returns
+        -------
+        Dict[str, ch.Tensor]
+            A dictionary mapping result keys (e.g., 'rgb', 'segmentation', etc.)
+            to PyTorch tensor outputs.
+        """        
         raise NotImplementedError
