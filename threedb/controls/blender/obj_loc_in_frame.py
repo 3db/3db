@@ -68,7 +68,7 @@ class ObjLocInFrameControl(PreProcessControl):
         camera_matrix = np.array(C.scene.camera.matrix_world)
         coords = [x_limit * control_args['x_shift'],
                   y_limit * control_args['y_shift'],
-                  z_obj_wrt_camera, 1]
+                  - z_obj_wrt_camera, 1]
         shift = np.matmul(camera_matrix, np.array([coords]).T)
         post_translate(ob, Vector(list(shift[:3])))
 

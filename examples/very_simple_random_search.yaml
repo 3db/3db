@@ -20,17 +20,22 @@ render_args:
   samples: 16
 policy:
   module: "threedb.policies.random_search"
-  samples: 10
+  samples: 1
 controls:
   - module: "threedb.controls.blender.background"
     S: .4
     V: .4
   - module: "threedb.controls.blender.camera"
-    zoom_factor: 0.9
+    view_point_x: 1.
+    view_point_y: 1.
+    view_point_z: 1.
+    zoom_factor: .9
+    aperture: 8.
+    focal_length: 50.
   - module: "threedb.controls.blender.denoiser"
-  # - module: "threedb.controls.blender.obj_loc_in_frame"
-    # x_shift: 0.
-    # y_shift: 0.
+  - module: "threedb.controls.blender.obj_loc_in_frame"
+    x_shift: 0.
+    y_shift: 0.
 logging:
   root_dir: 'logs/'
   logger_modules:
