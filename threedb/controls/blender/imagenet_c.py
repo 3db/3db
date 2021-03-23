@@ -5,7 +5,7 @@ threedb.controls.blender.imagenet_c
 Defines the ImagenetCControl
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 import torch as ch
 from imagenet_c import corrupt
 from ..base_control import PostProcessControl
@@ -51,8 +51,8 @@ class ImagenetCControl(PostProcessControl):
         ch.Tensor
             The transformed image.
         """
-        args_check = self.check_arguments(control_args)
-        assert args_check[0], args_check[1]
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg
 
         sev, c_name = control_args['severity'], control_args['corruption_name']
         img = render.numpy()

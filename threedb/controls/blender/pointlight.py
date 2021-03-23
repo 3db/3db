@@ -45,33 +45,14 @@ class PointLightControl(PreProcessControl):
         }
         super().__init__(root_folder, continuous_dims=continuous_dims)
 
-    # def apply(self, context, H, S, V, intensity, distance, dir_x, dir_y, dir_z):
-    
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
-        """Spawns a point light in the scene pointing to the object of interest.
-
-        Parameters
-        ----------
-        context
-            The scene context            
-        H, S, V
-            The color of the light
-        intensity
-            The insity of the light. Value depends on the environment.
-        distance
-            The distance away from the object of interest
-        dir_x
-            relative X-coordinate of the point light w.r.t the object of interest
-        dir_y
-            relative Y-coordinate of the point light w.r.t the object of interest
-        dir_z
-            relative Z-coordinate of the point light w.r.t the object of interest
-        """
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg
 
         bpy.ops.object.light_add(type='POINT', radius=1, align='WORLD')
         light_object = bpy.context.scene.objects["Point"]
         light = light_object.data
-        ob = context['object']
+        obj = context['object']
 
         light_direction = np.array([control_args['dir_x'],
                                     control_args['dir_y'],
@@ -79,7 +60,7 @@ class PointLightControl(PreProcessControl):
         light_direction = light_direction / np.linalg.norm(light_direction)
 
         # Set light location to point on sphere around object
-        light_object.location = control_args['distance'] * light_direction + ob.location
+        light_object.location = control_args['distance'] * light_direction + obj.location
 
         # Change light properties
         light.type = "POINT"
@@ -90,10 +71,10 @@ class PointLightControl(PreProcessControl):
 
         # Optional - point light towards object
         bpy.ops.object.constraint_add(type="TRACK_TO")
-        bpy.context.object.constraints["Track To"].target = ob
+        bpy.context.object.constraints["Track To"].target = obj
 
         return light_object
-    
+
     def unapply(self, context: Dict[str, Any]) -> None:
         pass
 

@@ -8,7 +8,6 @@ from os import path
 from typing import Any, Tuple
 import bpy
 
-
 def load_model(model: str) -> str:
     """Load an object from a blender file and insert it in the scene
 

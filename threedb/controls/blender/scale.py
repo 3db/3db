@@ -11,7 +11,7 @@ from threedb.controls.base_control import PreProcessControl
 class ObjScaleControl(PreProcessControl):
     """This control scales the object
 
-    Continuous Parameters: 
+    Continuous Parameters:
 
     - factor: scaling factor which takes any positive number. Setting the
         factor to 1 maintains the same object size. (range: [0.25, 1])
@@ -30,9 +30,9 @@ class ObjScaleControl(PreProcessControl):
         context
             The scene context object
         factor
-            Scaling factor which takes any positive number. Setting the 
+            Scaling factor which takes any positive number. Setting the
             factor to 1 maintains the same object size.
-        """        
+        """
         self.ob = context['object']
         self.ob.scale = (control_args['factor'],) * 3
 

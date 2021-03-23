@@ -18,9 +18,9 @@ threedb.controls.blender package
    threedb.controls.blender.mug_liquid
    threedb.controls.blender.obj_loc_in_frame
    threedb.controls.blender.occlusion
+   threedb.controls.blender.orientation
    threedb.controls.blender.pin_to_ground
    threedb.controls.blender.pointlight
-   threedb.controls.blender.pose
    threedb.controls.blender.position
    threedb.controls.blender.scale
    threedb.controls.blender.utils

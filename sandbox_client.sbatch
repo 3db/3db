@@ -33,7 +33,7 @@ srun --nodes=1 --cpus-per-task=1 --mem-per-cpu=5G --exclusive --ntasks=1 --resv-
     echo $CIFAR_CLASS;
     echo $BLENDER_DATA;
     export PYTHONPATH=~/synthetic-sandbox:$PYTHONPATH;
-    python threedb/main.py $BLENDER_DATA ~/synthetic-sandbox/examples/very_simple_random_search.yaml \
+    python threedb/main.py $BLENDER_DATA $YAML_CONFIG \
         \$SLURM_STEP_RESV_PORTS --single-model;
 " &
 

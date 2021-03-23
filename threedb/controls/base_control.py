@@ -23,7 +23,7 @@ details).
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Tuple, List, Union
+from typing import Dict, Any, Optional, Tuple, List, Union
 
 import torch as ch
 
@@ -41,9 +41,9 @@ class BaseControl(ABC):
         -------
         Dict[str, Tuple[float, float]]
             Will be of the form: parameter_name -> (min_value, max_value)
-        """        
+        """
         return self._continuous_dims
-    
+
     def update_continuous_dim(self, key: str, val: Tuple[float, float]):
         """Updates a specified continuous dimensions of the control with a
         user-provided value. Raises a ``ValueError`` if the key does not matched
@@ -74,9 +74,9 @@ class BaseControl(ABC):
         -------
         Dict[str, List[Any]]
             Will be of the form shape: parameter_name -> [value_1, value_2, ..., value_n]
-        """        
+        """
         return self._discrete_dims
-    
+
     def update_discrete_dim(self, key: str, val: List[Any]):
         """Updates a specified discrete dimensions of the control with a
         user-provided value. Raises a ``ValueError`` if the key does not matched
@@ -99,10 +99,10 @@ class BaseControl(ABC):
             raise ValueError(f'Unrecognized key {key} (expected one of {valid_keys})')
         self._discrete_dims[key] = val
 
-    def __init__(self, 
+    def __init__(self,
                  root_folder: str, *,
-                 continuous_dims: Dict[str, Tuple[float, float]] = {},
-                 discrete_dims: Dict[str, List[Any]] = {}):
+                 continuous_dims: Optional[Dict[str, Tuple[float, float]]] = None,
+                 discrete_dims: Optional[Dict[str, List[Any]]] = None):
         """Construct a BaseControl
 
         Parameters
@@ -112,8 +112,8 @@ class BaseControl(ABC):
             paths are lative to his folder
         """
         self.root_folder = root_folder
-        self._continuous_dims: Dict[str, Tuple[float, float]] = continuous_dims
-        self._discrete_dims: Dict[str, List[Any]] = discrete_dims
+        self._continuous_dims: Dict[str, Tuple[float, float]] = continuous_dims or {}
+        self._discrete_dims: Dict[str, List[Any]] = discrete_dims or {}
 
     def check_arguments(self, control_args: Dict[str, Any]) -> Tuple[bool, str]:
         """Checks a dictionary of control arguments against the arguments

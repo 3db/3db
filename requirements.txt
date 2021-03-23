@@ -7,7 +7,6 @@ scikit-image
 orjson
 opencv-python
 zmq
-OpenEXR
 tensorboard
 ipdb
 flatten-dict

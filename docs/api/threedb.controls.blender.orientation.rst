@@ -1,4 +1,4 @@
-.. automodule:: threedb.controls.blender.pose
+.. automodule:: threedb.controls.blender.orientation
    :members:
    :undoc-members:
    :show-inheritance:

@@ -5,6 +5,8 @@ threedb.controls.blender.mug_liquid
 Defines the MugLiquidControl
 """
 
+import bpy
+import mathutils
 from typing import Any, Dict, Tuple
 from ..base_control import PreProcessControl
 
@@ -19,12 +21,10 @@ class MugLiquidControl(PreProcessControl):
 
     The ratio of water will be 1 - ratio_milk - ratio_coffee
 
-    Continuous Dimensions
-    ---------------------
-    ratio_milk : float
-        The ratio of milk
-    ratio_coffee : float
-        The ratio of coffee
+    Continuous Dimensions:
+
+    - ``ratio_milk`` (float): The ratio of milk (range: [0, 1])
+    - ``ratio_coffee`` (float): The ratio of coffee (range: [0, 1])
     """
     @property
     def continuous_dims(self) -> Dict[str, Tuple[float, float]]:
@@ -38,15 +38,18 @@ class MugLiquidControl(PreProcessControl):
 
         Parameters
         ----------
-        context
+        context : Dict[str, Any]
             The scene context
-        ratio_milk
-            The ratio of milk
-        ratio_coffee
-            The ratio of coffee
+        control_args : Dict[str, Any]
+            The arguments for this control, should have keys ``ratio_milk`` and
+            ``ratio_coffee`` (see the class docstring for information).
         """
-        import bpy
-        import mathutils
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg
+
+        ratio_coffee: float
+        ratio_milk: float
+        ratio_coffee, ratio_milk = control_args['ratio_coffee'], control_args['ratio_milk']
 
         ratio_water = 1 - ratio_coffee - ratio_milk
 
@@ -57,4 +60,4 @@ class MugLiquidControl(PreProcessControl):
         material.nodes["water_ratio"].outputs[0].default_value = ratio_water
 
 
-BlenderControl = MugLiquidControl
+Control = MugLiquidControl

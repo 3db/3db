@@ -3,6 +3,10 @@ threedb.controls.blender.obj_loc_in_frame
 =========================================
 """
 
+import bpy
+from bpy import context as C
+from math import tan
+from mathutils import Vector
 from typing import Any, Dict
 import numpy as np
 from ..base_control import BaseControl, PreProcessControl
@@ -47,20 +51,14 @@ class ObjLocInFrameControl(PreProcessControl):
             Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
 
         """
-        import bpy
-        from bpy import context as C
-        from math import tan
-        from mathutils import Vector
 
-        ob = context['object']
-        self.ob = ob
-
+        obj = context['object']
         bpy.context.view_layer.update()
 
         aspect = C.scene.render.resolution_x/C.scene.render.resolution_y
         camera = C.scene.objects['Camera']
         fov = camera.data.angle_y
-        z_obj_wrt_camera = np.linalg.norm(camera.location - ob.location)
+        z_obj_wrt_camera = np.linalg.norm(camera.location - obj.location)
 
         y_limit = tan(fov/2) * z_obj_wrt_camera
         x_limit = y_limit * aspect
@@ -70,9 +68,9 @@ class ObjLocInFrameControl(PreProcessControl):
                   y_limit * control_args['y_shift'],
                   - z_obj_wrt_camera, 1]
         shift = np.matmul(camera_matrix, np.array([coords]).T)
-        post_translate(ob, Vector(list(shift[:3])))
+        post_translate(obj, Vector(list(shift[:3])))
 
     def unapply(self, context):
-        cleanup_translate_containers(self.ob)
+        cleanup_translate_containers(context['object'])
 
 Control = ObjLocInFrameControl

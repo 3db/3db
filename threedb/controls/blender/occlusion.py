@@ -11,15 +11,15 @@ import numpy as np
 from os import path
 from glob import glob
 from threedb.controls.base_control import PreProcessControl
-from .utils import camera_view_bounds_2d, load_model
+from . import utils
 from bpy import context as C
 
 class OcclusionControl(PreProcessControl):
-    """Control that adds an occlusion object infront of the 
+    """Control that adds an occlusion object infront of the
     main object in the scene.
 
-    Continuous Dimensions: 
-    
+    Continuous Dimensions:
+
     - occlusion_ratio: Ratio of the occluded part of the object of interest.
       (range: [0.1, 1.0])
     - zoom: How far the occluder is from the object of interest. (range: [0.1,
@@ -29,15 +29,15 @@ class OcclusionControl(PreProcessControl):
     Discrete Dimensions:
 
     - direction: The direction from which the occluder approaches the
-      object of interest. Takes a value between 0 and 7 
-      represeting the indices of the `DIRECTIONS` vectors. 
+      object of interest. Takes a value between 0 and 7
+      represeting the indices of the `DIRECTIONS` vectors.
     - occluder: The occlusion object. This is an index of the list of the
       occlusion objects which is automatically initialized when the
       OcclusionControl is created (see Note).
 
     .. note::
-    
-        The possible occluders are all the `.blend` files found in 
+
+        The possible occluders are all the `.blend` files found in
         ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
 
     """
@@ -51,7 +51,7 @@ class OcclusionControl(PreProcessControl):
         Parameters
         ----------
         root_folder
-            The root folder where the ood_objects folder containing 
+            The root folder where the ood_objects folder containing
             the possible occluders exist
         """
         continuous_dims = {
@@ -72,7 +72,7 @@ class OcclusionControl(PreProcessControl):
         self.occluder_paths = occluders_paths
 
     def _move_in_plane(self, ob, x_shift, y_shift):
-        """Shifts the `ob` object in a plane passing through the 
+        """Shifts the `ob` object in a plane passing through the
         ob location, and parallel to the camera frame.
 
         Parameters
@@ -146,38 +146,18 @@ class OcclusionControl(PreProcessControl):
         return (x_out, y_out)
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
-        """Occludes the main object in the context by an occluder
-
-        Parameters
-        ----------
-        context : Dict[str, Any]
-            The scene context
-        control_args : Dict[str, ]
-        direction
-            The direction from which the occluder approaches the
-            object of interest. Takes a value between 0 and 7 
-            represeting the indices of the `DIRECTIONS` vectors.
-        zoom
-            How far the occluder is from the object of interest
-        occlusion_ratio
-            Ratio of the occluded part of the object of interest
-        occluder
-            The occlusion object. This is an index of the list of the
-            occlusion objects which is automatically initialized when
-            the OcclusionControl is created (see Note). 
-        scale 
-            Scale factor of the occlusion object
-        """
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg       
 
         ob = context["object"]
-        occluder = load_model(self.occluder_paths[control_args['occluder']])
+        occluder = utils.load_model(self.occluder_paths[control_args['occluder']])
         self.occluder = C.scene.objects[occluder]
         self.occluder.location = ob.location + control_args['zoom'] * (C.scene.camera.location - ob.location)
 
-        bb = camera_view_bounds_2d(C.scene, C.scene.camera, ob)
-        bb_occ = camera_view_bounds_2d(C.scene, C.scene.camera, self.occluder)
+        bb = utils.camera_view_bounds_2d(C.scene, C.scene.camera, ob)
+        bb_occ = utils.camera_view_bounds_2d(C.scene, C.scene.camera, self.occluder)
         x_shift, y_shift = self._find_center(bb, bb_occ,
-                                             self.DIRECTIONS[control_args['direction']], 
+                                             self.DIRECTIONS[control_args['direction']],
                                              control_args['occlusion_ratio'])
         x_shift = (x_shift - C.scene.render.resolution_x / 2) / (
             C.scene.render.resolution_x / 2

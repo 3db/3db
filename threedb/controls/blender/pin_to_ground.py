@@ -39,19 +39,21 @@ class PinToGroundControl(PreProcessControl):
 
         Parameters
         ----------
-        context
+        context : Dict[str, Any]
             The scene context object
-        z_ground
-            the Z-coordinate of the surface underneath the object to which
-            you want to pin the object. Takes any real number.
+        control_args : Dict[str, Any]
+            The parameters for this control; should have key ``z_ground``
+            mapping to any real number, see class docstring for documentation.
         """
-        ob = context["object"]
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg
+
+        obj = context["object"]
         bpy.context.view_layer.update()
-        obj_min_z = min((ob.matrix_world @ x.co)[2] for x in ob.data.vertices)
-        post_translate(ob, Vector([0, 0, control_args['z_ground'] - obj_min_z]))
-        self.ob = ob
+        obj_min_z = min((obj.matrix_world @ x.co)[2] for x in obj.data.vertices)
+        post_translate(obj, Vector([0, 0, control_args['z_ground'] - obj_min_z]))
 
     def unapply(self, context):
-        cleanup_translate_containers(self.ob)
+        cleanup_translate_containers(context['object'])
 
 BlenderControl = PinToGroundControl

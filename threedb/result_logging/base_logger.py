@@ -20,6 +20,7 @@ class BaseLogger(Process, ABC):
       but rather will be called by ``run()``
     - ``run()``: main loop, waits for logs to be added to the queue, and calls
       ``log()`` on them.
+
     [TODO]
     """
     def __init__(self,
