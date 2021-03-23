@@ -62,10 +62,10 @@ class BackgroundControl(PostProcessControl):
         assert check_result[0], check_result[1]
         bpy.context.scene.render.film_transparent = True
 
-        alpha = render[3:, :, :]
-        img = render[:3, :, :] * alpha + (1 - alpha)
         rgb_color = hsv_to_rgb(control_args['H'], control_args['S'], control_args['V'])
-        img *= ch.tensor(rgb_color)[:, None, None].float()
+        rgb_color = ch.tensor(rgb_color)[:, None, None].float()
+        alpha = render[3:, :, :]
+        img = render[:3, :, :] * alpha + (1 - alpha) * rgb_color
         return img
 
 Control = BackgroundControl
