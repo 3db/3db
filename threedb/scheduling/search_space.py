@@ -35,7 +35,7 @@ class SearchSpace:
                     set_args.append((name, continous_arg, value_range))
             for k, v in control.discrete_dims.items():
                 print(v)
-                if isinstance(v, str):
+                if not isinstance(v, (tuple, list)):
                     v = [v]
                 if len(v) == 1:
                     set_args.append((name, k, v[0]))

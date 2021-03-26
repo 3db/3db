@@ -215,6 +215,7 @@ if __name__ == '__main__':
                 controls_applier.unapply(render_context)
 
                 with ch.no_grad():
+                    result['rgb'] = result['rgb'][:3]
                     prediction, input_shape = inference_model(result['rgb'])
 
                 lab = evaluator.get_target(model_uid, result)

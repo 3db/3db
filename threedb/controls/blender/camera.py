@@ -25,24 +25,94 @@ class CameraControl(PreProcessControl):
       below). (range: [-1, 1])
     - ``view_point_z``: The original z coordinate of the camera (see the note
       below). (range: [0, 1])
-    - ``zoom_factor``: Defines how much should we see of the object. 1 means we
-      completely see the object with a little margin. above 1 we are close.
+    - ``zoom_factor``: Defines how much should we see of the object. A
+      ``zoom_factor`` of 1 means we completely see the object with a little
+      margin. above 1 we are close. 
       below 1 we are further. (range: [0.5, 2])
     - ``aperture``: The aperture of the camera. (range: [1, 32])
     - ``focal_length``: The focal length of the camera. (range: [10, 400])
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_1.png
+            :width: 100
+            :group: camera_viewpoint
+
+        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_2.png
+            :width: 100
+            :group: camera_viewpoint
+
+        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_3.png
+            :width: 100
+            :group: camera_viewpoint
+
+        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_4.png
+            :width: 100
+            :group: camera_viewpoint
+
+        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_5.png
+            :width: 100
+            :group: camera_viewpoint
+
+        Varying the viewpoint
+
+        .. thumbnail:: /_static/logs/camera_zoom/images/image_1.png
+            :width: 100
+            :group: camera_zoom
+
+        .. thumbnail:: /_static/logs/camera_zoom/images/image_2.png
+            :width: 100
+            :group: camera_zoom
+
+        .. thumbnail:: /_static/logs/camera_zoom/images/image_3.png
+            :width: 100
+            :group: camera_zoom
+
+        .. thumbnail:: /_static/logs/camera_zoom/images/image_4.png
+            :width: 100
+            :group: camera_zoom
+
+        .. thumbnail:: /_static/logs/camera_zoom/images/image_5.png
+            :width: 100
+            :group: camera_zoom
+        
+        Varying zoom factor
+
+        .. thumbnail:: /_static/logs/camera_focus/images/image_1.png
+            :width: 100
+            :group: camera_focus
+
+        .. thumbnail:: /_static/logs/camera_focus/images/image_2.png
+            :width: 100
+            :group: camera_focus
+
+        .. thumbnail:: /_static/logs/camera_focus/images/image_3.png
+            :width: 100
+            :group: camera_focus
+
+        .. thumbnail:: /_static/logs/camera_focus/images/image_4.png
+            :width: 100
+            :group: camera_focus
+
+        .. thumbnail:: /_static/logs/camera_focus/images/image_5.png
+            :width: 100
+            :group: camera_focus
+        
+        Varying focal length and aperture
+
+
 
     .. note::
         Since it is impossible to satisfy view_point, zoom and focal length, we
         do the following:
 
-        1. We set the aperture and focal_length
-
-        2. We move the camera at view_point and look at the object
-
+        1. We set the ``aperture`` and ``focal_length``
+        2. We move the camera according to ``view_point_{x,y,z}`` and look at
+           the object
         3. We move closer or further in order to satisfy the ``zoom_factor``
-        constraint
+           constraint
 
-        As a result in most cases, the final position of the camera will be
+        As a result, in most cases the final position of the camera will be
         quite different from the view_point parameter.
     """
     def __init__(self, root_folder: str):
@@ -57,26 +127,8 @@ class CameraControl(PreProcessControl):
         super().__init__(root_folder, continuous_dims=continuous_dims)
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
-        """Move and update the camera settings.
-
-        Parameters
-        ----------
-        context : Dict[str, Any]
-            The blender scene context.
-        control_args : Dict[str, Any]
-            How to update the camera. Must have keys:
-
-            - ``view_point_x``: The original x coordinate of the camera.
-            - ``view_point_y``: The original y coordinate of the camera.
-            - ``view_point_z``: The original z coordinate of the camera.
-            - ``zoom_factor``: How much should we see of the object. A
-              zoom_factor of 1 means we completely see the object with a little
-              margin. Higher value means closer, lower means further away.
-            - ``aperture``: The aperture of the camera
-            - ``focal_length``: The focal length of the camera
-        """
-        args_check = self.check_arguments(control_args)
-        assert args_check[0], args_check[1]
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg
 
         args = copy.copy(control_args)
         zoomout_factor = 1 / args['zoom_factor']

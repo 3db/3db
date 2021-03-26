@@ -1,0 +1,9 @@
+base_config: base.yaml
+controls:
+  - module: "threedb.controls.blender.imagenet_c"
+    corruption_name: ['defocus_blur', 'pixelate', 'saturate', 'elastic_transform', 'gaussian_noise']
+    severity: 3
+logging:
+  root_dir: 'docs/_static/logs/imagenet_c'
+  logger_modules:
+    - "threedb.result_logging.image_logger"

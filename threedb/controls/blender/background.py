@@ -13,14 +13,40 @@ import bpy
 from ..base_control import PostProcessControl
 
 class BackgroundControl(PostProcessControl):
-    """Control that replace the transparent background of a render with a color
+    """Control that replace the transparent background of a render (i.e., the
+    alpha channel) with a given color specified in HSV by the control parameters.
 
     Continuous parameters:
 
     - ``H``, ``S`` and ``V``: the hue, saturation, and value of the color to
       fill the background with. (range: [0, 1])
 
-    .. note::
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/background/images/image_1.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_2.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_3.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_4.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_5.png
+            :width: 100
+            :group: background
+        
+        Varying hue and saturation, with value fixed to 1
+
+
+    .. warning::
 
         This control needs transparent background. Therefore one need to have:
 
@@ -42,22 +68,6 @@ class BackgroundControl(PostProcessControl):
                          continuous_dims=continuous_dims)
 
     def apply(self, render: ch.Tensor, control_args: Dict[str, Any]) -> ch.Tensor:
-        """Fill the alpha channel of an image with the HSV color specified in
-        the control arguments.
-
-        Parameters
-        ----------
-        render : ch.Tensor
-            The image to modify
-        control_args : Dict[str, Any]
-            Must have keys ``H``, ``S``, and ``V`` which dictate the color that
-            will be used to fill in the background.
-
-        Returns
-        -------
-        ch.Tensor
-            The image with the background filled with the proper color.
-        """
         check_result = self.check_arguments(control_args)
         assert check_result[0], check_result[1]
         bpy.context.scene.render.film_transparent = True

@@ -56,7 +56,7 @@ class ImageLogger(BaseLogger):
         self.folder = path.join(save_dir, 'images/')
         if not path.exists(self.folder):
             makedirs(self.folder)
-        print(f'==> [Logging images to {dir} with regid {self.regid}]')
+        print(f'==> [Logging images to {self.folder} with regid {self.regid}]')
 
     def log(self, item: Dict[str, Any]) -> None:
         """Implementation of ``log()`` for ImageLogger

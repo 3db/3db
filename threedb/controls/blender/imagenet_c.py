@@ -19,6 +19,30 @@ class ImagenetCControl(PostProcessControl):
     - ``corruption_name``: The name of corruption that will be applied (see
       `here <TODO>`_ for list of corruption names)
     - ``severity``: Imagenet-C severity parameter. (range: {0, 1, 2, 3, 4, 5})
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/background/images/image_1.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_2.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_3.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_4.png
+            :width: 100
+            :group: background
+
+        .. thumbnail:: /_static/logs/background/images/image_5.png
+            :width: 100
+            :group: background
+        
+        Examples of some corruptions at severity level 3
     """
     def __init__(self, root_folder: str):
         discrete_dims = {
@@ -35,25 +59,12 @@ class ImagenetCControl(PostProcessControl):
                          discrete_dims=discrete_dims)
 
     def apply(self, render: ch.Tensor, control_args: Dict[str, Any]) -> ch.Tensor:
-        """Apply an Imagenet-C corruption on the rendered image.
-
-        Parameters
-        ----------
-        render : ch.Tensor
-            Image to transform.
-        control_args : Dict[str, Any]
-            Corruption parameterization, must have keys ``corruption_name`` and
-            ``severity`` (see class documentation for information about the
-            control arguments).
-
-        Returns
-        -------
-        ch.Tensor
-            The transformed image.
-        """
         no_err, msg = self.check_arguments(control_args)
         assert no_err, msg
 
+        print('HI 1')
+        # render = render[:3]
+        print('HI')
         sev, c_name = control_args['severity'], control_args['corruption_name']
         img = render.numpy()
         img = img.transpose(1, 2, 0)

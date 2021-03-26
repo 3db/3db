@@ -1,4 +1,6 @@
 from glob import glob
+from pathlib import Path
+import os
 
 all_api_docs = glob('api/*.rst')
 for api_doc in all_api_docs:
@@ -14,3 +16,11 @@ for api_doc in all_api_docs:
         else:
             new_lines.append(line)
     open(api_doc, 'w').writelines(new_lines)
+
+all_image_dirs = glob('_static/logs/*/images')
+for image_dir in map(Path, all_image_dirs):
+    contents = os.listdir(image_dir)
+    if not all([x.startswith('image') for x in contents]):
+        for i, image_name in enumerate(sorted(contents)):
+            print(f'Renaming {image_name} -> image_{i+1}.png')
+            os.rename(image_dir / image_name, image_dir / f'image_{i+1}.png')
