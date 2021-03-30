@@ -3,7 +3,7 @@ controls:
   - module: "threedb.controls.blender.background"
     H: (0., 1.)
     S: (0.2, 1.)
-    V: 1.
+    V: 1
 logging:
   logger_modules:
     - "threedb.result_logging.image_logger"

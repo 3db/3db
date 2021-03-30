@@ -137,7 +137,7 @@ class BaseControl(ABC):
             'Keys cannot be duplicated between continuous_dims and discrete_dims'
         if control_args.keys() != all_keys:
             return False, 'Keys in control arguments do not match declared keys'
-        if not all(isinstance(control_args[k], float) for k in self.continuous_dims):
+        if not all(isinstance(control_args[k], float) or isinstance(control_args[k], int) for k in self.continuous_dims):
             return False, 'Some continuous arguments are not of type float'
         if not all(control_args[k] in v for (k, v) in self.discrete_dims.items()):
             return False, 'Some discrete arguments do not match a declared valid value'
