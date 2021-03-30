@@ -59,7 +59,7 @@ class BigChungusCyclicBuffer:
                                      total=self.size, smoothing=0)
 
     def declare_buffers(self, buffers: Dict[str, Tuple[List[int], str]]) -> bool:
-        if self.initialized and (buffers != self.declare_buffers):
+        if self.initialized and (buffers != self.declared_buffers):
             return False
 
         self.initialized = True
