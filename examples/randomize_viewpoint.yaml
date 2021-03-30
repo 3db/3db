@@ -28,7 +28,6 @@ controls:
     view_point_z: (-0.2, 1.0)
   - module: "threedb.controls.blender.denoiser"
 logging:
-  root_dir: 'logs/'
   logger_modules:
     - "threedb.result_logging.image_logger"
     - "threedb.result_logging.json_logger"

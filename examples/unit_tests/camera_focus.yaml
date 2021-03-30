@@ -8,6 +8,5 @@ controls:
     aperture: (1, 10)
     focal_length: (10, 20)
 logging:
-  root_dir: 'docs/_static/logs/camera_focus'
   logger_modules:
     - "threedb.result_logging.image_logger"

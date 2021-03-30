@@ -37,7 +37,6 @@ controls:
     x_shift: 0.
     y_shift: 0.
 logging:
-  root_dir: 'logs/'
   logger_modules:
     - "threedb.result_logging.image_logger"
     - "threedb.result_logging.json_logger"

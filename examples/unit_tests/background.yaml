@@ -5,6 +5,5 @@ controls:
     S: (0.2, 1.)
     V: 1.
 logging:
-  root_dir: 'docs/_static/logs/background'
   logger_modules:
     - "threedb.result_logging.image_logger"

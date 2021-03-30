@@ -8,6 +8,5 @@ controls:
     aperture: 5.
     focal_length: 100.
 logging:
-  root_dir: 'docs/_static/logs/camera_viewpoint'
   logger_modules:
     - "threedb.result_logging.image_logger"

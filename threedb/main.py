@@ -42,6 +42,7 @@ parser.add_argument('root_folder', type=str,
                     help='folder containing all data (models, environments, etc)')
 parser.add_argument('config_file', type=str,
                     help='Config file describing the experiment')
+parser.add_argument('output_dir', help='Where to store the output of the loggers',)
 parser.add_argument('port', type=int,
                     help='The port used to listen for rendering workers')
 parser.add_argument('--single-model', action='store_true',
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     assert policy_regid == 1
 
     logger_manager = LoggerManager()
-    logging_root = config['logging']['root_dir']
+    logging_root = args.output_dir
     for module_path in config['logging']['logger_modules']:
         logger_module = importlib.import_module(module_path).Logger
         logger_manager.append(logger_module(logging_root, result_buffer, config))
