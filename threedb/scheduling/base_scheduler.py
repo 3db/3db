@@ -69,9 +69,9 @@ class Scheduler:
         """
         assert self.buffer.declare_buffers(declared_outputs)
         self.socket.send_pyobj({'kind': 'ack'})
-
-        self.logger_manager.start()
-        self.running = True
+        if not self.running:
+            self.logger_manager.start()
+            self.running = True
 
     def send_info(self):
         self.socket.send_pyobj({
