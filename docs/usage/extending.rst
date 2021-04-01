@@ -21,7 +21,7 @@ The 3DB Workflow
 
 3DB is designed to be extended without needing any modifications to the source
 codebase itself (and thus, it is fully extendable even when installed as a
-module). In particular, one extends 3DB by replacing one or more of the modules
+module). In particular, one can extend 3DB by replacing one or more of the modules
 with custom subclasses. The guides linked below illustrate how to do this, but
 first it will be useful to briefly describe the structure of 3DB and the role
 that each module plays. 

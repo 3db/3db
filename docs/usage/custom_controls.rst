@@ -8,8 +8,8 @@ We will now go through the steps for implementing a custom control module. To ma
 clearer, we'll actually re-implement: 
 
 - A "preprocessing" control, ``PositionControl``, that controls the main
-  object's location in the scene. 
-- A "postprocess" control, ``ImageNetCControl``, that adds [TODO] corruptions
+  object's location in the scene.
+- A "postprocessing" control, ``CorruptionControl``, that adds corruptions
   to the rendered scenes.
 
 PreProcessControl
@@ -18,7 +18,7 @@ PreProcessControl
 These type of controls are implemented to change/control the scene before an
 image of the scene is rendered, e.g., move objects around, add occlusion,
 change camera properties, change scale of the object, etc. All it takes to
-implement a new preprocess control is to subclass the provided base classes,
+implement a new preprocess control is to subclass the provided base class,
 :class:`threedb.controls.base_control.PreProcessControl`:
 
 .. code-block:: python
@@ -30,7 +30,8 @@ implement a new preprocess control is to subclass the provided base classes,
 
 
 In order to make this a valid preprocessing control, we need to provide implementations of two
-abstract functions: ``__init__``, ``apply()``, and (optionally) ``unapply()``.
+abstract functions: ``__init__``, and ``apply``. It can sometimes help to (optionally) implement
+the ``unapply`` function.
 
 The ``__init__()`` is the place to define the arguements needed by the control:
 
@@ -56,7 +57,7 @@ Next, we need to implement the ``apply()`` function, which is called whenever a 
         context
             The scene context object
         control_args : Dict[str, Any]
-            Must have keys ``offset_X``, ``offset_Y`` and ``offset_Z`` 
+            Must have keys ``offset_X``, ``offset_Y``, and ``offset_Z`` 
             (see class documentation for information about the control arguments).
         """
         from mathutils import Vector
@@ -67,8 +68,8 @@ Next, we need to implement the ``apply()`` function, which is called whenever a 
                                    control_args['offset_Y'],
                                    control_args['offset_Z']]))
 
-Next, we need to implement an ``unapply()`` function if needed, which reverese the effects of the control after an image is rendered, 
-so that the scene is reset for subsequent renders and contols applications.
+Next, we can implement the ``unapply()`` function if needed, which reverses the effects of the control after an image is rendered, 
+so that the scene is reset for subsequent renders and controls applications.
 
 .. code-block:: python
 
@@ -86,20 +87,20 @@ Finally, assign the name of the control to a variable ``Control``:
 PostProcessControl
 ------------------
 
-These type of controls are implemented to modify the rendered image, e.g., add image-level corruptions, change background colorm, etc.
-All it takes to implement a new postprocess control is to subclass the provided base classes,
+These type of controls are implemented to modify the rendered image, e.g., add image-level corruptions, change background color, etc.
+All it takes to implement a new postprocess control is to subclass the provided base class,
 :class:`threedb.controls.base_control.PostProcessControl`:
 
 .. code-block:: python
 
     from threedb.controls.base_contol import PostProcessControl
 
-    class ImageNetCControl(PostProcessControl):
+    class CorruptionControl(PostProcessControl):
         pass
 
 
-In order to make this a valid preprocessing control, we need to provide implementations of two
-abstract functions: ``__init__``, and ``apply()``.
+In order to make this a valid postprocessing control, we need to provide implementations of two
+abstract functions: ``__init__``, and ``apply``.
 
 Similar to before, the ``__init__()`` is the place to define the arguements needed by the control:
 
@@ -151,14 +152,12 @@ Next, we need to implement the ``apply()`` function, which is called whenever a 
         img = img.transpose(2, 0, 1)
         img = img.astype('float32') / 255
         return ch.from_numpy(img)
-                                   control_args['offset_Y'],
-                                   control_args['offset_Z']]))
 
 Finally, assign the name of the control to a variable ``Control``:
 
 .. code-block:: python
     
-    Control = ImageNetCControl
+    Control = CorruptionControl
 
-Note that for postprocess contorls, we don't need an ``unapply()`` method, since all the changes are done at the image
+Note that for postprocess controls, we don't need the ``unapply()`` method, since all the changes are done at the image
 level, and the actual simulation scene is not altered.
