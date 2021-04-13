@@ -186,9 +186,7 @@ def load_inference_model(args):
     ])
 
     def inference_function(image):
-        print('I AM HERE')
         image = my_preprocess(image)
-        print('SHAPE', image.shape)
         return model(image.unsqueeze(0))[0], image.shape
 
     return inference_function

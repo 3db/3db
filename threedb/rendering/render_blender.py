@@ -12,7 +12,8 @@ from os import path
 from tempfile import TemporaryDirectory
 from typing import Tuple, Dict, Optional, Iterable, List, Any
 
-import bpy
+from ..try_bpy import bpy
+
 import cv2
 import numpy as np
 import torch as ch

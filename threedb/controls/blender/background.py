@@ -9,7 +9,7 @@ from typing import Any, Dict
 from colorsys import hsv_to_rgb
 import torch as ch
 
-import bpy
+from ...try_bpy import bpy
 from ..base_control import PostProcessControl
 
 class BackgroundControl(PostProcessControl):

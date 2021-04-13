@@ -3,8 +3,8 @@ threedb.controls.blender.obj_loc_in_frame
 =========================================
 """
 
-import bpy
-from bpy import context as C
+from ...try_bpy import bpy
+# from bpy import context as C
 from math import tan
 from mathutils import Vector
 from typing import Any, Dict
@@ -26,8 +26,10 @@ class ObjLocInFrameControl(PreProcessControl):
         Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
 
     .. note::
-        Setting x_shift and y_shift to zeros would keep the object in the
+        Setting x_shift and y_shift to zeros keeps the object in the
         middle of the frame.
+    
+    
     """
     def __init__(self, root_folder: str):
         continuous_dims = {
@@ -51,19 +53,18 @@ class ObjLocInFrameControl(PreProcessControl):
             Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
 
         """
-
         obj = context['object']
         bpy.context.view_layer.update()
 
-        aspect = C.scene.render.resolution_x/C.scene.render.resolution_y
-        camera = C.scene.objects['Camera']
+        aspect = bpy.context.scene.render.resolution_x / bpy.context.scene.render.resolution_y
+        camera = bpy.context.scene.objects['Camera']
         fov = camera.data.angle_y
         z_obj_wrt_camera = np.linalg.norm(camera.location - obj.location)
 
         y_limit = tan(fov/2) * z_obj_wrt_camera
         x_limit = y_limit * aspect
 
-        camera_matrix = np.array(C.scene.camera.matrix_world)
+        camera_matrix = np.array(bpy.context.scene.camera.matrix_world)
         coords = [x_limit * control_args['x_shift'],
                   y_limit * control_args['y_shift'],
                   - z_obj_wrt_camera, 1]

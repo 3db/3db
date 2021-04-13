@@ -6,7 +6,7 @@ threedb.controls.blender.pointlight
 """
 
 from typing import Any, Dict
-import bpy
+from ...try_bpy import bpy
 import numpy as np
 from colorsys import hsv_to_rgb
 from threedb.controls.base_control import PreProcessControl

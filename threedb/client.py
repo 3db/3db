@@ -9,7 +9,6 @@ the results to the main node for inference.
 Users should not have to modify or even view this file in order to use and
 extend 3DB.
 """
-
 import argparse
 import importlib
 import sys
@@ -124,11 +123,17 @@ if __name__ == '__main__':
                         help='Always return the same result regardless of the parameters'
                              '\n useful to debug and produce large amount of data quickly')
 
-    args = parser.parse_args()
+    arguments = sys.argv[1:]
+    try:
+        index = arguments.index('--')
+        arguments = arguments[index + 1:]
+    except ValueError:
+        pass
+    args = parser.parse_args(arguments)
     print(args)
 
     context = zmq.Context()
-    print("Connecting to server...")
+    print(f"Connecting to server ({args.master_address})...")
     socket = context.socket(zmq.REQ)
     socket.connect("tcp://" + args.master_address)
 

@@ -6,7 +6,7 @@ Defines the Blender Denoiser Control
 """
 
 from typing import Any, Dict, List, Tuple
-import bpy
+from ...try_bpy import bpy
 from threedb.controls.base_control import PreProcessControl
 
 

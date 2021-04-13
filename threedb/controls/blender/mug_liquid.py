@@ -5,7 +5,7 @@ threedb.controls.blender.mug_liquid
 Defines the MugLiquidControl
 """
 
-import bpy
+from ...try_bpy import bpy
 import mathutils
 from typing import Any, Dict, Tuple
 from ..base_control import PreProcessControl

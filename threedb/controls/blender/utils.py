@@ -6,7 +6,7 @@ Common utils function for blender controls
 """
 from os import path
 from typing import Any, Tuple
-import bpy
+from ...try_bpy import bpy
 
 def load_model(model: str) -> str:
     """Load an object from a blender file and insert it in the scene
