@@ -87,9 +87,11 @@ class JSONLogger(BaseLogger):
         item = copy.deepcopy(item)
         rix = item['result_ix']
         buffer_data = self.buffer[rix]
-        item = {k: v for (k, v) in buffer_data.items() if k in self.evaluator.KEYS}
-        item['output_type'] = self.evaluator.output_type
-        cleaned = clean_log(item)
+        result = {k: v for (k, v) in buffer_data.items() if k in self.evaluator.KEYS}
+        for k in ['id', 'environment', 'model', 'render_args']:
+            result[k] = item[k]
+        result['output_type'] = self.evaluator.output_type
+        cleaned = clean_log(result)
         encoded = json.dumps(cleaned, default=json_default,
                              option=json.OPT_SERIALIZE_NUMPY | json.OPT_APPEND_NEWLINE)
         self.buffer.free(rix, self.regid)

@@ -22,7 +22,7 @@ class SimpleClassificationEvaluator(BaseEvaluator):
     for classification tasks.
     """
     output_type = 'classes'
-    KEYS = ['is_correct', 'loss']
+    KEYS = ['is_correct', 'loss', 'prediction']
 
     def __init__(self, *, topk: int, classmap_path: str):
         """Initialize an Evaluator for classification
@@ -63,7 +63,8 @@ class SimpleClassificationEvaluator(BaseEvaluator):
         """
         return {
             'is_correct': ([], 'bool'),
-            'loss': ([], 'float32')
+            'loss': ([], 'float32'),
+            'prediction': ([self.topk], 'int32')
         }
 
     def summary_stats(self, pred: ch.Tensor, label: LabelType) -> Dict[str, Output]:
@@ -94,7 +95,8 @@ class SimpleClassificationEvaluator(BaseEvaluator):
         im_loss: float = float(self.crit(stacked_pred, ch.tensor(label)).item())
         return {
             'is_correct': is_correct,
-            'loss': im_loss
+            'loss': im_loss,
+            'prediction': topk_inds
         }
 
     def to_tensor(self, pred: Any, *_) -> Tensor:
