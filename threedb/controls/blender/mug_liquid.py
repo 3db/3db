@@ -26,12 +26,14 @@ class MugLiquidControl(PreProcessControl):
     - ``ratio_milk`` (float): The ratio of milk (range: [0, 1])
     - ``ratio_coffee`` (float): The ratio of coffee (range: [0, 1])
     """
-    @property
-    def continuous_dims(self) -> Dict[str, Tuple[float, float]]:
-        return {
+
+    def __init__(self, root_folder: str):
+        continuous_dims = {
             'ratio_milk': (0, 1),
             'ratio_coffee': (0, 1),
         }
+
+        super().__init__(root_folder, continuous_dims=continuous_dims)
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
         """Change the material of the liquid
@@ -58,6 +60,9 @@ class MugLiquidControl(PreProcessControl):
         material.nodes["coffee_milk_ratio"].outputs[0].default_value = (
             ratio_coffee / (ratio_coffee + ratio_milk))
         material.nodes["water_ratio"].outputs[0].default_value = ratio_water
+
+    def unapply(self, context: Dict[str, Any]) -> None:
+        pass
 
 
 Control = MugLiquidControl

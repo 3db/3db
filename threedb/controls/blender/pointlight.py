@@ -2,7 +2,7 @@
 threedb.controls.blender.pointlight
 ===================================
 
-[TODO]
+Defines a Blender Control for single pointwise light source
 """
 
 from typing import Any, Dict

@@ -74,4 +74,8 @@ class ImagenetCControl(PostProcessControl):
         img = img.astype('float32') / 255
         return ch.from_numpy(img)
 
+
+    def unapply(self, context: Dict[str, Any]) -> None:
+        pass
+
 Control = ImagenetCControl

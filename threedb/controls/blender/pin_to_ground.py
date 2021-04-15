@@ -2,7 +2,8 @@
 threedb.controls.blender.pin_to_ground
 ======================================
 
-[TODO]
+Defines a Blender Control that makes sure an object rests at a given z
+coordinate
 """
 from typing import Any, Dict
 from ...try_bpy import bpy
