@@ -9,7 +9,7 @@ from os import path
 from glob import glob
 from typing import Any, Dict
 
-import bpy
+from ...try_bpy import bpy
 from ..base_control import PreProcessControl
 
 class MaterialControl(PreProcessControl):

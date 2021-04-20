@@ -5,7 +5,7 @@ threedb.controls.blender.occlusion
 [TODO]
 """
 
-import bpy
+from ...try_bpy import bpy
 from typing import Any, Dict
 import numpy as np
 from os import path

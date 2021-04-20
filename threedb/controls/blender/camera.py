@@ -8,7 +8,7 @@ Defines a Blender Control for camera-based transformations.
 from typing import Any, Dict
 
 import copy
-import bpy
+from ...try_bpy import bpy
 from mathutils import Vector
 from ..base_control import PreProcessControl
 from ...rendering.utils import lookat_viewport
