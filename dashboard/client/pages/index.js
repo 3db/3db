@@ -1,6 +1,6 @@
 import { Layout, Menu, Breadcrumb } from 'antd';
 import { UserOutlined, LaptopOutlined, NotificationOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
+import { Input, Result } from 'antd';
 import { Spin, Space } from 'antd';
 import { DatabaseOutlined } from '@ant-design/icons';
 
@@ -42,8 +42,9 @@ const ServerSelector = ({ setServer,  loading, startValue }) => {
       size="large"
       loading={loading}
       suffix={suffix}
+      prefix="http://"
       onChange={e => setValue(e.target.value)}
-      onSearch={setServer}
+      onSearch={x => setServer(x)}
     />
   </>
 }
@@ -57,54 +58,55 @@ export default observer(() => {
     setServer(router.query.url);
   }
 
+  console.log(currentServer);
   if(currentServer != '') {
-    dm.fetchUrl(currentServer);
+    dm.fetchUrl('http://' + currentServer);
   }
 
-  const footer = <Footer style={{ textAlign: 'center' }}>Madry Lab ©2020 </Footer>
-
-  if (!dm.loaded) {
-    return <>
-      <Layout style={{ height: '100%' }}>
-        <Header className="header">
-          <div style={{display: 'inline-block', marginRight: '15px', color: 'white', fontWeight:'bold'}}>Synthetic-Sandbox</div>
-          <div style={{position: 'absolute', right: '12px', top:0, color: 'white'}}>
-            <ServerSelector setServer={setServer} loading={!dm.loaded} startValue={currentServer}/>
-          </div>
-        </Header>
-        <Content style={{ padding: '0 50px', height: '100%' }}>
-          <Layout className="site-layout-background" style={{ padding: '24px 0', height: '100%' }}>
-            <Content style={{ padding: '0 24px', minHeight: 280, textAlign: 'center', height:'100%' }}>
-              <Spin size="large" style={{ margin: 'auto' }}/>
-            </Content>
-          </Layout>
-        </Content>
-          { footer }
-      </Layout>
-    </>
+  const loading = !dm.loaded && currentServer != '' && !dm.failed;
+  
+  let main_message = <div>Fill the url of your 3DB dashboard API</div>;
+  let menu = null;
+  
+  if(dm.failed) {
+    main_message = (
+    <Result
+      status="500"
+      title="Error loading the data"
+      subTitle="Are you sure the Url is correct and the API server is running ?"
+    />);
+  }
+  else if(dm.loaded) {
+    menu = (
+      <Menu style={{ display:'inline-block' }}theme="dark" mode="horizontal" defaultSelectedKeys={['details']}>
+        <Menu.Item key="home">Summary</Menu.Item>
+        <Menu.Item key="details">Detail view</Menu.Item>
+        <Menu.Item key="stratified">Analytics</Menu.Item>
+      </Menu>
+    );
+    main_message = <DetailView />;
+  }
+  else if (loading) {
+    main_message = <Spin size="large" style={{ margin: 'auto' }}/>;
   }
 
   return <>
-    <Layout>
+    <Layout style={{ height: '100%' }}>
       <Header className="header">
-        <div style={{display: 'inline-block', marginRight: '15px', color: 'white', fontWeight:'bold'}}>Synthetic-Sandbox</div>
-        <Menu style={{ display:'inline-block' }}theme="dark" mode="horizontal" defaultSelectedKeys={['details']}>
-          <Menu.Item key="home">Summary</Menu.Item>
-          <Menu.Item key="details">Detail view</Menu.Item>
-          <Menu.Item key="stratified">Analytics</Menu.Item>
-        </Menu>
+        <div style={{display: 'inline-block', marginRight: '15px', color: 'white', fontWeight:'bold'}}>3DB</div>
+        {menu}
         <div style={{position: 'absolute', right: '12px', top:0, color: 'white'}}>
-          <ServerSelector setServer={setServer} loading={!dm.loaded} startValue={currentServer}/>
+          <ServerSelector setServer={setServer} loading={loading} startValue={currentServer}/>
         </div>
       </Header>
-      <Content style={{ padding: '0 50px' }}>
-        <Layout className="site-layout-background" style={{ padding: '24px 0' }}>
-          <Content style={{ padding: '0 24px', minHeight: 280 }}>
-            <DetailView />
+      <Content style={{ padding: '0 50px', height: '100%' }}>
+        <Layout className="site-layout-background" style={{ padding: '24px 0', height: '100%' }}>
+          <Content style={{ padding: '0 24px', minHeight: 280, height:'100%' }}>
+            {main_message}
           </Content>
         </Layout>
       </Content>
-        { footer }
+        <Footer style={{ textAlign: 'center' }}>Madry Lab ©2020 </Footer>
     </Layout>
   </>
 })

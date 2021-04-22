@@ -3,12 +3,14 @@ import { range, sortedUniq } from 'lodash';
 
 class DataManager {
   loaded = false;
+  failed = false;
   currentUrl = null;
   data = {};
 
   constructor() {
     makeObservable(this, {
       loaded: observable,
+      failed: observable,
       currentUrl: observable,
       data: observable.ref,
       possibleValues: computed,
@@ -28,9 +30,11 @@ class DataManager {
     try {
       await new Promise(r => setTimeout(r, 2000));
       const request = await fetch(newUrl);
+      this.failed = false;
       this.setLoaded(await request.json());
     } catch(e) {
       console.log(e);
+      this.failed = true;
     }
   }
 
@@ -52,4 +56,4 @@ class DataManager {
   }
 }
 
-export default new DataManager();
+export default new DataManager;

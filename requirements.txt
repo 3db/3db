@@ -20,3 +20,4 @@ mathutils
 typeguard
 sphinx_rtd_theme
 pyyaml
+flask-compress
