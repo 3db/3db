@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 import numpy as np
 import torch as ch
-from torch.tensor import Tensor
+from torch import Tensor
 from torch.types import _dtype
 from torchvision import transforms
 from tqdm import tqdm
@@ -178,7 +178,7 @@ def load_inference_model(args):
 
     def resize(tens):
         return ch.nn.functional.interpolate(tens[None], size=args['resolution'], mode='bilinear')[0]
-    
+
     my_preprocess = transforms.Compose([
         resize,
         transforms.Normalize(mean=args['normalization']['mean'],

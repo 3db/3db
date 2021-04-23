@@ -11,7 +11,7 @@
 #module load mslurm
 
 #conda init zsh
-source ~/.zshrc
+# source ~/.zshrc
 #conda activate /mnt/nfs/home/aiilyas/conda_envs/sandbox-release
 
 echo chungus $CONDA_DEFAULT_ENV
