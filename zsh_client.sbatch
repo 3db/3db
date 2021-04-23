@@ -24,19 +24,17 @@ cd $FOLDER
 RANDOM_FILE="~/slurm/interproc/$(openssl rand -base64 12 | sed  's/[^a-z0-9A-Z]//g')"
 echo $RANDOM_FILE
 export PYTHONPATH=$(pwd)/synthetic-sandbox:$PYTHONPATH
-export SLURM_STEP_RESV_PORTS=5555
 export CIFAR_CLASS=cat
 export BLENDER_DATA=/mnt/nfs/home/datasets/3DB_models
 echo $SLURM_STEP_RESV_PORTS
 
-python -c "import torch; print(torch.__file__)"
 cd ~/src/synthetic-sandbox;
 
 srun --nodes=1 --cpus-per-task=1 --mem-per-cpu=5G --exclusive --ntasks=1 --resv-ports=1 zsh -c "
     echo \$(hostname):\$SLURM_STEP_RESV_PORTS > $RANDOM_FILE;
     ulimit -n 50000;
     cd $FOLDER;
-    echo $SLURM_STEP_RESV_PORTS;
+    echo \$SLURM_STEP_RESV_PORTS;
     echo $CIFAR_CLASS;
     echo $BLENDER_DATA;
     export PYTHONPATH=$FOLDER:\$PYTHONPATH;
@@ -58,7 +56,7 @@ for i in $(seq 3 $SLURM_NTASKS); do
         MASTER_URL=\$(cat $RANDOM_FILE);
         echo 'masterurl' \$MASTER_URL;
         export PYTHONPATH=$FOLDER:\$PYTHONPATH;
-        python threedb/client.py $BLENDER_DATA --master-address \$MASTER_URL;
+        blender --python-use-system-env -b -P threedb/client.py -- $BLENDER_DATA --master-address \$MASTER_URL 
     " &
 done
 echo "SPAWNED"
