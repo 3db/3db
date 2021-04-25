@@ -6,13 +6,12 @@ threedb.controls.blender.occlusion
 """
 
 from ...try_bpy import bpy
+from math import tan
 from typing import Any, Dict
 import numpy as np
-from os import path
-from glob import glob
-from threedb.controls.base_control import PreProcessControl
+from pathlib import Path
+from ..base_control import PreProcessControl
 from . import utils
-from bpy import context as C
 
 class OcclusionControl(PreProcessControl):
     """Control that adds an occlusion object infront of the
@@ -74,7 +73,7 @@ class OcclusionControl(PreProcessControl):
         Parameters
         ----------
         root_folder
-            The root folder where the ood_objects folder containing
+            The root folder where the `ood_objects` folder containing
             the possible occluders exist
         """
         continuous_dims = {
@@ -83,9 +82,13 @@ class OcclusionControl(PreProcessControl):
             "scale": (0.25, 1),
         }
 
-        occluders_paths = list(glob(path.join(root_folder, 'ood_objects', '*.blend')))
+        ood_folder = Path(root_folder) / 'ood_objects'
+        occluders_paths = list(ood_folder.glob('*.blend'))
+        print('ood_folder', ood_folder)
+        print('occluders_paths', occluders_paths)
+
         discrete_dims = {
-            "direction": list(range(len(DIRECTIONS))),
+            "direction": list(range(len(self.DIRECTIONS))),
             "occluder": list(range(len(occluders_paths)))
         }
         assert len(discrete_dims['occluder']) >= 1, 'No occluder objects found!'
@@ -109,8 +112,7 @@ class OcclusionControl(PreProcessControl):
             Shift along the Y-axis in the camera frame
             Takes a value between -1 and 1.
         """
-        from bpy import context as C
-        from math import tan
+        C = bpy.context
 
         aspect = C.scene.render.resolution_x / C.scene.render.resolution_y
 
@@ -169,6 +171,7 @@ class OcclusionControl(PreProcessControl):
         return (x_out, y_out)
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
+        C = bpy.context
         no_err, msg = self.check_arguments(control_args)
         assert no_err, msg       
 

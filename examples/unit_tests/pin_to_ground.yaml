@@ -9,7 +9,7 @@ controls:
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
 - module: threedb.controls.blender.pin_to_ground
-  z_ground:
+  z_ground: !!python/tuple
   - 0.0
   - 1.0
 logging:

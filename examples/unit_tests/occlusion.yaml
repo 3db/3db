@@ -19,14 +19,19 @@ controls:
   - 7
   module: threedb.controls.blender.occlusion
   occluder:
+  - 0
   - 1
-  occlusion_ratio:
+  - 2
+  - 3
+  - 4
+  - 5
+  occlusion_ratio: !!python/tuple
   - 0.1
   - 1.0
-  scale:
+  scale: !!python/tuple
   - 0.25
   - 1.0
-  zoom:
+  zoom: !!python/tuple
   - 0.1
   - 0.4
 logging:

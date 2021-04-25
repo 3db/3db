@@ -8,22 +8,16 @@ controls:
   view_point_z: 0.0
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
-- S:
+- S: &id001 !!python/tuple
   - 0
   - 1
-  V:
-  - 0
-  - 1
-  dir_x:
+  V: *id001
+  dir_x: &id002 !!python/tuple
   - -1
   - 1
-  dir_y:
-  - -1
-  - 1
-  dir_z:
-  - 0
-  - 1
-  distance:
+  dir_y: *id002
+  dir_z: *id001
+  distance: !!python/tuple
   - 5
   - 20
   intensity:

@@ -13,6 +13,9 @@ controls:
   module: threedb.controls.blender.imagenet_c
   severity:
   - 1
+  - 2
+  - 3
+  - 4
   - 5
 logging:
   logger_modules:

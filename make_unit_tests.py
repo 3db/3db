@@ -32,8 +32,8 @@ denoiser = {
 
 obj_loc_in_frame = {
     'module': 'threedb.controls.blender.obj_loc_in_frame',
-    'x_shift': [-1., 1.0],
-    'y_shift': [-1, 1.0]
+    'x_shift': (-1., 1.0),
+    'y_shift': (-1, 1.0)
 }
 
 chungus = None
@@ -44,75 +44,82 @@ control_to_yaml = {
     'no_denoiser': chungus,
     'background': {
         'module': 'threedb.controls.blender.background',
-        'H':[0., 1.],
-        'S':[0., 1.],
-        'V':[0., 1.]
+        'H':(0., 1.),
+        'S':(0., 1.),
+        'V':(0., 1.)
     },
     'camera': {
         'module': 'threedb.controls.blender.camera',
-        'view_point_x': [-1., 1.],
-        'view_point_y': [-1., 1.],
-        'view_point_z': [0., 1.],
-        'zoom_factor': [0.5, 2.],
-        'aperture': [1., 32.],
-        'focal_length': [10, 400]
+        'view_point_x': (-1., 1.),
+        'view_point_y': (-1., 1.),
+        'view_point_z': (0., 1.),
+        'zoom_factor': (0.5, 2.),
+        'aperture': (1., 32.),
+        'focal_length': (10, 400)
     },
     # ImportError: MagickWand shared library not found.
     # You probably had not installed ImageMagick library.
     # Try to install:
     #   apt-get install libmagickwand-dev
     # srun: error: deep-chungus-5: task 0: Exited with exit code 1
-    # 'imagenet_c': { # TODO: requires imagemagick
-    #     'module': 'threedb.controls.blender.imagenet_c',
-    #     'corruption_name': ['impulse_noise'],
-    #     'severity': [1, 5]
-    # },
-    # 'material': { # TODO
-    #     'module': 'threedb.controls.blender.material',
-    #     'replacement_material': []
-    # },
+    'imagenet_c': { # TODO: requires imagemagick
+        'module': 'threedb.controls.blender.imagenet_c',
+        'corruption_name': ['impulse_noise'],
+        'severity': [1, 2, 3, 4, 5]
+    },
+    'material': {
+        'module': 'threedb.controls.blender.material',
+        'replacement_material': [
+            'skin-crocodile.blend',
+            'skin-elephant.blend',
+            'skin-leopard.blend',
+            'skin-tiger.blend',
+            'skin-zebra.blend'
+        ]
+    },
     'occlusion': {
         'module': 'threedb.controls.blender.occlusion',
-        'occlusion_ratio': [0.1, 1.],
-        'zoom': [.1, .4],
-        'scale': [.25, 1.],
+        'occlusion_ratio': (0.1, 1.),
+        'zoom': (.1, .4),
+        'scale': (.25, 1.),
         'direction': [0, 1, 2, 3, 4, 5, 6, 7],
-        'occluder': [1]
+        'occluder': [0, 1, 2, 3, 4, 5]
     },
     'orientation': {
         'module': 'threedb.controls.blender.orientation',
-        'rotation_X': [-3.14, 3.14],
-        'rotation_Y': [-3.14, 3.14],
-        'rotation_Z': [-3.14, 3.14]
+        'rotation_X': (-3.14, 3.14),
+        'rotation_Y': (-3.14, 3.14),
+        'rotation_Z': (-3.14, 3.14)
     },
     'pin_to_ground': {
         'module': 'threedb.controls.blender.pin_to_ground',
-        'z_ground': [0., 1.]
+        'z_ground': (0., 1.)
     },
     'pointlight': {
         'module': 'threedb.controls.blender.pointlight',
-        'S': [0, 1],
-        'V': [0, 1],
+        'S': (0, 1),
+        'V': (0, 1),
         'intensity': [1000, 10000],
-        'distance': [5, 20],
-        'dir_x': [-1, 1],
-        'dir_y': [-1, 1],
-        'dir_z': [0, 1]
+        'distance': (5, 20),
+        'dir_x': (-1, 1),
+        'dir_y': (-1, 1),
+        'dir_z': (0, 1)
     },
     'position': {
         'module': 'threedb.controls.blender.position',
-        'offset_X': [-1., 1.],
-        'offset_Y': [-1., 1.],
-        'offset_Z': [-1., 1.]
+        'offset_X': (-1., 1.),
+        'offset_Y': (-1., 1.),
+        'offset_Z': (-1., 1.)
     },
     'position': {
         'module': 'threedb.controls.blender.position',
-        'offset_X': [-1., 1.],
-        'offset_Y': [-1., 1.],
-        'offset_Z': [-1., 1.]
+        'offset_X': (-1., 1.),
+        'offset_Y': (-1., 1.),
+        'offset_Z': (-1., 1.)
     },
     'scale': {
-        'factor': [0.25, 1.]
+        'module': 'threedb.controls.blender.scale',
+        'factor': (0.25, 1.)
     }
 }
 

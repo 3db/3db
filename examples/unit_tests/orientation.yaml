@@ -9,9 +9,11 @@ controls:
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
 - module: threedb.controls.blender.orientation
-  rotation_X: (-3.14, 3.14)
-  rotation_Y: (-3.14, 3.14)
-  rotation_Z: (-3.14, 3.14)
+  rotation_X: &id001 !!python/tuple
+  - -3.14
+  - 3.14
+  rotation_Y: *id001
+  rotation_Z: *id001
 logging:
   logger_modules:
   - threedb.result_logging.image_logger

@@ -9,15 +9,11 @@ controls:
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
 - module: threedb.controls.blender.position
-  offset_X:
+  offset_X: &id001 !!python/tuple
   - -1.0
   - 1.0
-  offset_Y:
-  - -1.0
-  - 1.0
-  offset_Z:
-  - -1.0
-  - 1.0
+  offset_Y: *id001
+  offset_Z: *id001
 logging:
   logger_modules:
   - threedb.result_logging.image_logger
