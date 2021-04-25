@@ -106,7 +106,7 @@ export default observer(() => {
           </Content>
         </Layout>
       </Content>
-        <Footer style={{ textAlign: 'center' }}>Madry Lab ©2020 </Footer>
+        <Footer style={{ textAlign: 'center' }}>3DB ©2021 </Footer>
     </Layout>
   </>
 })

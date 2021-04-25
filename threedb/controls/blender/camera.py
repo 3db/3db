@@ -100,8 +100,6 @@ class CameraControl(PreProcessControl):
         
         Varying focal length and aperture
 
-
-
     .. note::
         Since it is impossible to satisfy view_point, zoom and focal length, we
         do the following:

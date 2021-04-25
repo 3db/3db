@@ -16,7 +16,55 @@ class DenoiseControl(PreProcessControl):
     Note
     ----
     This control has no actual parameter but is a way to enable this
-    blender feature
+    blender feature. This control denoises renderings.
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/denoiser/images/image_1.png
+            :width: 100
+            :group: denoiser
+
+        .. thumbnail:: /_static/logs/denoiser/images/image_2.png
+            :width: 100
+            :group: denoiser
+
+        .. thumbnail:: /_static/logs/denoiser/images/image_3.png
+            :width: 100
+            :group: denoiser
+
+        .. thumbnail:: /_static/logs/denoiser/images/image_4.png
+            :width: 100
+            :group: denoiser
+
+        .. thumbnail:: /_static/logs/denoiser/images/image_5.png
+            :width: 100
+            :group: denoiser
+
+        With denoising.
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/no_denoiser/images/image_1.png
+            :width: 100
+            :group: no_denoiser
+
+        .. thumbnail:: /_static/logs/no_denoiser/images/image_2.png
+            :width: 100
+            :group: no_denoiser
+
+        .. thumbnail:: /_static/logs/no_denoiser/images/image_3.png
+            :width: 100
+            :group: no_denoiser
+
+        .. thumbnail:: /_static/logs/no_denoiser/images/image_4.png
+            :width: 100
+            :group: no_denoiser
+
+        .. thumbnail:: /_static/logs/no_denoiser/images/image_5.png
+            :width: 100
+            :group: no_denoiser
+
+        Without denoising.
     """
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:

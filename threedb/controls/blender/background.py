@@ -43,8 +43,7 @@ class BackgroundControl(PostProcessControl):
             :width: 100
             :group: background
         
-        Varying hue and saturation, with value fixed to 1
-
+        Varying all parameters across their ranges.
 
     .. warning::
 

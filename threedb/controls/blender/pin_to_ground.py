@@ -26,8 +26,31 @@ class PinToGroundControl(PreProcessControl):
         This control shall be used after the ``PositionControl`` and
         ``OrientationControl`` controls, i.e., move the object to a location
         of interest, then drag it to the ground under that location.
-    """
 
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/pin_to_ground/images/image_1.png
+            :width: 100
+            :group: pin_to_ground
+
+        .. thumbnail:: /_static/logs/pin_to_ground/images/image_2.png
+            :width: 100
+            :group: pin_to_ground
+
+        .. thumbnail:: /_static/logs/pin_to_ground/images/image_3.png
+            :width: 100
+            :group: pin_to_ground
+
+        .. thumbnail:: /_static/logs/pin_to_ground/images/image_4.png
+            :width: 100
+            :group: pin_to_ground
+
+        .. thumbnail:: /_static/logs/pin_to_ground/images/image_5.png
+            :width: 100
+            :group: pin_to_ground
+
+        Varying `z_ground` across its range.
+    """
 
     def __init__(self, root_folder: str):
         continuous_dims = {
@@ -57,4 +80,4 @@ class PinToGroundControl(PreProcessControl):
     def unapply(self, context):
         cleanup_translate_containers(context['object'])
 
-BlenderControl = PinToGroundControl
+Control = PinToGroundControl

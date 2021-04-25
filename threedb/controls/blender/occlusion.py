@@ -6,13 +6,12 @@ threedb.controls.blender.occlusion
 """
 
 from ...try_bpy import bpy
+from math import tan
 from typing import Any, Dict
 import numpy as np
-from os import path
-from glob import glob
-from threedb.controls.base_control import PreProcessControl
+from pathlib import Path
+from ..base_control import PreProcessControl
 from . import utils
-from bpy import context as C
 
 class OcclusionControl(PreProcessControl):
     """Control that adds an occlusion object infront of the
@@ -37,9 +36,32 @@ class OcclusionControl(PreProcessControl):
 
     .. note::
 
-        The possible occluders are all the `.blend` files found in
-        ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
+    The possible occluders are all the `.blend` files found in
+    ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
 
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_1.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_2.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_3.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_4.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_5.png
+            :width: 100
+            :group: occlusion
+
+        Varying all the parameters.
     """
     DIRECTIONS = [( 1, -1), ( 1, 0), ( 1, 1),
                   ( 0, -1),          ( 0, 1),
@@ -51,7 +73,7 @@ class OcclusionControl(PreProcessControl):
         Parameters
         ----------
         root_folder
-            The root folder where the ood_objects folder containing
+            The root folder where the `ood_objects` folder containing
             the possible occluders exist
         """
         continuous_dims = {
@@ -60,9 +82,13 @@ class OcclusionControl(PreProcessControl):
             "scale": (0.25, 1),
         }
 
-        occluders_paths = list(glob(path.join(root_folder, 'ood_objects', '*.blend')))
+        ood_folder = Path(root_folder) / 'ood_objects'
+        occluders_paths = list(ood_folder.glob('*.blend'))
+        print('ood_folder', ood_folder)
+        print('occluders_paths', occluders_paths)
+
         discrete_dims = {
-            "direction": list(range(len(DIRECTIONS))),
+            "direction": list(range(len(self.DIRECTIONS))),
             "occluder": list(range(len(occluders_paths)))
         }
         assert len(discrete_dims['occluder']) >= 1, 'No occluder objects found!'
@@ -86,8 +112,7 @@ class OcclusionControl(PreProcessControl):
             Shift along the Y-axis in the camera frame
             Takes a value between -1 and 1.
         """
-        from bpy import context as C
-        from math import tan
+        C = bpy.context
 
         aspect = C.scene.render.resolution_x / C.scene.render.resolution_y
 
@@ -146,6 +171,7 @@ class OcclusionControl(PreProcessControl):
         return (x_out, y_out)
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
+        C = bpy.context
         no_err, msg = self.check_arguments(control_args)
         assert no_err, msg       
 
@@ -179,4 +205,4 @@ class OcclusionControl(PreProcessControl):
         """
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
-BlenderControl = OcclusionControl
+Control = OcclusionControl

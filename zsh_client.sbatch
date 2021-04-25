@@ -48,7 +48,7 @@ master_pid=$!
 echo 'Now I am here'
 for i in $(seq 3 $SLURM_NTASKS); do
     echo $i
-    srun --nodes=1 --mem-per-cpu=1G --exclusive --ntasks=1 --cpus-per-task=1 bash -c "
+    srun --nodes=1 --mem-per-cpu=1G --exclusive --ntasks=1 --cpus-per-task=1 zsh -c "
         cd $FOLDER;
         while [ ! -f $RANDOM_FILE ]; do sleep 1; echo 'waiting for $RANDOM_FILE'; done
         echo 'done waiting';
