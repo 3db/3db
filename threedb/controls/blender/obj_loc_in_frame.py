@@ -29,6 +29,29 @@ class ObjLocInFrameControl(PreProcessControl):
         Setting x_shift and y_shift to zeros keeps the object in the
         middle of the frame.
     
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/obj_loc_in_frame/images/image_1.png
+            :width: 100
+            :group: obj_loc_in_frame
+
+        .. thumbnail:: /_static/logs/obj_loc_in_frame/images/image_2.png
+            :width: 100
+            :group: obj_loc_in_frame
+
+        .. thumbnail:: /_static/logs/obj_loc_in_frame/images/image_3.png
+            :width: 100
+            :group: obj_loc_in_frame
+
+        .. thumbnail:: /_static/logs/obj_loc_in_frame/images/image_4.png
+            :width: 100
+            :group: obj_loc_in_frame
+
+        .. thumbnail:: /_static/logs/obj_loc_in_frame/images/image_5.png
+            :width: 100
+            :group: obj_loc_in_frame
+
+        Varying all the parameters.
     
     """
     def __init__(self, root_folder: str):

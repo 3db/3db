@@ -1,9 +1,23 @@
 base_config: base.yaml
 controls:
-  - module: "threedb.controls.blender.background"
-    H: (0., 1.)
-    S: (0.2, 1.)
-    V: 1
+- aperture: 5.0
+  focal_length: 100.0
+  module: threedb.controls.blender.camera
+  view_point_x: 0.0
+  view_point_y: 0.0
+  view_point_z: 0.0
+  zoom_factor: 1
+- module: threedb.controls.blender.denoiser
+- H:
+  - 0.0
+  - 1.0
+  S:
+  - 0.0
+  - 1.0
+  V:
+  - 0.0
+  - 1.0
+  module: threedb.controls.blender.background
 logging:
   logger_modules:
-    - "threedb.result_logging.image_logger"
+  - threedb.result_logging.image_logger

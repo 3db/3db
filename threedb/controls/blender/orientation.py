@@ -22,6 +22,30 @@ class OrientationControl(PreProcessControl):
     - rotation_X: The X component of the Eulerian rotation (range: [-pi, pi])
     - rotation_Y: The Y component of the Eulerian rotation (range: [-pi, pi])
     - rotation_Z: The Z component of the Eulerian rotation (range: [-pi, pi])
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/orientation/images/image_1.png
+            :width: 100
+            :group: orientation
+
+        .. thumbnail:: /_static/logs/orientation/images/image_2.png
+            :width: 100
+            :group: orientation
+
+        .. thumbnail:: /_static/logs/orientation/images/image_3.png
+            :width: 100
+            :group: orientation
+
+        .. thumbnail:: /_static/logs/orientation/images/image_4.png
+            :width: 100
+            :group: orientation
+
+        .. thumbnail:: /_static/logs/orientation/images/image_5.png
+            :width: 100
+            :group: orientation
+
+        Varying the orientation across all parameters.
     """
     def __init__(self, root_folder: str):
         continuous_dims = {

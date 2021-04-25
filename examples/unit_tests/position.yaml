@@ -8,12 +8,16 @@ controls:
   view_point_z: 0.0
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
-- corruption_name:
-  - impulse_noise
-  module: threedb.controls.blender.imagenet_c
-  severity:
-  - 1
-  - 5
+- module: threedb.controls.blender.position
+  offset_X:
+  - -1.0
+  - 1.0
+  offset_Y:
+  - -1.0
+  - 1.0
+  offset_Z:
+  - -1.0
+  - 1.0
 logging:
   logger_modules:
   - threedb.result_logging.image_logger

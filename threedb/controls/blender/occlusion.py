@@ -37,9 +37,32 @@ class OcclusionControl(PreProcessControl):
 
     .. note::
 
-        The possible occluders are all the `.blend` files found in
-        ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
+    The possible occluders are all the `.blend` files found in
+    ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
 
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_1.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_2.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_3.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_4.png
+            :width: 100
+            :group: occlusion
+
+        .. thumbnail:: /_static/logs/occlusion/images/image_5.png
+            :width: 100
+            :group: occlusion
+
+        Varying all the parameters.
     """
     DIRECTIONS = [( 1, -1), ( 1, 0), ( 1, 1),
                   ( 0, -1),          ( 0, 1),
@@ -179,4 +202,4 @@ class OcclusionControl(PreProcessControl):
         """
         bpy.ops.object.delete({"selected_objects": [self.occluder]})
 
-BlenderControl = OcclusionControl
+Control = OcclusionControl
