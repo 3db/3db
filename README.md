@@ -1,4 +1,4 @@
-# 3DeBugger: A framework for analyzing computer vision models with simulated data
+# 3DB: A framework for analyzing computer vision models with simulated data
 
 ## Citation
 
