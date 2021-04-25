@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Progress, Result, Image, List, Card, Slider, Collapse, Radio, Tooltip, Table, Tag, Space } from 'antd';
+import { Progress, Result, Slider, Collapse, Radio, Tooltip, Table, Select} from 'antd';
 import { ShrinkOutlined, AreaChartOutlined, SlidersOutlined } from '@ant-design/icons';
 import { observable, action, makeObservable, computed } from 'mobx';
 import { observer } from "mobx-react"
 import { range, every, uniq, xor, min, max, forEach } from 'lodash';
 const { Column, ColumnGroup } = Table;
 const { Panel } = Collapse;
+const { Option } = Select;
 
 import dm from '../models/DataManager';
 import State from '../models/State';
@@ -77,20 +78,28 @@ const SliderControl = observer(({ record, currentState }) => {
   const all_values = dm.possibleValues[ix]
   const max_value = max(all_values);
   const min_value = min(all_values);
-  const marks = Object.fromEntries(all_values.map(x => [x, '']))
+  if (isNaN(max_value)) {
+    return <Select value={currentState.sliderValues[key]} onChange={action((x) => {
+      currentState.sliderValues[key] = x
+    })}>
+      {all_values.map(x => <Option key={x} value={x}>{x}</Option>)}
+    </Select>
+  } else {
+    const marks = Object.fromEntries(all_values.map(x => [x, '']))
 
 
-  return <Slider value={currentState.sliderValues[key]}
-    marks={marks} step={null} min={min_value} max={max_value}
-    onChange={action((x) => {
-      currentState.sliderValues[key] = x;
-  })}/>
+    return <Slider value={currentState.sliderValues[key]}
+      marks={marks} step={null} min={min_value} max={max_value}
+      onChange={action((x) => {
+        currentState.sliderValues[key] = x;
+    })}/>
+  }
 });
 
 const RenderControls = ({ currentState }) => {
 
   const dd = dm.data;
-  const parameters = dm.data.parameters;
+  const parameters = dm.data.parameters.filter(key => key.startsWith('render_args') || key === 'model' || key === 'environment')
   const pre_result = {}
 
   const all_controls = Object.values(parameters).filter(key => {
@@ -101,7 +110,11 @@ const RenderControls = ({ currentState }) => {
 
 
   for (const parameter of all_controls) {
-    const [control_name, param_name] = parameter.split('.')
+    const [control_name, param_name] = parameter.replace('render_args.', '').split('.')
+    if (control_name === 'model' || control_name === 'environment') {
+      param_name = control_name;
+      control_name = "Scene"
+    }
     if (typeof(pre_result[control_name]) === 'undefined') {
       pre_result[control_name] = {
         key: control_name,

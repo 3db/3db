@@ -1,5 +1,5 @@
 import { computed, action, makeObservable, observable } from 'mobx';
-import { range, sortedUniq } from 'lodash';
+import { range, uniq } from 'lodash';
 
 class DataManager {
   loaded = false;
@@ -48,7 +48,7 @@ class DataManager {
     const result = [];
 
     for (const i of range(n)) {
-      const all_values = sortedUniq(this.data.data.map(x => x[i]));
+      const all_values = uniq(this.data.data.map(x => x[i]));
       result.push(all_values);
     }
 
@@ -57,3 +57,4 @@ class DataManager {
 }
 
 export default new DataManager;
+;
