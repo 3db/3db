@@ -70,6 +70,7 @@ class OrientationControl(PreProcessControl):
         assert no_err, msg
 
         obj = context['object']
+        obj.rotation_mode = 'XYZ'
         obj.rotation_euler = (control_args['rotation_X'],
                               control_args['rotation_Y'],
                               control_args['rotation_Z'])
