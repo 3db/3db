@@ -4,17 +4,6 @@ Extending 3DB
 We will now outline the different ways in which 3DB can be modified and extended
 to capture a large set of use cases. 
 
-Guides
-------
-
-.. toctree::
-   :maxdepth: 2
-
-   custom_evaluator
-   custom_logger
-   custom_renderer
-   custom_controls
-
 
 The 3DB Workflow
 ----------------
@@ -100,3 +89,14 @@ the previously mentioned modules can be substituted for a user-defined module,
 as long as the correct functions are implemented. In the guides below, we'll
 walk through the implementation and usage of custom renderers, evaluators,
 loggers, inference modules, and controls:
+
+Guides
+------
+
+.. toctree::
+   :maxdepth: 2
+
+   custom_evaluator
+   custom_logger
+   custom_renderer
+   custom_controls

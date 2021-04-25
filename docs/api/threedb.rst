@@ -23,4 +23,5 @@ threedb package
 
    threedb.client
    threedb.main
+   threedb.try_bpy
    threedb.utils
