@@ -9,6 +9,7 @@ connect to in order to pull the relevant data
 import argparse
 from os import path
 
+import webbrowser
 from flask import Flask, Response
 from flask_cors import CORS
 from flask import send_from_directory
@@ -20,6 +21,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='3DB dashboard API')
     parser.add_argument('--port', '-p', type=int, default=8001,
                         help="The port this api will serve on")
+
+    parser.add_argument('--no-browser', '-n', action='store_true',
+                        help='Do not spawn a browser with the front-end')
     parser.add_argument('logdir', type=str,
                         help='where to find the log information')
 
@@ -41,4 +45,7 @@ if __name__ == '__main__':
         reader.update_data()
         return Response(reader.answer, mimetype='application/json')
 
-    app.run(host='0.0.0.0', port=args.port, debug=True)
+
+    if not args.no_browser:
+        webbrowser.open(f'https://3db.github.io/dashboard/?url=127.0.0.1:{args.port}', new=2)
+    app.run(host='0.0.0.0', port=args.port, debug=False)
