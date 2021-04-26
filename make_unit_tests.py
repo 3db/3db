@@ -57,11 +57,6 @@ control_to_yaml = {
         'aperture': (1., 32.),
         'focal_length': (10, 400)
     },
-    # ImportError: MagickWand shared library not found.
-    # You probably had not installed ImageMagick library.
-    # Try to install:
-    #   apt-get install libmagickwand-dev
-    # srun: error: deep-chungus-5: task 0: Exited with exit code 1
     'imagenet_c': { # TODO: requires imagemagick
         'module': 'threedb.controls.blender.imagenet_c',
         'corruption_name': ['impulse_noise'],
@@ -74,7 +69,7 @@ control_to_yaml = {
             'skin-elephant.blend',
             'skin-leopard.blend',
             'skin-tiger.blend',
-            'skin-zebra.blend'
+            'keep_original'
         ]
     },
     'occlusion': {
@@ -151,7 +146,7 @@ def client_maker(name):
             l = l.replace('job-name=sandbox', f'job-name={name}')
 
         new_lines.append(l)
-    
+
     sbatch_fp = f'/tmp/synthetic_sbox_{name}'
     with open(sbatch_fp, 'w+') as f:
         f.write(''.join(new_lines))

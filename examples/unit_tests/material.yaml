@@ -14,7 +14,7 @@ controls:
   - skin-elephant.blend
   - skin-leopard.blend
   - skin-tiger.blend
-  - skin-zebra.blend
+  - keep_original
 logging:
   logger_modules:
   - threedb.result_logging.image_logger
