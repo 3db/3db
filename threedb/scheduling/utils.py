@@ -5,7 +5,7 @@ Scheduling utils
 [TODO]
 """
 
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 import zmq
 import numpy as np
 import torch as ch
@@ -22,7 +22,7 @@ def recv_array(socket, flags=0, copy=True, track=False):
     return A
 
 def recv_into_buffer(socket: zmq.Socket, 
-            cyclic_buffer: BigChungusCyclicBuffer) -> Dict[str, Any]:
+            cyclic_buffer: CyclicBuffer) -> Dict[str, Any]:
     main_message: Dict[str, Any] = socket.recv_json()
 
     if cyclic_buffer.initialized and ('result_keys' in main_message):

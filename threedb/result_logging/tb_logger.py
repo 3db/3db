@@ -8,7 +8,7 @@ threedb.result_logging.tb_logger
 import pandas as pd
 
 from threedb.result_logging.base_logger import BaseLogger
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 from torch.utils.tensorboard import SummaryWriter
 
 class TbLogger(BaseLogger):
@@ -17,7 +17,7 @@ class TbLogger(BaseLogger):
 
     Logs accuracy (as a scalar) and all generated images to TensorBoard.
     """
-    def __init__(self, tb_dir: str, result_buffer: BigChungusCyclicBuffer, _) -> None:
+    def __init__(self, tb_dir: str, result_buffer: CyclicBuffer, _) -> None:
         super().__init__(tb_dir, result_buffer, None)
         self.tb_dir = tb_dir
         print(f'==> [Logging tensorboard to {tb_dir}]')

@@ -32,7 +32,7 @@ from threedb.scheduling.base_scheduler import Scheduler
 from threedb.rendering.base_renderer import BaseRenderer
 from threedb.scheduling.policy_controller import PolicyController
 from threedb.scheduling.search_space import SearchSpace
-from threedb.utils import BigChungusCyclicBuffer, init_control
+from threedb.utils import CyclicBuffer, init_control
 from typing import Dict, List, Any, Optional
 
 parser = argparse.ArgumentParser(
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     continuous_dim, discrete_sizes = search_space.generate_description()
 
     # Initialize the results buffer and register a single process
-    result_buffer: BigChungusCyclicBuffer = BigChungusCyclicBuffer()
+    result_buffer: CyclicBuffer = CyclicBuffer()
     policy_regid = result_buffer.register()  # Register a single policy for each output
     assert policy_regid == 1
 

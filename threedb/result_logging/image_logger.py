@@ -13,7 +13,7 @@ import cv2
 import numpy as np
 from threedb.rendering.base_renderer import BaseRenderer
 from threedb.result_logging.base_logger import BaseLogger
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 
 class ImageLogger(BaseLogger):
     """
@@ -30,7 +30,7 @@ class ImageLogger(BaseLogger):
 
     def __init__(self,
                  save_dir: str,
-                 result_buffer: BigChungusCyclicBuffer,
+                 result_buffer: CyclicBuffer,
                  config: Dict[str, Any]) -> None:
         """Initializes an ImageLogger
 
@@ -39,7 +39,7 @@ class ImageLogger(BaseLogger):
         save_dir : str
             Parent directory in which the images will be saved (in an
             ``images/`` subdirectory)
-        result_buffer : BigChungusCyclicBuffer
+        result_buffer : CyclicBuffer
             The buffer that is being written to by the policy controller
             containing all the results
         config : Dict[str, Any]
