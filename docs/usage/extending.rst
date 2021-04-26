@@ -22,12 +22,12 @@ The 3DB Workflow
 3DB is designed to be extended without needing any modifications to the source
 codebase itself (and thus, it is fully extendable even when installed as a
 module). In particular, one can extend 3DB by replacing one or more of the modules
-with custom subclasses. The guides linked below illustrate how to do this, but
+with custom subclasses. The guides linked above illustrate how to do this, but
 first it will be useful to briefly describe the structure of 3DB and the role
 that each module plays. 
 
 3DB is structured as a client-server application: the server loads the
-`configuration file <TODO>`_, and uses it to load the 3D models, the
+`configuration file <quickstart.html#writing-a-configuration-file>`_, and uses it to load the 3D models, the
 environments, and the search space. From then on, the responsibility of the
 server is to send jobs to the client, receive the corresponding results, save
 them in a buffer, and then (concurrently on a separate process) log results from
@@ -39,7 +39,7 @@ modularized as follows:
 
 While the server side of 3DB *is* modularizable, users should seldom have to
 customize anything other than the search strategy (which we show how to do
-`here <TODO>`_) and the loggers (shown `here <TODO>`_). The other components,
+`here <TODO>`_) and the loggers (shown `here <custom_logger.html>`_). The other components,
 e.g., the scheduler, policy controller, and buffer are already rather general
 and should capture the vast majority of use cases.
 
@@ -62,12 +62,12 @@ Step 2: Client renders and applies controls
 
 These parameters are passed to the rendering module, along with the rendering
 parameters from the config file. The default renderer is Blender, but as shown
-in [TODO], users can implement their own rendering module, as long as it
-provides concrete implementations of a few simple `abstract functions <TODO>`_.
+`here <custom_renderer.html>`_, users can implement their own rendering module,
+as long as it provides concrete implementations of a few simple abstract functions.
 The renderer outputs a list of renderings (both a standard RGB render as well as
 any others that were requested, such as a UV map or segmentation map).
 
-As part of step 2, the renderer applies a set of "controls," structured scene
+As part of step 2, the renderer applies a set of "controls," or structured scene
 transformations.
 
 Step 3: Client predicts and evaluates
@@ -83,7 +83,8 @@ evaluator is responsible for two tasks: (a) converting the output of the
 inference model to a tensor, and (b) computing the desired performance metrics
 for the inference model (e.g., correctness, loss, etc.). 3DB provides evaluators
 for both classification and object detection; for other modalities or tasks,
-users will have to customize the evaluation model as illustrated `here <TODO>`_.
+users will have to customize the evaluation model as illustrated
+`here <custom_evaluator.html>`_.
 
 Step 4: Results sent back to server
 '''''''''''''''''''''''''''''''''''
@@ -95,7 +96,8 @@ server, where they are logged.
 Customization
 ''''''''''''''
 
-As mentioned in the section on `setting up a configuration file <TODO>`_, any of
+As mentioned in the section on `setting up a configuration file
+<quickstart.html#writing-a-configuration-file>`_, any of
 the previously mentioned modules can be substituted for a user-defined module,
 as long as the correct functions are implemented. In the guides below, we'll
 walk through the implementation and usage of custom renderers, evaluators,
