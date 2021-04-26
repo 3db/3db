@@ -12,12 +12,12 @@ inference:
 evaluation:
   module: 'threedb.evaluators.classification'
   args:
-    classmap_path: './resources/uid_to_IN.json'
+    classmap_path: './resources/ycb_to_IN.json'
     topk: 1
 render_args:
   engine: 'threedb.rendering.render_blender'
   resolution: 256
-  samples: 16
+  samples: 32
 policy:
   module: "threedb.policies.random_search"
   samples: 5

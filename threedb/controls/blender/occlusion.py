@@ -20,10 +20,10 @@ class OcclusionControl(PreProcessControl):
     Continuous Dimensions:
 
     - occlusion_ratio: Ratio of the occluded part of the object of interest.
-      (range: [0.1, 1.0])
-    - zoom: How far the occluder is from the object of interest. (range: [0.1,
+      (range: [0.01, .8])
+    - zoom: How far the occluder is from the object of interest. (range: [0.01,
       0.4])
-    - scale: Scale factor of the occlusion object. (range: [0.25, 1.0])
+    - scale: Scale factor of the occlusion object. (range: [0.01, 1.0])
 
     Discrete Dimensions:
 
@@ -77,9 +77,9 @@ class OcclusionControl(PreProcessControl):
             the possible occluders exist
         """
         continuous_dims = {
-            "occlusion_ratio": (0.1, 0.8),
-            "zoom": (0.1, 0.4),
-            "scale": (0.25, 1),
+            "occlusion_ratio": (0.01, 0.8),
+            "zoom": (0.01, 0.4),
+            "scale": (0.01, 1),
         }
 
         ood_folder = Path(root_folder) / 'ood_objects'

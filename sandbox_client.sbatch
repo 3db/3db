@@ -25,7 +25,6 @@ RANDOM_FILE="$HOME/slurm/interproc/$(openssl rand -base64 12 | sed  's/[^a-z0-9A
 echo $RANDOM_FILE
 export PYTHONPATH=$(pwd)/synthetic-sandbox:$PYTHONPATH
 export CIFAR_CLASS=cat
-export BLENDER_DATA=/mnt/nfs/home/datasets/3DB_models
 srun --nodes=1 --cpus-per-task=1 --mem-per-cpu=5G --exclusive --ntasks=1 --resv-ports=1 bash -c "
     echo \$(hostname):\$SLURM_STEP_RESV_PORTS > $RANDOM_FILE;
     ulimit -n 50000;

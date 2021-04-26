@@ -6,8 +6,8 @@ controls:
 - direction: [0, 1, 2, 3, 4, 5, 6, 7]
   module: threedb.controls.blender.occlusion
   occluder: [0, 1, 2, 3]
-  occlusion_ratio: [0.1, 0.3]
-  scale: [0.25, 1.0]
+  occlusion_ratio: [0.0, 0.3]
+  scale: [0.01, 0.02]
   zoom: [0.1, 0.4]
 logging:
   logger_modules: [threedb.result_logging.image_logger]
