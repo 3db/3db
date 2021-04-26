@@ -27,7 +27,7 @@ controls:
   - 5
   occlusion_ratio: !!python/tuple
   - 0.1
-  - 1.0
+  - 0.8
   scale: !!python/tuple
   - 0.25
   - 1.0

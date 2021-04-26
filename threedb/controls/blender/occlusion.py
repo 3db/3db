@@ -77,7 +77,7 @@ class OcclusionControl(PreProcessControl):
             the possible occluders exist
         """
         continuous_dims = {
-            "occlusion_ratio": (0.1, 1.0),
+            "occlusion_ratio": (0.1, 0.8),
             "zoom": (0.1, 0.4),
             "scale": (0.25, 1),
         }
@@ -178,7 +178,7 @@ class OcclusionControl(PreProcessControl):
         ob = context["object"]
         occluder = utils.load_model(self.occluder_paths[control_args['occluder']])
         self.occluder = C.scene.objects[occluder]
-        self.occluder.location = ob.location + control_args['zoom'] * (C.scene.camera.location - ob.location)
+        self.occluder.location = ob.location + float(control_args['zoom']) * (C.scene.camera.location - ob.location)
 
         bb = utils.camera_view_bounds_2d(C.scene, C.scene.camera, ob)
         bb_occ = utils.camera_view_bounds_2d(C.scene, C.scene.camera, self.occluder)
