@@ -122,5 +122,5 @@ model, and returning
 
 By default, 3DB provides default evaluators for both classification and object
 detection models: different modalities/tasks (e.g., segmentation or regression)
-will require implementation of a [TODO] custom evaluator, which we outline in
-the `Customizing 3DB <TODO>`_ section of the documentation.
+will require implementation of a custom evaluator, which we outline in
+the `Customizing 3DB <custom_evaluator.html>`_ section of the documentation.
