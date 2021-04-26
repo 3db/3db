@@ -139,8 +139,9 @@ class BaseControl(ABC):
             return False, 'Keys in control arguments do not match declared keys'
         if not all(isinstance(control_args[k], float) or isinstance(control_args[k], int) for k in self.continuous_dims):
             return False, 'Some continuous arguments are not of type float'
-        if not all(control_args[k] in v for (k, v) in self.discrete_dims.items()):
-            return False, 'Some discrete arguments do not match a declared valid value'
+        for k, v in self.discrete_dims.items():
+            if not control_args[k] in v:
+                return False, f'Argument {k} ({control_args[k]}) not in valid set: {v}'
         return True, ''
 
 class PostProcessControl(BaseControl, ABC):

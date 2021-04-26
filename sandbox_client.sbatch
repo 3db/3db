@@ -5,31 +5,29 @@
 #SBATCH --cpus-per-task=2                    # How many jobs
 #SBATCH --mem-per-cpu=5G                    # How many jobs
 #SBATCH --output=/mnt/nfs/home/aiilyas/slurm/logs/master_log.log
+#SBATCH --nodelist=deep-gpu-10,deep-gpu-11
 
 set -e
-. /mnt/nfs/modules/Modules/init/bash
-source ~/.bashrc
+# . /mnt/nfs/modules/Modules/init/bash
+# source ~/.bashrc
 
-module load conda
-module load mslurm
-module load blender
+# module load conda
+# module load mslurm
+# module load blender
+# conda init bash
+# conda activate /mnt/nfs/home/aiilyas/conda_envs/sandbox-release
 
-conda init bash
-conda activate /mnt/nfs/home/aiilyas/conda_envs/sandbox-release
+# FOLDER="$HOME/synthetic-sandbox"
 
-FOLDER="$HOME/synthetic-sandbox"
-
-cd $FOLDER
+# cd $FOLDER
 # file where we will put the hostname and port of master
 RANDOM_FILE="$HOME/slurm/interproc/$(openssl rand -base64 12 | sed  's/[^a-z0-9A-Z]//g')"
 echo $RANDOM_FILE
 export PYTHONPATH=$(pwd)/synthetic-sandbox:$PYTHONPATH
 export CIFAR_CLASS=cat
-export BLENDER_DATA=/mnt/nfs/home/datasets/3DB_models
 srun --nodes=1 --cpus-per-task=1 --mem-per-cpu=5G --exclusive --ntasks=1 --resv-ports=1 bash -c "
     echo \$(hostname):\$SLURM_STEP_RESV_PORTS > $RANDOM_FILE;
     ulimit -n 50000;
-    cd $FOLDER;
     export PYTHONPATH=$FOLDER:\$PYTHONPATH;
     echo $BLENDER_DATA $YAML_CONFIG $OUTPUT_FOLDER \$SLURM_STEP_RESV_PORTS;
     python threedb/main.py $BLENDER_DATA $YAML_CONFIG $OUTPUT_FOLDER \$SLURM_STEP_RESV_PORTS --single-model;
@@ -42,7 +40,6 @@ echo 'Now I am here'
 for i in $(seq 3 $SLURM_NTASKS); do
     echo $i
     srun --nodes=1 --mem-per-cpu=1G --exclusive --ntasks=1 --cpus-per-task=1 bash -c "
-        cd $FOLDER;
         while [ ! -f $RANDOM_FILE ]; do sleep 1; echo 'waiting for $RANDOM_FILE'; done
         echo 'done waiting';
         sleep 20; # Gives a bit of time to the master to start
