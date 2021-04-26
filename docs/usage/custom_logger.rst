@@ -1,8 +1,6 @@
 Creating a Custom Logger
 ========================
 
-:doc:`api/threedb.result_logging.html`
-
 3DB can generate huge amounts of data. In most cases, it would be impractical
 to store all of it. Moreover, it would be hard to come up with a data format
 that suits all users. To solve that challenge, we introduce the concept of loggers.
@@ -13,7 +11,7 @@ library with a set of Loggers (TODO LINK to API), we want it to be easy for
 users to define their own.
 
 To illustrate how to create a custom logger we will go through the whole process
-and implement ``CSVLogger`` a logger that outputs basic informations about a render
+and implement ``CSVLogger``, a logger that outputs basic informations about a render
 to a CSV file.
 
 Implementation
@@ -29,7 +27,7 @@ First we have to subclass the provided base class: :class:`threedb.result_loggin
         pass
 
 In order to make this a valid logger, we need to provide implementations of two
-abstract functions: ``__init__``, and ``log()``. The former 
+abstract functions: ``__init__``, and ``log()``. 
 
 .. code-block:: python
 
@@ -37,7 +35,7 @@ abstract functions: ``__init__``, and ``log()``. The former
         super().__init__(root_dir, result_buffer, config)
         fname = path.join(root_dir, 'details.csv')  # Where we will store the data
         self.handle = open(fname, 'w')  # Opening the file
-        self.regid = self.buffer.register()  # Obtain a unique logger id (see note)
+        self.regid = self.buffer.register()  # Obtain a unique logger id (see Note below)
         self.first = True
 
 Next, we need to implement the ``log()`` function, which is called whenever a
@@ -50,9 +48,9 @@ new result is available to log.
             self.handle.close()  # We close the file handle when there is nothing left to log
 
         # The item argument will contain all information about the job that we are logging
-        # and the key 'result_ix' which tells us where in the buffer is located the
-        # data for the results
-        # To access the results themselves we simply have to index the buffer with this index
+        # and the key 'result_ix', which tells us where in the buffer the data for the
+        # results is located.
+        # To access the results themselves we simply have to index the buffer with this index.
         rix = item['result_ix']  # Getting the index
         buffer_data = self.buffer[rix]  # Getting the result information
 
@@ -71,6 +69,7 @@ which object to load from the module. By convention we ask that logger modules e
 field. So we simply have to add:
 
 .. code-block:: python
+
     Logger = CSVLogger
 
 Our custom logger is now fully functional.
@@ -78,14 +77,14 @@ Our custom logger is now fully functional.
 .. note::
 
     To ensure that they do not perturb and/or slow down the scheduler, each logger
-    is running in a separate python process. But because the amount of data generated
-    is substantial, we found that transmitting the data from the scheduler to
+    runs in a separate python process. But, because the amount of data generated
+    is substantial, we found that transmitting the data from the scheduler to the
     Logger classes was a major bottleneck. As a result, we decided to use
-    shared memory instead. The scheduler place the information in a buffer and passes
-    a reference instead. Because we enventually need to release the memory used for a result,
+    shared memory instead. The scheduler places the information in a buffer and passes
+    a reference instead. Because we eventually need to release the memory used for a result,
     we maintain a reference counter for each entry in the buffer in shared memory.
 
-    To be able to keep track of Loggers, they have to request a unique identifier to the
+    To be able to keep track of Loggers, they have to request a unique identifier from the
     ``BigChungusCyclicBuffer``. Moreover, they have to notify the buffer when they are
     done reading the information from the buffer using ``free()``. This way the scheduler
     will reuse the memory for an upcoming render. Failure to do so will result in the
