@@ -10,10 +10,10 @@ Guides
 .. toctree::
    :maxdepth: 2
 
+   custom_controls
    custom_evaluator
    custom_logger
    custom_renderer
-   custom_controls
 
 
 The 3DB Workflow
@@ -68,7 +68,8 @@ The renderer outputs a list of renderings (both a standard RGB render as well as
 any others that were requested, such as a UV map or segmentation map).
 
 As part of step 2, the renderer applies a set of "controls," or structured scene
-transformations.
+transformations. Users can also implement their own controls, as shown
+`here <custom_controls.html>`_.
 
 Step 3: Client predicts and evaluates
 ''''''''''''''''''''''''''''''''''''''
