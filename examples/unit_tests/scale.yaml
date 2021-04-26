@@ -8,7 +8,7 @@ controls:
   view_point_z: 0.0
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
-- factor: !!python/tuple
+- factor:
   - 0.25
   - 1.0
   module: threedb.controls.blender.scale

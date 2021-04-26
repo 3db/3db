@@ -3,6 +3,9 @@ import shutil
 from pathlib import Path
 import copy
 import functools
+from ruamel.yaml import YAML
+
+ryaml = YAML()
 
 zsh = functools.partial(subprocess.call, shell=True, executable='/usr/bin/zsh')
 
@@ -74,11 +77,11 @@ control_to_yaml = {
     },
     'occlusion': {
         'module': 'threedb.controls.blender.occlusion',
-        'occlusion_ratio': (0.1, 1.),
+        'occlusion_ratio': (0.1, 0.3),
         'zoom': (.1, .4),
         'scale': (.25, 1.),
         'direction': [0, 1, 2, 3, 4, 5, 6, 7],
-        'occluder': [0, 1, 2, 3, 4, 5]
+        'occluder': [0, 1, 2, 3]
     },
     'orientation': {
         'module': 'threedb.controls.blender.orientation',
@@ -117,6 +120,19 @@ control_to_yaml = {
         'factor': (0.25, 1.)
     }
 }
+
+def listify(obj):
+    if obj is None:
+        return obj
+
+    for k, v in obj.items():
+        if type(v) is tuple:
+            obj[k] = list(v)
+
+    return obj
+
+for k, v in control_to_yaml.items():
+    control_to_yaml[k] = listify(v)
 
 no_denoiser = ['no_denoiser']
 # ONLY MISSING MATERIAL

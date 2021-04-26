@@ -8,11 +8,15 @@ controls:
   view_point_z: 0.0
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
-- H: &id001 !!python/tuple
+- H:
   - 0.0
   - 1.0
-  S: *id001
-  V: *id001
+  S:
+  - 0.0
+  - 1.0
+  V:
+  - 0.0
+  - 1.0
   module: threedb.controls.blender.background
 logging:
   logger_modules:

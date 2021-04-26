@@ -23,15 +23,13 @@ controls:
   - 1
   - 2
   - 3
-  - 4
-  - 5
-  occlusion_ratio: !!python/tuple
+  occlusion_ratio:
   - 0.1
-  - 1.0
-  scale: !!python/tuple
+  - 0.3
+  scale:
   - 0.25
   - 1.0
-  zoom: !!python/tuple
+  zoom:
   - 0.1
   - 0.4
 logging:

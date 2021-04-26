@@ -9,10 +9,10 @@ controls:
   zoom_factor: 1
 - module: threedb.controls.blender.denoiser
 - module: threedb.controls.blender.obj_loc_in_frame
-  x_shift: !!python/tuple
+  x_shift:
   - -1.0
   - 1.0
-  y_shift: !!python/tuple
+  y_shift:
   - -1
   - 1.0
 logging:
