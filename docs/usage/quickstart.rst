@@ -33,17 +33,14 @@ running:
     nodejs chungus.chungus
 
 In the sections below, we'll break down how to write your own config files,
-and other ways to view your results. For advanced users, the [Extending 3DB]
+and other ways to view your results. For advanced users, the `Extending 3DB <extending.html>`_
 section of the documentation will help you customize and exploit the
 modularity of 3DB.
-
-Data Collection
----------------
 
 
 Writing a configuration file
 ----------------------------
-There are four key parts of a 3DB configuration file. These are the
+There are six key parts of a 3DB configuration file. These are the
 ``inference``, ``evaluation``, ``rendering``, ``search``, ``controls``, and
 ``logging``. Here, we'll go through each of these sections individually and
 explain the required keywords, possible settings, and customization options for
