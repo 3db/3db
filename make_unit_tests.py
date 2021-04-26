@@ -141,12 +141,13 @@ def make_unit_test_yaml(name, add_denoiser=None):
     return base
 
 import yaml
-client = open('zsh_client.sbatch', 'r').readlines()
+client = open('sandbox_client.sbatch', 'r').readlines()
 def client_maker(name):
     new_lines = []
     for l in client:
         if '#' in l:
             l = l.replace('log.log', f'{name}_log.log')
+            l = l.replace('aiilyas/slurm/logs', 'engstrom/slurm_logs')
             l = l.replace('job-name=sandbox', f'job-name={name}')
 
         new_lines.append(l)
