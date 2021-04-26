@@ -1,4 +1,4 @@
-Adding custom controls
+Adding Custom Controls
 ======================
 
 By default, 3DB comes with a number of `controls` that allows the user to
@@ -23,7 +23,7 @@ implement a new preprocess control is to subclass the provided base class,
 
 .. code-block:: python
 
-    from threedb.controls.base_contol import PreProcessControl
+    from threedb.controls.base_control import PreProcessControl
 
     class OrientationControl(PreProcessControl):
         pass
@@ -33,7 +33,7 @@ In order to make this a valid preprocessing control, we need to provide implemen
 abstract functions: ``__init__``, and ``apply``. It can sometimes help to (optionally) implement
 the ``unapply`` function.
 
-The ``__init__()`` is the place to define the arguements needed by the control:
+The ``__init__()`` is the place to define the arguments needed by the control:
 
 .. code-block:: python
 
@@ -87,7 +87,7 @@ All it takes to implement a new postprocess control is to subclass the provided 
 
 .. code-block:: python
 
-    from threedb.controls.base_contol import PostProcessControl
+    from threedb.controls.base_control import PostProcessControl
 
     class CorruptionControl(PostProcessControl):
         pass
