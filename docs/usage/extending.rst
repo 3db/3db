@@ -38,9 +38,8 @@ modularized as follows:
     :alt: Diagram of the server-side workflow of 3DB
 
 While the server side of 3DB *is* modularizable, users should seldom have to
-customize anything other than the search strategy (which we show how to do
-`here <TODO>`_) and the loggers (shown `here <custom_logger.html>`_). The other components,
-e.g., the scheduler, policy controller, and buffer are already rather general
+customize anything other than the loggers (shown `here <custom_logger.html>`_). The other components,
+e.g., the scheduler, the search strategy, the policy controller, and the buffer are already rather general
 and should capture the vast majority of use cases.
 
 The client side of 3DB is where most of the customization happens. A diagram of

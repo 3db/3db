@@ -41,7 +41,7 @@ modularity of 3DB.
 Writing a configuration file
 ----------------------------
 There are six key parts of a 3DB configuration file. These are the
-``inference``, ``evaluation``, ``rendering``, ``search``, ``controls``, and
+``evaluation``, ``rendering``, ``controls``, and
 ``logging``. Here, we'll go through each of these sections individually and
 explain the required keywords, possible settings, and customization options for
 each. 
