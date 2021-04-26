@@ -23,7 +23,7 @@ class PinToGroundControl(PreProcessControl):
         which you want to pin the object. (range: [0, 1])
 
     .. note::
-        This control shall be used after the ``PositionControl`` and
+        This control should be used after the ``PositionControl`` and
         ``OrientationControl`` controls, i.e., move the object to a location
         of interest, then drag it to the ground under that location.
 
