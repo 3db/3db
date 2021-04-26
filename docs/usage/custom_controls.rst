@@ -75,7 +75,7 @@ Finally, assign the name of the control to a variable ``Control``:
     
     Control = OrientationControl
 
-Note that for some controls, the user might also need to implement an ``unapply()`` function, which reverses the effects of the control after an image is rendered. After this function is called, the scene is reset for subsequent renders and controls applications. See threedb.controls.blender.position.PositionControl.
+Note that for some controls, the user might also need to implement an ``unapply()`` function, which reverses the effects of the control after an image is rendered. After this function is called, the scene is reset for subsequent renders and controls applications. See :class:`threedb.controls.blender.position.PositionControl`.
 
 
 PostProcessControl
