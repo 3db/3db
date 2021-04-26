@@ -173,7 +173,7 @@ def make_unit_test_sbatch(name, add_denoiser=None):
     unit_test = make_unit_test_yaml(name, add_denoiser=add_denoiser)
     config_file = f'examples/unit_tests/{name}.yaml'
     with open(config_file, 'w+') as f:
-        yaml.dump(unit_test, f)
+        yaml.dump(unit_test, f, default_flow_style=None)
 
     out_path = Path(f'docs/_static/logs/{name}')
     if out_path.exists():
