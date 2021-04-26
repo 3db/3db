@@ -7,7 +7,7 @@ manipulate the simulated scene.
 We will now go through the steps for implementing a custom control module. To make things
 clearer, we'll actually re-implement: 
 
-- A "preprocessing" control, ``PositionControl``, that controls the main
+- A "preprocessing" control, ``OrientationControl``, that controls the main
   object's location in the scene.
 - A "postprocessing" control, ``CorruptionControl``, that adds corruptions
   to the rendered scenes.
@@ -25,7 +25,7 @@ implement a new preprocess control is to subclass the provided base class,
 
     from threedb.controls.base_contol import PreProcessControl
 
-    class PositionControl(PreProcessControl):
+    class OrientationControl(PreProcessControl):
         pass
 
 
@@ -39,9 +39,9 @@ The ``__init__()`` is the place to define the arguements needed by the control:
 
     def __init__(self, root_folder: str):
         continuous_dims = {
-        'offset_X': (-1., 1.),
-        'offset_Y': (-1., 1.),
-        'offset_Z': (-1., 1.),
+            'rotation_X': (-np.pi, np.pi),
+            'rotation_Y': (-np.pi, np.pi),
+            'rotation_Z': (-np.pi, np.pi),
         }
         super().__init__(root_folder, continuous_dims=continuous_dims)
 
@@ -50,38 +50,32 @@ Next, we need to implement the ``apply()`` function, which is called whenever a 
 .. code-block:: python
 
     def apply(self, context: Dict[str, Any], control_args: Dict[str, Any]) -> None:
-        """Rotates the object according to the given parameters.
+        """Rotates the object according to the given parameters
 
         Parameters
         ----------
-        context
+        context : Dict[str, Any]
             The scene context object
         control_args : Dict[str, Any]
-            Must have keys ``offset_X``, ``offset_Y``, and ``offset_Z`` 
-            (see class documentation for information about the control arguments).
+            The parameters for this control, ``rotation_X``, ``rotation_Y``, and
+            ``rotation_Z``. See the class docstring for their documentation.
         """
-        from mathutils import Vector
+        no_err, msg = self.check_arguments(control_args)
+        assert no_err, msg
 
-        ob = context['object']
-        self.ob = ob
-        post_translate(ob, Vector([control_args['offset_X'],
-                                   control_args['offset_Y'],
-                                   control_args['offset_Z']]))
-
-Next, we can implement the ``unapply()`` function if needed, which reverses the effects of the control after an image is rendered, 
-so that the scene is reset for subsequent renders and controls applications.
-
-.. code-block:: python
-
-    def unapply(self, context: Dict[str, Any]) -> None:
-        cleanup_translate_containers(self.ob)
+        obj = context['object']
+        obj.rotation_mode = 'XYZ'
+        obj.rotation_euler = (control_args['rotation_X'],
+                              control_args['rotation_Y'],
+                              control_args['rotation_Z'])
 
 Finally, assign the name of the control to a variable ``Control``:
 
 .. code-block:: python
     
-    Control = PositionControl
+    Control = OrientationControl
 
+Note that for some controls, the user might also need to implement an ``unapply()`` function, which reverses the effects of the control after an image is rendered. After this function is called, the scene is reset for subsequent renders and controls applications. See threedb.controls.blender.position.PositionControl.
 
 
 PostProcessControl
