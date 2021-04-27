@@ -14,8 +14,6 @@ You can find in-depth documentation for the package [here](LINK), including a
 quickstart guide, an explanation on the internal layout of the package, as well
 as guides for extending 3DB to new modalities, tasks, and output formats.
 
-We assume that the blender environments and models are in `$BLENDER_DATA/blender_models` and `$BLENDER_DATA/blender_environments` 
-
 ## Citation
 
 If you find 3DB helpful, please cite it as:
