@@ -1,0 +1,6 @@
+#!/bin/sh
+
+folder=$CONDA_PREFIX/lib/python3.7/site-packages/threedb
+export PYTHONPATH=$(pwd):$PYTHONPATH
+
+python $folder/main.py $@
