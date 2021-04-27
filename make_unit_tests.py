@@ -60,7 +60,7 @@ control_to_yaml = {
         'aperture': (1., 32.),
         'focal_length': (10, 400)
     },
-    'imagenet_c': { # TODO: requires imagemagick
+    'imagenet_c': {
         'module': 'threedb.controls.blender.imagenet_c',
         'corruption_name': ['impulse_noise'],
         'severity': [1, 2, 3, 4, 5]
@@ -77,11 +77,17 @@ control_to_yaml = {
     },
     'occlusion': {
         'module': 'threedb.controls.blender.occlusion',
-        'occlusion_ratio': (0., 0.3),
+        'occlusion_ratio': (0.3, 0.6),
         'zoom': (.1, .4),
-        'scale': (.01, .02),
+        'scale': (.04, .07),
         'direction': [0, 1, 2, 3, 4, 5, 6, 7],
-        'occluder': [0, 1, 2, 3]
+        'occluder': [
+            '000b76f2b03e44e8ab44e1a1614be0f4.blend',
+            '000ff3a4edcb41d8a511850d49e171af.blend',
+            '001f16707683405cb2340cd7194b7eba.blend',
+            '00327d46729043cb9b06bd0ca6ffb344.blend',
+            '003725c9dd7d47ada2b2a2ced2f23953.blend'
+        ]
     },
     'orientation': {
         'module': 'threedb.controls.blender.orientation',
@@ -91,13 +97,13 @@ control_to_yaml = {
     },
     'pin_to_ground': {
         'module': 'threedb.controls.blender.pin_to_ground',
-        'z_ground': (0.0, 0.01)
+        'z_ground': (0.0, 0.03)
     },
     'position': {
         'module': 'threedb.controls.blender.position',
-        'offset_X': (-0.01, .01),
-        'offset_Y': (-0.01, .01),
-        'offset_Z': (-0.01, .01)
+        'offset_X': (-0.02, .02),
+        'offset_Y': (-0.02, .02),
+        'offset_Z': (-0.02, .02)
     },
     'scale': {
         'module': 'threedb.controls.blender.scale',

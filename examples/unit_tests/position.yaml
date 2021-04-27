@@ -4,8 +4,8 @@ controls:
   view_point_y: 0.0, view_point_z: 0.0, zoom_factor: 1}
 - {module: threedb.controls.blender.denoiser}
 - module: threedb.controls.blender.position
-  offset_X: [-0.01, 0.01]
-  offset_Y: [-0.01, 0.01]
-  offset_Z: [-0.01, 0.01]
+  offset_X: [-0.02, 0.02]
+  offset_Y: [-0.02, 0.02]
+  offset_Z: [-0.02, 0.02]
 logging:
   logger_modules: [threedb.result_logging.image_logger]
