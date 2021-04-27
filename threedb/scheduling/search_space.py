@@ -2,7 +2,8 @@
 threedb.scheduling.search_space
 ===============================
 
-[TODO]
+This file includes the `SearchSpace` class which given a list of control and their argements, 
+creates the corresponding search space of the cross product of all controls.
 """
 
 from ast import literal_eval

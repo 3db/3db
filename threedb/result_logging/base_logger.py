@@ -7,7 +7,7 @@ Implements an abstract class for logging results.
 
 from multiprocessing import Process, Queue
 from typing import Any, Dict, Optional
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 from abc import abstractmethod, ABC
 
 class BaseLogger(Process, ABC):
@@ -20,12 +20,13 @@ class BaseLogger(Process, ABC):
       but rather will be called by ``run()``
     - ``run()``: main loop, waits for logs to be added to the queue, and calls
       ``log()`` on them.
+    - ``end()``: Performs cleanup operations for the logger. No-op by default, should
+        be overriden with code for closing any open file handles, ports, etc.
 
-    [TODO]
     """
     def __init__(self,
                  root_dir: str,
-                 result_buffer: BigChungusCyclicBuffer,
+                 result_buffer: CyclicBuffer,
                  config: Optional[Dict[str, Dict[str, Any]]]) -> None:
         """Creates a logger instance
 
@@ -34,7 +35,7 @@ class BaseLogger(Process, ABC):
         root_dir : str
             The directory in which to write the logging results (should be the
             same for all loggers, with each logger making a subfolder to log in)
-        result_buffer : BigChungusCyclicBuffer
+        result_buffer : CyclicBuffer
             The buffer where the main thread is writing the results
         config : Optional[Dict[str, Dict[str, Any]]]
             The config file (parsed from YAML) of the 3DB experiment being run
@@ -64,7 +65,7 @@ class BaseLogger(Process, ABC):
         ----------
         item : Dict[str, Any]
             A dictionary containing the results of a single rendering (as
-            returned by :mod:`threedb.clent`): see
+            returned by :mod:`threedb.client`): see
             [TODO] for more detailed information on what this will contiain.
         """
         raise NotImplementedError

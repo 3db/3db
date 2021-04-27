@@ -44,17 +44,6 @@ class BackgroundControl(PostProcessControl):
             :group: background
         
         Varying all parameters across their ranges.
-
-    .. warning::
-
-        This control needs transparent background. Therefore one need to have:
-
-        `bpy.context.scene.render.film_transparent = True`
-
-        However since this is a 'post-processing control it cannot set this
-        parameter for the first render. The user has to make sure that a
-        'pre' control will set this parameter before the first render or the
-        first image will be incorrect.
     """
 
     def __init__(self, root_folder: str):

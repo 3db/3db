@@ -1,8 +1,6 @@
 """
 threedb.scheduling.policy_controller
 ====================================
-
-[TODO]
 """
 
 from multiprocessing import Process, Queue
@@ -13,7 +11,7 @@ import numpy as np
 from typing import List, Dict, Optional, Any
 from threedb.scheduling.search_space import SearchSpace
 from threedb.result_logging.logger_manager import LoggerManager
-from threedb.utils import init_policy, BigChungusCyclicBuffer
+from threedb.utils import init_policy, CyclicBuffer
 
 
 JobDescriptor = namedtuple("JobDescriptor", ['order', 'id', 'environment',
@@ -27,7 +25,7 @@ class PolicyController(Process):
                        model_name: str,
                        policy_args: Dict[str, Any],
                        logger_manager: LoggerManager,
-                       result_buffer: BigChungusCyclicBuffer):
+                       result_buffer: CyclicBuffer):
         super().__init__()
         self.work_queue = Queue()
         self.result_queue = Queue()

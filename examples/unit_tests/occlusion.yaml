@@ -1,39 +1,15 @@
 base_config: base.yaml
 controls:
-- aperture: 5.0
-  focal_length: 100.0
-  module: threedb.controls.blender.camera
-  view_point_x: 0.0
-  view_point_y: 0.0
-  view_point_z: 0.0
-  zoom_factor: 1
-- module: threedb.controls.blender.denoiser
-- direction:
-  - 0
-  - 1
-  - 2
-  - 3
-  - 4
-  - 5
-  - 6
-  - 7
+- {aperture: 5.0, focal_length: 100.0, module: threedb.controls.blender.camera, view_point_x: 0.0,
+  view_point_y: 0.0, view_point_z: 0.0, zoom_factor: 1}
+- {module: threedb.controls.blender.denoiser}
+- direction: [0, 1, 2, 3, 4, 5, 6, 7]
   module: threedb.controls.blender.occlusion
-  occluder:
-  - 0
-  - 1
-  - 2
-  - 3
-  - 4
-  - 5
-  occlusion_ratio: !!python/tuple
-  - 0.1
-  - 1.0
-  scale: !!python/tuple
-  - 0.25
-  - 1.0
-  zoom: !!python/tuple
-  - 0.1
-  - 0.4
+  occluder: [000b76f2b03e44e8ab44e1a1614be0f4.blend, 000ff3a4edcb41d8a511850d49e171af.blend,
+    001f16707683405cb2340cd7194b7eba.blend, 00327d46729043cb9b06bd0ca6ffb344.blend,
+    003725c9dd7d47ada2b2a2ced2f23953.blend]
+  occlusion_ratio: [0.3, 0.6]
+  scale: [0.04, 0.07]
+  zoom: [0.1, 0.4]
 logging:
-  logger_modules:
-  - threedb.result_logging.image_logger
+  logger_modules: [threedb.result_logging.image_logger]

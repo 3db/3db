@@ -1,12 +1,6 @@
 """
 threedb.utils
 =============
-
-threedb utilities. Includes:
-
-- BigChungusCyclicBuffer, a buffer that
-
-[TODO]
 """
 
 import importlib
@@ -27,7 +21,7 @@ from tqdm import tqdm
 def str_to_dtype(dtype_str: str) -> _dtype:
     return getattr(ch, dtype_str)
 
-class BigChungusCyclicBuffer:
+class CyclicBuffer:
     """
     A concurrent cyclic buffer with reference counting to store the result
     and avoid copying them to every sub process.

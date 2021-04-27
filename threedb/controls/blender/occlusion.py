@@ -1,8 +1,6 @@
 """
 threedb.controls.blender.occlusion
 ==================================
-
-[TODO]
 """
 
 from ...try_bpy import bpy
@@ -19,25 +17,25 @@ class OcclusionControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - occlusion_ratio: Ratio of the occluded part of the object of interest.
-      (range: [0.1, 1.0])
-    - zoom: How far the occluder is from the object of interest. (range: [0.1,
-      0.4])
-    - scale: Scale factor of the occlusion object. (range: [0.25, 1.0])
+    - `occlusion_ratio`: Ratio of the occluded part of the object of interest.
+      e.g., parameter 0.01 would occlude 1% of the object, and parameter 0.8 would occlude 80%
+      of the object. Default range: (0.01, .8).  
+    - `zoom`: Controls distance from the occluder to the object of interest. The occluder is
+      placed between the object of interest and the camera at a distance of `zoom * D`,
+      measured from the object of interest. D is the distance between the object of interest
+      and the camera. Default range: (0.01, 0.4).
+    - `scale`: rescale the occlusion object by a factor of `scale`. Parameter 0.5 halves the
+      occluder's size, and parameter 2 doubles the occluder's size. Default range: (0.01, 1).
 
     Discrete Dimensions:
 
-    - direction: The direction from which the occluder approaches the
+    - `direction`: The direction from which the occluder approaches the
       object of interest. Takes a value between 0 and 7
       represeting the indices of the `DIRECTIONS` vectors.
-    - occluder: The occlusion object. This is an index of the list of the
+    - `occluder`: The occlusion object. This is an index of the list of the
       occlusion objects which is automatically initialized when the
       OcclusionControl is created (see Note).
 
-    .. note::
-
-    The possible occluders are all the `.blend` files found in
-    ROOT_FOLDER/ood_objects/, sorted alphabetically by file name.
 
     .. admonition:: Example images
 
@@ -66,6 +64,7 @@ class OcclusionControl(PreProcessControl):
     DIRECTIONS = [( 1, -1), ( 1, 0), ( 1, 1),
                   ( 0, -1),          ( 0, 1),
                   (-1, -1), (-1, 0), (-1, 1)]
+    OOD_DIR = 'ood_objects'
 
     def __init__(self, root_folder):
         """Initializes the `OcclusionControl`
@@ -77,25 +76,28 @@ class OcclusionControl(PreProcessControl):
             the possible occluders exist
         """
         continuous_dims = {
-            "occlusion_ratio": (0.1, 1.0),
-            "zoom": (0.1, 0.4),
-            "scale": (0.25, 1),
+            "occlusion_ratio": (0.01, 0.8),
+            "zoom": (0.01, 0.4),
+            "scale": (0.01, 1),
         }
 
-        ood_folder = Path(root_folder) / 'ood_objects'
+        ood_folder = Path(root_folder) / self.OOD_DIR
         occluders_paths = list(ood_folder.glob('*.blend'))
+        occluders_paths = [f.name for f in occluders_paths]
+
         print('ood_folder', ood_folder)
         print('occluders_paths', occluders_paths)
 
         discrete_dims = {
             "direction": list(range(len(self.DIRECTIONS))),
-            "occluder": list(range(len(occluders_paths)))
+            "occluder": occluders_paths
         }
         assert len(discrete_dims['occluder']) >= 1, 'No occluder objects found!'
         super().__init__(root_folder,
                          continuous_dims=continuous_dims,
                          discrete_dims=discrete_dims)
         self.occluder_paths = occluders_paths
+        self.ood_folder = ood_folder
 
     def _move_in_plane(self, ob, x_shift, y_shift):
         """Shifts the `ob` object in a plane passing through the
@@ -176,9 +178,11 @@ class OcclusionControl(PreProcessControl):
         assert no_err, msg       
 
         ob = context["object"]
-        occluder = utils.load_model(self.occluder_paths[control_args['occluder']])
+        occ_basename = control_args['occluder']
+        model_path = self.ood_folder / occ_basename
+        occluder = utils.load_model(model_path)
         self.occluder = C.scene.objects[occluder]
-        self.occluder.location = ob.location + control_args['zoom'] * (C.scene.camera.location - ob.location)
+        self.occluder.location = ob.location + float(control_args['zoom']) * (C.scene.camera.location - ob.location)
 
         bb = utils.camera_view_bounds_2d(C.scene, C.scene.camera, ob)
         bb_occ = utils.camera_view_bounds_2d(C.scene, C.scene.camera, self.occluder)

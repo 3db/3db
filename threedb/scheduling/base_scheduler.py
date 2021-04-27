@@ -2,7 +2,7 @@
 threedb.scheduling.base_scheduler
 =================================
 
-[TODO]
+The task schedular of 3DB.
 """
 
 from tqdm import tqdm
@@ -10,7 +10,7 @@ from typing import Any, Dict, Set, List
 from threedb.scheduling.policy_controller import PolicyController
 from threedb.scheduling.utils import recv_into_buffer
 from threedb.result_logging.logger_manager import LoggerManager
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 
 import time
 import os
@@ -24,7 +24,7 @@ class Scheduler:
                        models: List[str],
                        config: Dict[str, Dict[str, Any]],
                        policy_controllers: Set[PolicyController],
-                       buffer: BigChungusCyclicBuffer,
+                       buffer: CyclicBuffer,
                        logger_manager: LoggerManager,
                        with_tqdm: bool = True) -> None:
         self.running = False

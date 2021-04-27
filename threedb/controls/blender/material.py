@@ -8,33 +8,56 @@ Defines the MaterialControl Blender Control
 from os import path
 from glob import glob
 from typing import Any, Dict
+from pathlib import Path
 
 from ...try_bpy import bpy
 from ..base_control import PreProcessControl
+
+MATERIAL_FOLDER = 'blender_control_material'
 
 class MaterialControl(PreProcessControl):
     """Control that swap material of an object with another one
 
     Discrete Dimensions:
 
-    - ``replacement_material``: The name of the material that will be
-      replacing the original one.
+    - ``replacement_material``: The name of the material that replaces the
+        original material.
 
     .. note::
         The possible values for `replacement_material` can be any file
-        (without `.blend`) found in ROOT_FOLDER/blender_control_material.
+        (without `.blend`) found in `$BLENDER_DATA/blender_control_material`.
 
-        Each of these file should have a single material in it otherwise it
-        is ambiguous which material should be applied to the object
+        Each of these file should only contain a single material.
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/material/images/image_1.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_2.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_3.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_4.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_5.png
+            :width: 100
+            :group: material
+        
+        Examples of various material substitutions.
     """
     def __init__(self, root_folder: str):
-        files_in_folder = list(sorted(glob(path.join(
-            root_folder,
-            'blender_control_material',
-            '*.blend'))))
-
+        mat_folder = Path(root_folder) / MATERIAL_FOLDER
+        files_in_folder = mat_folder.glob('*.blend')
+        files_in_folder = [f.name for f in files_in_folder]
         files_in_folder.append('keep_original')
-        files_in_folder = [x.replace(root_folder, '') for x in files_in_folder]
         discrete_dims = {
             "replacement_material": files_in_folder
         }
@@ -67,7 +90,7 @@ class MaterialControl(PreProcessControl):
         if replacement_material == "keep_original":
             return
 
-        fname = path.join(self.root_folder, replacement_material)
+        fname = path.join(self.root_folder, MATERIAL_FOLDER, replacement_material)
         current_materials = set(x.name for x in bpy.data.materials)
 
         with bpy.data.libraries.load(fname) as (data_from, data_to):

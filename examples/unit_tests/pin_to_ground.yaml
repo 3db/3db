@@ -1,17 +1,9 @@
 base_config: base.yaml
 controls:
-- aperture: 5.0
-  focal_length: 100.0
-  module: threedb.controls.blender.camera
-  view_point_x: 0.0
-  view_point_y: 0.0
-  view_point_z: 0.0
-  zoom_factor: 1
-- module: threedb.controls.blender.denoiser
+- {aperture: 5.0, focal_length: 100.0, module: threedb.controls.blender.camera, view_point_x: 0.0,
+  view_point_y: 0.0, view_point_z: 0.0, zoom_factor: 1}
+- {module: threedb.controls.blender.denoiser}
 - module: threedb.controls.blender.pin_to_ground
-  z_ground: !!python/tuple
-  - 0.0
-  - 1.0
+  z_ground: [0.0, 0.03]
 logging:
-  logger_modules:
-  - threedb.result_logging.image_logger
+  logger_modules: [threedb.result_logging.image_logger]

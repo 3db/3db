@@ -4,7 +4,7 @@ threedb.evaluators.base_evaluator
 
 Provides an abstract base class for implementing evaluators.
 
-See [TODO] for further details.
+See :class:`threedb.evaluators.classification.SimpleClassificationEvaluator` for further details.
 """
 from abc import ABC, abstractmethod
 from typing import Dict, List, Tuple, Union, Any
@@ -52,8 +52,8 @@ class BaseEvaluator(ABC):
         Parameters
         ----------
         model_uid : str
-            The unique id of the model, as returned by [TODO] (for blender, this
-            will be the object ID)
+            The unique id of the model, as returned by (:meth:`threedb.rendering.base_renderer.BaseRenderer.render_and_apply`)
+            (for blender, this will be the object ID)
 
         Returns
         -------

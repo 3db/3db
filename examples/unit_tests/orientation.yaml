@@ -1,19 +1,11 @@
 base_config: base.yaml
 controls:
-- aperture: 5.0
-  focal_length: 100.0
-  module: threedb.controls.blender.camera
-  view_point_x: 0.0
-  view_point_y: 0.0
-  view_point_z: 0.0
-  zoom_factor: 1
-- module: threedb.controls.blender.denoiser
+- {aperture: 5.0, focal_length: 100.0, module: threedb.controls.blender.camera, view_point_x: 0.0,
+  view_point_y: 0.0, view_point_z: 0.0, zoom_factor: 1}
+- {module: threedb.controls.blender.denoiser}
 - module: threedb.controls.blender.orientation
-  rotation_X: &id001 !!python/tuple
-  - -3.14
-  - 3.14
-  rotation_Y: *id001
-  rotation_Z: *id001
+  rotation_X: [-3.14, 3.14]
+  rotation_Y: [-3.14, 3.14]
+  rotation_Z: [-3.14, 3.14]
 logging:
-  logger_modules:
-  - threedb.result_logging.image_logger
+  logger_modules: [threedb.result_logging.image_logger]
