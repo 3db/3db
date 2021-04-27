@@ -1,5 +1,21 @@
 # 3DB: A framework for analyzing computer vision models with simulated data
 
+## Installation
+
+Follow instructions on: https://github.com/3db/installers
+
+## Complete demo
+
+For detailed, step by step demonstration of the usage of the framework, please visit: https://github.com/3db/demo
+
+## Documentation
+
+You can find in-depth documentation for the package [here](LINK), including a
+quickstart guide, an explanation on the internal layout of the package, as well
+as guides for extending 3DB to new modalities, tasks, and output formats.
+
+We assume that the blender environments and models are in `$BLENDER_DATA/blender_models` and `$BLENDER_DATA/blender_environments` 
+
 ## Citation
 
 If you find 3DB helpful, please cite it as:
@@ -12,38 +28,6 @@ If you find 3DB helpful, please cite it as:
 }
 ```
 
-
-## Documentation
-
-You can find in-depth documentation for the package [here](LINK), including a
-quickstart guide, an explanation on the internal layout of the package, as well
-as guides for extending 3DB to new modalities, tasks, and output formats.
-
-## Quickstart
-
-With docker:
-1. Install docker 
-2. Download some pre-made blender models and environments from [here](TODO)
-3. 
-
-Without docker:
-1. 
-
-
-We assume that the blender environments and models are in `$BLENDER_DATA/blender_models` and `$BLENDER_DATA/blender_environments` 
-
-### Master node
-
-- `export PYTHONPATH=$(pwd)`
-- python sandbox/main.py $BLENDER_DATA examples/very_simple_grid_search.yaml 5555 --logdir logs/ --loggers JSONLogger,TbLogger
-
-### Render node
-#### With docker
-
-- `docker build -t sandbox ./docker`
-- `bash ./docker/run_renderer.sh $BLENDER_DATA`
-- `cd /code`
-- `bash start_sandbox.sh`
 
 3 Tmux sessions running the client, server, and tensorboard will be started for you!
 
@@ -61,12 +45,3 @@ This shows you how to collect a dataset using blender to analyze the quality of 
         ```
         azcopy cp 'https://objectsim.blob.core.windows.net/sandbox/blender_models?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-09-04T17:58:15Z&st=2020-09-04T09:58:15Z&spr=https,http&sig=CPuCBI%2FtMrSlzytVt7UioVkyKC9%2Fetp5XqTC2rtjino%3D' '/models' --recursive
         ```
-
-### With docker
-
-- `docker build -t ./docker`
-- `bash ./docker/run_renderer.sh $BLENDER_ENVS $BLENDER_MODELS $OUTDIR`
-- `/blender/blender -b -P /code/rendering/render.py -- --output=/output/ --models=/data/models/ --log=/output/log.log --metadata=/code/data_collection/output.csv --env=/data/environments/white_background.blend --samples=128 --gpu-id=0 --resolution=256 --resume`
-
-### Without docker
-Follow the instruction inside the [Dockerfile](./docker/Dockerfile) to setup things locally, and run the above commands without running docker.
