@@ -15,8 +15,8 @@ class DenoiseControl(PreProcessControl):
 
     Note
     ----
-    This control has no actual parameter but is a way to enable this
-    blender feature. This control denoises renderings.
+    This control enables the blender feature for denoising renderings.
+    It has no parameters.
 
     .. admonition:: Example images
 

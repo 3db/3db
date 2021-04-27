@@ -20,15 +20,38 @@ class MaterialControl(PreProcessControl):
 
     Discrete Dimensions:
 
-    - ``replacement_material``: The name of the material that will be
-      replacing the original one.
+    - ``replacement_material``: The name of the material that replaces the
+        original material.
 
     .. note::
         The possible values for `replacement_material` can be any file
-        (without `.blend`) found in ROOT_FOLDER/blender_control_material.
+        (without `.blend`) found in `$BLENDER_DATA/blender_control_material`.
 
-        Each of these file should have a single material in it otherwise it
-        is ambiguous which material should be applied to the object
+        Each of these file should only contain a single material.
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/material/images/image_1.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_2.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_3.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_4.png
+            :width: 100
+            :group: material
+
+        .. thumbnail:: /_static/logs/material/images/image_5.png
+            :width: 100
+            :group: material
+        
+        Examples of various material substitutions.
     """
     def __init__(self, root_folder: str):
         mat_folder = Path(root_folder) / MATERIAL_FOLDER

@@ -34,75 +34,30 @@ class CameraControl(PreProcessControl):
 
     .. admonition:: Example images
 
-        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_1.png
+        .. thumbnail:: /_static/logs/camera/images/image_1.png
             :width: 100
-            :group: camera_viewpoint
+            :group: camera
 
-        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_2.png
+        .. thumbnail:: /_static/logs/camera/images/image_2.png
             :width: 100
-            :group: camera_viewpoint
+            :group: camera
 
-        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_3.png
+        .. thumbnail:: /_static/logs/camera/images/image_3.png
             :width: 100
-            :group: camera_viewpoint
+            :group: camera
 
-        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_4.png
+        .. thumbnail:: /_static/logs/camera/images/image_4.png
             :width: 100
-            :group: camera_viewpoint
+            :group: camera
 
-        .. thumbnail:: /_static/logs/camera_viewpoint/images/image_5.png
+        .. thumbnail:: /_static/logs/camera/images/image_5.png
             :width: 100
-            :group: camera_viewpoint
+            :group: camera
 
-        Varying the viewpoint
-
-        .. thumbnail:: /_static/logs/camera_zoom/images/image_1.png
-            :width: 100
-            :group: camera_zoom
-
-        .. thumbnail:: /_static/logs/camera_zoom/images/image_2.png
-            :width: 100
-            :group: camera_zoom
-
-        .. thumbnail:: /_static/logs/camera_zoom/images/image_3.png
-            :width: 100
-            :group: camera_zoom
-
-        .. thumbnail:: /_static/logs/camera_zoom/images/image_4.png
-            :width: 100
-            :group: camera_zoom
-
-        .. thumbnail:: /_static/logs/camera_zoom/images/image_5.png
-            :width: 100
-            :group: camera_zoom
-        
-        Varying zoom factor
-
-        .. thumbnail:: /_static/logs/camera_focus/images/image_1.png
-            :width: 100
-            :group: camera_focus
-
-        .. thumbnail:: /_static/logs/camera_focus/images/image_2.png
-            :width: 100
-            :group: camera_focus
-
-        .. thumbnail:: /_static/logs/camera_focus/images/image_3.png
-            :width: 100
-            :group: camera_focus
-
-        .. thumbnail:: /_static/logs/camera_focus/images/image_4.png
-            :width: 100
-            :group: camera_focus
-
-        .. thumbnail:: /_static/logs/camera_focus/images/image_5.png
-            :width: 100
-            :group: camera_focus
-        
-        Varying focal length and aperture
+        Varying each parameter across its range.
 
     .. note::
-        Since it is impossible to satisfy view_point, zoom and focal length, we
-        do the following:
+        The camera uses the parameters as following:
 
         1. We set the ``aperture`` and ``focal_length``
         2. We move the camera according to ``view_point_{x,y,z}`` and look at
@@ -110,8 +65,8 @@ class CameraControl(PreProcessControl):
         3. We move closer or further in order to satisfy the ``zoom_factor``
            constraint
 
-        As a result, in most cases the final position of the camera will be
-        quite different from the view_point parameter.
+        In most cases the final position of the camera will be
+        quite different from the ``view_point`` parameter.
     """
     def __init__(self, root_folder: str):
         continuous_dims = {

@@ -19,12 +19,12 @@ class PinToGroundControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - z_ground: the Z-coordinate of the surface underneath the object to
-        which you want to pin the object. (range: [0, 1])
+    - z_ground: the z-coordinate that the bottom of the object's bounding
+       moves to. Range: [0, 1].
 
     .. note::
-        This control should be used after the ``PositionControl`` and
-        ``OrientationControl`` controls, i.e., move the object to a location
+        This control come after the ``PositionControl`` and
+        ``OrientationControl`` controls. In these patterns, you first move the object to a location
         of interest, then drag it to the ground under that location.
 
     .. admonition:: Example images

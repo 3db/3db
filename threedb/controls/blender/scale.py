@@ -9,12 +9,36 @@ from typing import Any, Dict
 from threedb.controls.base_control import PreProcessControl
 
 class ObjScaleControl(PreProcessControl):
-    """This control scales the object
+    """This control scales the object.
 
     Continuous Parameters:
 
     - factor: scaling factor which takes any positive number. Setting the
-        factor to 1 maintains the same object size. (range: [0.25, 1])
+        factor to 1 maintains the same object size. (default range: [0.25, 1])
+
+    .. admonition:: Example images
+
+        .. thumbnail:: /_static/logs/scale/images/image_1.png
+            :width: 100
+            :group: scale
+
+        .. thumbnail:: /_static/logs/scale/images/image_2.png
+            :width: 100
+            :group: scale
+
+        .. thumbnail:: /_static/logs/scale/images/image_3.png
+            :width: 100
+            :group: scale
+
+        .. thumbnail:: /_static/logs/scale/images/image_4.png
+            :width: 100
+            :group: scale
+
+        .. thumbnail:: /_static/logs/scale/images/image_5.png
+            :width: 100
+            :group: scale
+        
+        Examples of scale at different levels.
     """
     def __init__(self, root_folder: str):
         continuous_dims = {

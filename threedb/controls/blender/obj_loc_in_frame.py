@@ -51,7 +51,7 @@ class ObjLocInFrameControl(PreProcessControl):
             :width: 100
             :group: obj_loc_in_frame
 
-        Varying all the parameters.
+        Example renderings while varying the parameters.
     
     """
     def __init__(self, root_folder: str):

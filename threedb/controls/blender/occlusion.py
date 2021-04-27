@@ -19,31 +19,25 @@ class OcclusionControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - occlusion_ratio: Ratio of the occluded part of the object of interest.
+    - `occlusion_ratio`: Ratio of the occluded part of the object of interest.
       e.g., parameter 0.01 would occlude 1% of the object, and parameter 0.8 would occlude 80%
       of the object. Default range: (0.01, .8).  
-    - zoom: Controls distance from the occluder to the object of interest. The occluder is
+    - `zoom`: Controls distance from the occluder to the object of interest. The occluder is
       placed between the object of interest and the camera at a distance of `zoom * D`,
       measured from the object of interest. D is the distance between the object of interest
       and the camera. Default range: (0.01, 0.4).
-    - scale: rescale the occlusion object by a factor of `scale`. Parameter 0.5 halves the
+    - `scale`: rescale the occlusion object by a factor of `scale`. Parameter 0.5 halves the
       occluder's size, and parameter 2 doubles the occluder's size. Default range: (0.01, 1).
 
     Discrete Dimensions:
 
-    - direction: The direction from which the occluder approaches the
+    - `direction`: The direction from which the occluder approaches the
       object of interest. Takes a value between 0 and 7
       represeting the indices of the `DIRECTIONS` vectors.
-    - occluder: The occlusion object. This is an index of the list of the
+    - `occluder`: The occlusion object. This is an index of the list of the
       occlusion objects which is automatically initialized when the
       OcclusionControl is created (see Note).
 
-    .. note::
-
-    The possible occluders are all the `.blend` files found in
-    ROOT_FOLDER/ood_objects/, sorted alphabetically by file name. Occluders
-    and the main objects might have different sizes, so be careful what you 
-    are chosing to occlude what.
 
     .. admonition:: Example images
 

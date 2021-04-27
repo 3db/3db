@@ -101,9 +101,9 @@ control_to_yaml = {
     },
     'position': {
         'module': 'threedb.controls.blender.position',
-        'offset_X': (-0.02, .02),
-        'offset_Y': (-0.02, .02),
-        'offset_Z': (-0.02, .02)
+        'offset_x': (-0.02, .02),
+        'offset_y': (-0.02, .02),
+        'offset_z': (-0.02, .02)
     },
     'scale': {
         'module': 'threedb.controls.blender.scale',
