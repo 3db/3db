@@ -1,18 +1,12 @@
 Creating a Custom Logger
 ========================
 
-3DB can generate huge amounts of data. In most cases, it would be impractical
-to store all of it. Moreover, it would be hard to come up with a data format
-that suits all users. To solve that challenge, we introduce the concept of loggers.
-
-Loggers are simply classes that receive all the information available to the
-framework and decide what to store and it which format. Even if we ship the
-library with a set of Loggers (TODO LINK to API), we want it to be easy for
-users to define their own.
-
-To illustrate how to create a custom logger we will go through the whole process
-and implement ``CSVLogger``, a logger that outputs basic informations about a render
+3DB provides logging functionality for storing data that might be relevant for model debugging. 
+Although the library comes with a base set of Loggers (TODO LINK to API), we provide an overview
+of the steps for customizing them based on problem-specific needs. We will illustrate this by  
+implementing a custom ``CSVLogger`` that outputs basic informations about a render 
 to a CSV file.
+
 
 Implementation
 --------------
@@ -64,9 +58,9 @@ new result is available to log.
         self.handle.write('\n')
         self.buffer.free(rix, self.regid)  # IMPORTANT: We tell the buffer we are done with the data
 
-Since Loggers are dynamically loaded based on the configuration file, the frameworks need to know
-which object to load from the module. By convention we ask that logger modules export the ``Logger``
-field. So we simply have to add:
+Finally, since Loggers are dynamically loaded based on the configuration file, 
+the framework need to know which object to load from the module. By convention we ask 
+that logger modules export the ``Logger`` field. So we simply have to add:
 
 .. code-block:: python
 
@@ -102,8 +96,10 @@ to your configuration file in the ``logging`` section:
     logger_modules:
       - "path.to.my.module"
 
-We assume here that ``path.to.my.module`` points to the file we created in the section above.
-You can make this module available in any way you see fit:
+Here, ``path.to.my.module`` should point to the file containing your custom
+logger class (e.g., the file containing the code snipped from the example above). 
+In general, you can make your custom logger module available in 
+any way you see fit, for instance:
 
 * Make a pip package
 * Add the proper folder to ``$PYTHON_PATH``
