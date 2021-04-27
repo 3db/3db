@@ -2,8 +2,9 @@
 threedb.controls.blender.pin_to_ground
 ======================================
 
-Defines a Blender Control that makes sure an object rests at a given z
-coordinate
+Control where the bottom bounding box of an object lies on the z axis. An example
+config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/pin_to_ground.yaml>`_.
 """
 from typing import Any, Dict
 from ...try_bpy import bpy
@@ -19,8 +20,8 @@ class PinToGroundControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - z_ground: the z-coordinate that the bottom of the object's bounding
-       moves to. Range: [0, 1].
+    - ``z_ground``: the z-coordinate that the bottom of the object's bounding
+       moves to. Range: ``[0, 1]``.
 
     .. note::
         This control come after the ``PositionControl`` and
@@ -49,7 +50,7 @@ class PinToGroundControl(PreProcessControl):
             :width: 100
             :group: pin_to_ground
 
-        Varying `z_ground` across its range.
+        Varying ``z_ground`` across its range.
     """
 
     def __init__(self, root_folder: str):

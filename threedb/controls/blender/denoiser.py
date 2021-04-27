@@ -2,7 +2,11 @@
 threedb.controls.blender.denoiser
 =================================
 
-Defines the Blender Denoiser Control
+Denoise renderings. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/denoiser.yaml>`_. (And
+of the other controls in the ``unit_tests`` folder, this files parent folder, use
+this control as well for more realistic renderings).
+
 """
 
 from typing import Any, Dict, List, Tuple

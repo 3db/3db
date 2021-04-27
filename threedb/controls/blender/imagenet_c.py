@@ -2,7 +2,8 @@
 threedb.controls.blender.imagenet_c
 ====================================
 
-Defines the ImagenetCControl
+Apply corruptions to renderings. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/imagenet_c.yaml>`_.
 """
 
 from typing import Any, Dict
@@ -20,7 +21,7 @@ class ImagenetCControl(PostProcessControl):
         'gaussian_noise', 'shot_noise', 'impulse_noise', 'defocus_blur', 'glass_blur',
         'motion_blur', 'zoom_blur', 'snow', 'frost', 'fog', 'speckle_noise', 'gaussian_blur', 'spatter',
         'saturate', 'brightness', 'contrast', 'elastic_transform', 'pixelate', 'jpeg_compression'.
-    - ``severity``: Imagenet-C severity parameter. (range: {0, 1, 2, 3, 4, 5})
+    - ``severity``: Imagenet-C severity parameter. (range: ``{0, 1, 2, 3, 4, 5}``)
 
     .. admonition:: Example images
 

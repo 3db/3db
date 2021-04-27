@@ -20,7 +20,7 @@ def load_model(model: str) -> str:
     Parameters
     ----------
     model
-        The parth to the blender file that needs to be loaded
+        The path to the blender file that needs to be loaded
 
     Returns
     -------

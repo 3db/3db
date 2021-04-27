@@ -1,6 +1,9 @@
 """
-threedb.controls.blender.pose
-==============================
+threedb.controls.blender.orientation
+====================================
+
+Cover the subject object with another object. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/orientation.yaml>`_. 
 """
 
 from typing import Any, Dict
@@ -13,9 +16,9 @@ class OrientationControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - `rotation_x`: The x component of the Eulerian rotation (range: [-pi, pi])
-    - `rotation_y`: The y component of the Eulerian rotation (range: [-pi, pi])
-    - `rotation_z`: The z component of the Eulerian rotation (range: [-pi, pi])
+    - ``rotation_x``: The x component of the Eulerian rotation (range: ``[-pi, pi]``)
+    - ``rotation_y``: The y component of the Eulerian rotation (range: ``[-pi, pi]``)
+    - ``rotation_z``: The z component of the Eulerian rotation (range: ``[-pi, pi]``)
 
     .. admonition:: Example images
 

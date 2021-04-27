@@ -2,7 +2,8 @@
 threedb.controls.blender.camera
 ===============================
 
-Defines a Blender Control for camera-based transformations.
+Control the camera. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/camera.yaml>`_.
 """
 
 from typing import Any, Dict
@@ -20,17 +21,17 @@ class CameraControl(PreProcessControl):
     Continuous Dimensions:
 
     - ``view_point_x``: The original x coordinate of the camera (see the note
-      below). (range: [-1, 1])
+      below). (range: ``[-1, 1]``)
     - ``view_point_y``: The original y coordinate of the camera (see the note
-      below). (range: [-1, 1])
+      below). (range: ``[-1, 1]``)
     - ``view_point_z``: The original z coordinate of the camera (see the note
-      below). (range: [0, 1])
+      below). (range: ``[0, 1]``)
     - ``zoom_factor``: Defines how much should we see of the object. A
       ``zoom_factor`` of 1 means we completely see the object with a little
       margin. above 1 we are close. 
-      below 1 we are further. (range: [0.5, 2])
-    - ``aperture``: The aperture of the camera. (range: [1, 32])
-    - ``focal_length``: The focal length of the camera. (range: [10, 400])
+      below 1 we are further. (range: ``[0.5, 2]``)
+    - ``aperture``: The aperture of the camera. (range: ``[1, 32]``)
+    - ``focal_length``: The focal length of the camera. (range: ``[10, 400]``)
 
     .. admonition:: Example images
 

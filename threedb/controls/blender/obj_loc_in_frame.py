@@ -1,6 +1,10 @@
 """
 threedb.controls.blender.obj_loc_in_frame
 =========================================
+
+Change the object location in the frame. 
+An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/obj_loc_in_frame.yaml>`_. 
 """
 
 from ...try_bpy import bpy
@@ -21,7 +25,7 @@ class ObjLocInFrameControl(PreProcessControl):
 
     - ``x_shift``: The normalized X-coordinate of the center of the object in the frame.
         A value of -1 is the left-most edge of the frame and 1 is the right-most
-        edge of the frame. (range: [-1, 1])
+        edge of the frame. (range: ``[-1, 1]``)
     - ``y_shift``: The normalized Y-coordinate of the center of the object in the frame
         Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
 

@@ -2,7 +2,8 @@
 threedb.controls.blender.background
 ===================================
 
-Defines a Blender control for solid-color background color modifications.
+Set the background to a solid-color. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/background.yaml>`_.
 """
 
 from typing import Any, Dict
@@ -19,7 +20,7 @@ class BackgroundControl(PostProcessControl):
     Continuous parameters:
 
     - ``H``, ``S`` and ``V``: the hue, saturation, and value of the color to
-      fill the background with. (range: [0, 1])
+      fill the background with. (range: ``[0, 1]``)
 
     .. admonition:: Example images
 
