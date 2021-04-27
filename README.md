@@ -27,8 +27,6 @@ If you find 3DB helpful, please cite it as:
 ```
 
 
-3 Tmux sessions running the client, server, and tensorboard will be started for you!
-
 ## Basic Data Collection
 This shows you how to collect a dataset using blender to analyze the quality of the models generated. We assume that the blender environments are in `$BLENDER_ENVS`, models are in `$BLENDER_MODELS`, and the desired output directory is in `$OUTDIR`.
 
