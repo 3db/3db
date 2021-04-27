@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=2                    # How many jobs
 #SBATCH --mem-per-cpu=5G                    # How many jobs
 #SBATCH --output=/mnt/nfs/home/aiilyas/slurm/logs/master_log.log
-#SBATCH --nodelist=deep-gpu-10,deep-gpu-11
+#SBATCH --nodelist=deep-gpu-10
 
 set -e
 # . /mnt/nfs/modules/Modules/init/bash

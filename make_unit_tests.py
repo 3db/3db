@@ -60,7 +60,7 @@ control_to_yaml = {
         'aperture': (1., 32.),
         'focal_length': (10, 400)
     },
-    'imagenet_c': { # TODO: requires imagemagick
+    'imagenet_c': {
         'module': 'threedb.controls.blender.imagenet_c',
         'corruption_name': ['impulse_noise'],
         'severity': [1, 2, 3, 4, 5]
@@ -81,7 +81,13 @@ control_to_yaml = {
         'zoom': (.1, .4),
         'scale': (.04, .07),
         'direction': [0, 1, 2, 3, 4, 5, 6, 7],
-        'occluder': [0, 1, 2, 3]
+        'occluder': [
+            '000b76f2b03e44e8ab44e1a1614be0f4.blend',
+            '000ff3a4edcb41d8a511850d49e171af.blend',
+            '001f16707683405cb2340cd7194b7eba.blend',
+            '00327d46729043cb9b06bd0ca6ffb344.blend',
+            '003725c9dd7d47ada2b2a2ced2f23953.blend'
+        ]
     },
     'orientation': {
         'module': 'threedb.controls.blender.orientation',
