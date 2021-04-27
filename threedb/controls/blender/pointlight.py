@@ -2,7 +2,7 @@
 threedb.controls.blender.pointlight
 ===================================
 
-Defines a Blender Control for single pointwise light source
+EXPERIMENTAL CONTROL. DO NOT USE.
 """
 
 from typing import Any, Dict
@@ -16,20 +16,20 @@ class PointLightControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - H, S, V: The color of the light (range: [0, 1] for each)
-    - intensity: The intensity of the light. Value depends on the environment.
-      (range: [1000, 10000])
-    - distance: The distance away from the object of interest
-    - dir_x: relative (X, Y, Z)-coordinate of the point light w.r.t the object
-      of interest. (ranges: [-1, 1], [-1, 1], [0, 1])
+    - ``H``, ``S``, ``V``: The color of the light (range: ``[0, 1]`` for each)
+    - ``intensity``: The intensity of the light. Value depends on the environment.
+      (range: ``[1000, 10000]``)
+    - ``distance``: The distance away from the object of interest
+    - ``dir_x``: relative (x, y, z)-coordinate of the point light w.r.t the object
+      of interest. (ranges: ``[-1, 1]``, ``[-1, 1]``, ``[0, 1]`` respectively for x, y, z).
 
     .. note::
         1. You can add multiple point lights by using this control multiple
         times
 
-        2. The vector `(dir_x, dir_y, dir_z)` is used along which direction
+        2. The vector ``(dir_x, dir_y, dir_z)`` is used along which direction
         w.r.t the is the point light placed, but the actual distance along
-        that direction is decided by the `distance` parameter.
+        that direction is decided by the ``distance`` parameter.
 
     """
     def __init__(self, root_folder: str):

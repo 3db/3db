@@ -1,6 +1,9 @@
 """
 threedb.controls.blender.scale
 ==============================
+
+Control the object scale. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/scale.yaml>`_.
 """
 
 from typing import Any, Dict
@@ -11,8 +14,8 @@ class ObjScaleControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - factor: scaling factor which takes any positive number. Setting the
-        factor to 1 maintains the same object size. (default range: [0.25, 1])
+    - ``factor``: scaling factor which takes any positive number. Setting the
+        factor to 1 maintains the same object size. (default range: ``[0.25, 1]``)
 
     .. admonition:: Example images
 

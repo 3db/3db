@@ -2,7 +2,7 @@
 threedb.controls.blender.mug_liquid
 ===================================
 
-Defines the MugLiquidControl
+Change liquid inside of a mug. Used to reproduce examples in the 3DB paper.
 """
 
 from ...try_bpy import bpy
@@ -23,8 +23,8 @@ class MugLiquidControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - ``ratio_milk`` (float): The ratio of milk (range: [0, 1])
-    - ``ratio_coffee`` (float): The ratio of coffee (range: [0, 1])
+    - ``ratio_milk`` (float): The ratio of milk (range: ``[0, 1]``)
+    - ``ratio_coffee`` (float): The ratio of coffee (range: ``[0, 1]``)
     """
 
     def __init__(self, root_folder: str):

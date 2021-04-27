@@ -2,7 +2,8 @@
 threedb.controls.blender.material
 =================================
 
-Defines the MaterialControl Blender Control
+Change object materials. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/material.yaml>`_. 
 """
 
 from os import path
@@ -24,8 +25,8 @@ class MaterialControl(PreProcessControl):
         original material.
 
     .. note::
-        The possible values for `replacement_material` can be any file
-        (without `.blend`) found in `$BLENDER_DATA/blender_control_material`.
+        The possible values for ``replacement_material`` can be any file name
+        found in ``$BLENDER_DATA/blender_control_material``.
 
         Each of these file should only contain a single material.
 

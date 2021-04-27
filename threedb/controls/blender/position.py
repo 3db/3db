@@ -1,6 +1,9 @@
 """
 threedb.controls.blender.position
 =================================
+
+Control the object location. An example config file using this control can be found here:
+`<https://github.com/3db/3db/tree/main/examples/unit_tests/position.yaml>`_.
 """
 
 from typing import Any, Dict
@@ -16,9 +19,9 @@ class PositionControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - offset_x: Translation compnonent along the world's x-axis (range: [-1, 1])
-    - offset_y: Translation compnonent along the world's y-axis (range: [-1, 1])
-    - offset_z: Translation compnonent along the world's z-axis (range: [-1, 1])
+    - ``offset_x``: Translation compnonent along the world's x-axis (range: ``[-1, 1]``)
+    - ``offset_y``: Translation compnonent along the world's y-axis (range: ``[-1, 1]``)
+    - ``offset_z``: Translation compnonent along the world's z-axis (range: ``[-1, 1]``)
 
     .. admonition:: Example images
 
