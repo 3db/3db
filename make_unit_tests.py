@@ -77,9 +77,9 @@ control_to_yaml = {
     },
     'occlusion': {
         'module': 'threedb.controls.blender.occlusion',
-        'occlusion_ratio': (0., 0.3),
+        'occlusion_ratio': (0.3, 0.6),
         'zoom': (.1, .4),
-        'scale': (.01, .02),
+        'scale': (.04, .07),
         'direction': [0, 1, 2, 3, 4, 5, 6, 7],
         'occluder': [0, 1, 2, 3]
     },
@@ -91,13 +91,13 @@ control_to_yaml = {
     },
     'pin_to_ground': {
         'module': 'threedb.controls.blender.pin_to_ground',
-        'z_ground': (0.0, 0.01)
+        'z_ground': (0.0, 0.03)
     },
     'position': {
         'module': 'threedb.controls.blender.position',
-        'offset_X': (-0.01, .01),
-        'offset_Y': (-0.01, .01),
-        'offset_Z': (-0.01, .01)
+        'offset_X': (-0.02, .02),
+        'offset_Y': (-0.02, .02),
+        'offset_Z': (-0.02, .02)
     },
     'scale': {
         'module': 'threedb.controls.blender.scale',
