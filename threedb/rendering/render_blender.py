@@ -64,9 +64,9 @@ class Blender(BaseRenderer):
         imsize = [self.args['resolution'], self.args['resolution']]
         output_channels: Dict[str, Tuple[List[int], str]] = {'rgb': ([3, *imsize], 'float32')}
         if self.args['with_uv']:
-            output_channels['uv'] = ([3, *imsize], 'float32')
+            output_channels['uv'] = ([4, *imsize], 'float32')
         if self.args['with_depth']:
-            output_channels['depth'] = ([3, *imsize], 'float32')
+            output_channels['depth'] = ([4, *imsize], 'float32')
         if self.args['with_segmentation']:
             output_channels['segmentation'] = ([1, *imsize], 'int32')
 
