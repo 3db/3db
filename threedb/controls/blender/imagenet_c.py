@@ -12,12 +12,14 @@ from ..base_control import PostProcessControl
 
 class ImagenetCControl(PostProcessControl):
     """
-    Applies the ImageNet-C corruptions of [TODO].
+    Applies the ImageNet-C corruptions of the paper
+    `Benchmarking Neural Network Robustness to Common Corruptions and Perturbations <https://arxiv.org/abs/1903.12261>`_.
+    The package is found `here <https://github.com/hendrycks/robustness/tree/master/ImageNet-C/imagenet_c>`_.
 
     Discrete Dimensions:
 
     - ``corruption_name``: The name of corruption that will be applied (see
-      `here <TODO>`_ for list of corruption names)
+      `here <https://github.com/hendrycks/robustness/blob/master/ImageNet-C/imagenet_c/imagenet_c/__init__.py>`_ for list of corruption names)
     - ``severity``: Imagenet-C severity parameter. (range: {0, 1, 2, 3, 4, 5})
 
     .. admonition:: Example images

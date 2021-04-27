@@ -62,7 +62,7 @@ class JSONLogger(BaseLogger):
                  result_buffer: CyclicBuffer,
                  config: Dict[str, Dict[str, Any]]) -> None:
         """
-        TODO
+        A logger that logs all an experiments meta-data and results into a JSON file.
         """
         super().__init__(root_dir, result_buffer, config)
         fname = path.join(root_dir, 'details.log')

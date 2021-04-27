@@ -115,8 +115,8 @@ class SimpleDetectionEvaluator(BaseEvaluator):
             The model's performance on the given image. Non-maximal suppression
             is performed on the output of the classifier, the precision and
             recall are calculated using the IOU threshold set at
-            instantiation-time (see [TODO] for information on precision and
-            recall in object detection).
+            instantiation-time (see `here <https://en.wikipedia.org/wiki/Precision_and_recall>`_ 
+            for information on precision and recall in object detection).
 
             Precision and recall are then thresholded (by the
             ``min_precision`` and ``min_recall`` parameters) to get a single

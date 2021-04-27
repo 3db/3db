@@ -2,7 +2,8 @@
 threedb.rendering.render_blender
 ================================
 
-[TODO]
+Implements the `Blender` rendering class that subclasses :class:`threedb.rendering.base_renderer.BaseRenderer`:.
+This includes all the Blender-specific rendering settings, functions, and configs.
 """
 
 import re

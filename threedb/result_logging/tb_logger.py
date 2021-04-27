@@ -2,7 +2,7 @@
 threedb.result_logging.tb_logger
 ==================================
 
-[TODO]
+Subclass of :mod:`threedb.result_logging.base_logger.BaseLogger`.
 """
 
 import pandas as pd

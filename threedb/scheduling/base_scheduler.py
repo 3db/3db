@@ -2,7 +2,7 @@
 threedb.scheduling.base_scheduler
 =================================
 
-[TODO]
+The task schedular of 3DB.
 """
 
 from tqdm import tqdm

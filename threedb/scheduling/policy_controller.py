@@ -1,8 +1,6 @@
 """
 threedb.scheduling.policy_controller
 ====================================
-
-[TODO]
 """
 
 from multiprocessing import Process, Queue

@@ -2,7 +2,8 @@
 threedb.main
 =============
 
-[ TODO ]
+The master of 3DB which is responsible for initializing controls, 
+defining the search space, and scheduling the rendering tasks.
 """
 import os
 from typing import Type

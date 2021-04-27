@@ -1,8 +1,6 @@
 """
 Scheduling utils
 ================
-
-[TODO]
 """
 
 from threedb.utils import CyclicBuffer

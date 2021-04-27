@@ -20,8 +20,9 @@ class BaseLogger(Process, ABC):
       but rather will be called by ``run()``
     - ``run()``: main loop, waits for logs to be added to the queue, and calls
       ``log()`` on them.
+    - ``end()``: Performs cleanup operations for the logger. No-op by default, should
+        be overriden with code for closing any open file handles, ports, etc.
 
-    [TODO]
     """
     def __init__(self,
                  root_dir: str,
@@ -64,7 +65,7 @@ class BaseLogger(Process, ABC):
         ----------
         item : Dict[str, Any]
             A dictionary containing the results of a single rendering (as
-            returned by :mod:`threedb.clent`): see
+            returned by :mod:`threedb.client`): see
             [TODO] for more detailed information on what this will contiain.
         """
         raise NotImplementedError

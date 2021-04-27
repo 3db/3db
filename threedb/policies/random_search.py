@@ -2,7 +2,8 @@
 threedb.policies.random_search
 ==============================
 
-[TODO]
+A search policy over controls that randomly samples from the set of 
+permissible controls.
 """
 
 import numpy as np
