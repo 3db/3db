@@ -15,7 +15,7 @@ import numpy as np
 import orjson as json
 import torch as ch
 from threedb.result_logging.base_logger import BaseLogger
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 
 def clean_key(k: Iterable[str]) -> str:
     """
@@ -59,7 +59,7 @@ def clean_log(log_d: dict, key_blacklist: Tuple[str, str] = ('image', 'result_ix
 class JSONLogger(BaseLogger):
     def __init__(self,
                  root_dir: str,
-                 result_buffer: BigChungusCyclicBuffer,
+                 result_buffer: CyclicBuffer,
                  config: Dict[str, Dict[str, Any]]) -> None:
         """
         TODO

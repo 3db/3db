@@ -7,7 +7,7 @@ Implements an abstract class for logging results.
 
 from multiprocessing import Process, Queue
 from typing import Any, Dict, Optional
-from threedb.utils import BigChungusCyclicBuffer
+from threedb.utils import CyclicBuffer
 from abc import abstractmethod, ABC
 
 class BaseLogger(Process, ABC):
@@ -25,7 +25,7 @@ class BaseLogger(Process, ABC):
     """
     def __init__(self,
                  root_dir: str,
-                 result_buffer: BigChungusCyclicBuffer,
+                 result_buffer: CyclicBuffer,
                  config: Optional[Dict[str, Dict[str, Any]]]) -> None:
         """Creates a logger instance
 
@@ -34,7 +34,7 @@ class BaseLogger(Process, ABC):
         root_dir : str
             The directory in which to write the logging results (should be the
             same for all loggers, with each logger making a subfolder to log in)
-        result_buffer : BigChungusCyclicBuffer
+        result_buffer : CyclicBuffer
             The buffer where the main thread is writing the results
         config : Optional[Dict[str, Dict[str, Any]]]
             The config file (parsed from YAML) of the 3DB experiment being run

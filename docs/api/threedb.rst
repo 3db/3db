@@ -11,6 +11,7 @@ threedb package
    :maxdepth: 4
 
    threedb.controls
+   threedb.dashboard
    threedb.evaluators
    threedb.policies
    threedb.rendering
@@ -23,4 +24,5 @@ threedb package
 
    threedb.client
    threedb.main
+   threedb.try_bpy
    threedb.utils
