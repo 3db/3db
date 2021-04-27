@@ -12,7 +12,7 @@ from ..base_control import PostProcessControl
 
 class ImagenetCControl(PostProcessControl):
     """
-    Applies the ImageNet-C corruptions of `<https://github.com/hendrycks/robustness>`_.
+    Applies the ImageNet-C corruptions from `<https://github.com/hendrycks/robustness>`_.
 
     Discrete Dimensions:
 

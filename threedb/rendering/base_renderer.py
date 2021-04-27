@@ -2,7 +2,8 @@
 threedb.rendering.base_renderer
 ===============================
 
-[TODO]
+An abstract class of a Renderer which must be subclassed when adding new renderers.
+See `here <custom_renderer.html>`_ for details.
 """
 
 import torch as ch

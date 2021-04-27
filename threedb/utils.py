@@ -1,12 +1,6 @@
 """
 threedb.utils
 =============
-
-threedb utilities. Includes:
-
-- CyclicBuffer, a buffer that
-
-[TODO]
 """
 
 import importlib

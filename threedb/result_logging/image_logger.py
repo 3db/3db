@@ -43,7 +43,8 @@ class ImageLogger(BaseLogger):
             The buffer that is being written to by the policy controller
             containing all the results
         config : Dict[str, Any]
-            Config that the experiment was run with (see [TODO] for information
+            Config that the experiment was run with (see `here 
+            <quickstart.html#writing-a-configuration-file>`_ for information
             on config file format)
         """
         super().__init__(save_dir, result_buffer, config)

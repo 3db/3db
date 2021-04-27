@@ -1,8 +1,6 @@
 """
 threedb.controls.blender.position
 =================================
-
-[TODO]
 """
 
 from typing import Any, Dict

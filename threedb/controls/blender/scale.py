@@ -1,8 +1,6 @@
 """
 threedb.controls.blender.scale
 ==============================
-
-[TODO]
 """
 
 from typing import Any, Dict

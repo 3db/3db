@@ -2,7 +2,7 @@
 Rendering Utils
 ===============
 
-[TODO]
+Some useful untilities for Blender.
 """
 
 from typing import Any, Dict, List, Tuple

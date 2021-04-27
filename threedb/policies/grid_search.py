@@ -2,7 +2,8 @@
 threedb.policies.grid_search
 ============================
 
-[TODO]
+A search policy over controls that enumerates the cross product of all controls 
+and sweep over them all.
 """
 import numpy as np
 from itertools import product

@@ -18,7 +18,7 @@ There are two kinds of Controls:
   contrast or adding noise)
 
 This module file contains abstract base classes for both control types---new
-controls can be introduced by sublcassing the appropriate one (see [TODO] for
+controls can be introduced by sublcassing the appropriate one (see `here <custom_controls.html>`_ for
 details).
 """
 

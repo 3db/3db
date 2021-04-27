@@ -71,7 +71,7 @@ def query(sock: zmq.Socket, kind: str, worker_id: str,
     Returns
     -------
     Dict[str, Any]
-        The response from the server for to the sent message; see TODO for
+        The response from the server for to the sent message; see `here <extending.html#the-3db-workflow>`_ for
         documentation of the communication protocol,
     """            
     to_send = {

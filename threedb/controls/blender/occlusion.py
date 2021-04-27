@@ -1,8 +1,6 @@
 """
 threedb.controls.blender.occlusion
 ==================================
-
-[TODO]
 """
 
 from ...try_bpy import bpy
