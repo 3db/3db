@@ -61,4 +61,4 @@ html_theme_options = {
 html_static_path = ['_static']
 
 autodoc_member_order = 'bysource'
-autodoc_mock_imports = ['bpy', 'imagenet_c', 'cv2', 'torch', 'numpy', 'mathutils']
+autodoc_mock_imports = ['bpy', 'imagenet_c', 'cv2']
