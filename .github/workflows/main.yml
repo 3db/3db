@@ -27,6 +27,7 @@ jobs:
       - name: Build and upload the docs
         run: |
           pip install -U sphinx sphinxcontrib-images sphinx_rtd_theme
+          pip install -U -r ../requirements.txt
           cd docs_src
           sh ./compile.sh
           git branch -D ghpages || echo "branch exists"
