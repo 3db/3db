@@ -6,13 +6,13 @@ controls:
   - module: threedb.controls.blender.material
   - module: threedb.controls.blender.denoiser
   - module: threedb.controls.blender.position
-    offset_X: 0
-    offset_Y: 0.3
-    offset_Z: 0.4
+    offset_x: 0
+    offset_y: 0.3
+    offset_z: 0.4
   - module: threedb.controls.blender.orientation
-    rotation_X: 0
-    rotation_Y: 0
-    rotation_Z: (-3.14, 2.5132741228718345) # (-pi, pi - 2*pi/10)
+    rotation_x: 0
+    rotation_y: 0
+    rotation_z: (-3.14, 2.51) # (-pi, pi - 2*pi/10)
   - module: threedb.controls.blender.pin_to_ground
     z_ground: 0.23
   - module: threedb.controls.blender.camera
