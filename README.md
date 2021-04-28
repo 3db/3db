@@ -10,7 +10,7 @@ For detailed, step by step demonstration of the usage of the framework, please v
 
 ## Documentation
 
-You can find in-depth documentation for the package [here](LINK), including a
+You can find in-depth documentation for the package [here](https://3db.github.io/3db), including a
 quickstart guide, an explanation on the internal layout of the package, as well
 as guides for extending 3DB to new modalities, tasks, and output formats.
 
@@ -23,6 +23,7 @@ It contains:
 - 3D models
 - Environments: our studio and HDRI backgrounds
 - Replacement textures to use with `threedb.controls.blender.material`
+- Licensing/credits for the data
 
 ## Citation
 
