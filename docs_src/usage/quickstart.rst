@@ -11,7 +11,7 @@ To get started with sandbox, right away,
 
 .. code-block:: bash
 
-    0. Clone `https://github.com/3db/3db` and `https://github.com/3db/blog_demo`
+    0. Clone `https://github.com/3db/3db`
     1. Setup 3DB by running `curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb`
     2. Activate 3db's conda env: `conda activate threedb`
 
@@ -20,41 +20,46 @@ Each 3DB experiments requires a `BLENDER_DATA` folder that contains two subfolde
 
 .. code-block:: bash
 
-    - `blender_models/` that containing 3D models (`.blend` files with a single object whose name matches the filename)
-    - `blender_environments/` containing environments. We will provide you with these later.
+    - `blender_models/` containing 3D models (each 3D model is a `.blend` file with a single object)
+    - `blender_environments/` containing environments
 
-Here is an example demo that has this folder already setup
+Here, we provide an example demo that has this folder already setup:
 
 .. code-block:: bash
 
     3. Clone `https://github.com/3db/blog_demo`
-    4. Set `BLENDER_DATA=blog_demo/data/backgrounds`. 
+    4. `cd blog_demo`
+    5. Set `BLENDER_DATA=data/backgrounds`. 
 
-`${BLENDER_DATA}/blender_environments` contains several backgrounds and `${BLENDER_DATA}/blender_models` contain the 3D model of a mug.
+Now, `${BLENDER_DATA}/blender_environments` contains several environments and `${BLENDER_DATA}/blender_models` contains the 3D model of a mug.
 
 Now that we have the `BLENDER_DATA` directory setup we can proceed to run 3DB. We first need to define the output folder of 3DB:
 
 .. code-block:: bash
 
-    5. Run `export RESULTS_FOLDER='results_backgrounds'`
+    6. Run `export RESULTS_FOLDER='results_backgrounds'`
 
-Next, let's run 3DB on a predefined config file which you can find at `blog_demo/backgrounds.yaml`. This can be documentation
-by running the following two commands:
+Next, let's run 3DB on a predefined config file, which you can find at `backgrounds.yaml`. This can be done
+by running the following two commands separately (e.g., in two separate terminal windows):
 
-.. code-block:: bash
+.. code-block:: python
 
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
     threedb_workers 1 $BLENDER_DATA 5555
 
-The first runs the master node which schudles the rendering tasks for the clients which are run by the second command (here 1 client only).
+The first runs the master node which schedules the rendering tasks for the clients. This will keep running until all the rendering tasks are complete.
+The second command runs the clients (here, it runs 1 client only), which performs the rendering.
 
-A few seconds later, you will have your first results in `results_backgrounds/`! You can explore them in a web interface by
+A few seconds later, you will have your first results in `results_backgrounds/`! You can explore the results in a web interface by
 running: 
 
-.. code-block:: bash
+.. code-block:: python
 
     python -m threedb.dashboard $RESULTS_FOLDER
 
+This page will display the results as a large .json string.
+
+To view the results using the full dashboard, simply paste the URL of the page displaying the .json string into the top of the page: https://3db.github.io/dashboard/.
 
 In the sections below, we'll break down how to write your own config files,
 and other ways to view your results. For advanced users, the `Extending 3DB <extending.html>`_
