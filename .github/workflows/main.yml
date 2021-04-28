@@ -26,7 +26,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build and upload the docs
         run: |
-          pip install -U sphinx sphinxcontrib-images
+          pip install -U sphinx sphinxcontrib-images sphinx_rtd_theme
           cd docs_src
           sh ./compile.sh
           git branch -D ghpages
