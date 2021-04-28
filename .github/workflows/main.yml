@@ -26,6 +26,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
+          pip install -U sphinx
           cd docs_src
           sh ./compile.sh
           git branch -D ghpages
