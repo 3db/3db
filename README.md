@@ -23,6 +23,7 @@ It contains:
 - 3D models
 - Environments: our studio and HDRI backgrounds
 - Replacement textures to use with `threedb.controls.blender.material`
+- Licensing/credits for the data
 
 ## Citation
 
