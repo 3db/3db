@@ -30,7 +30,7 @@ jobs:
           cd docs_src
           sh ./compile.sh
           git branch -D ghpages || echo "branch exists"
-          git checkout -B
+          git checkout -B ghpages
           cd ..
           git add --force docs
           git commit -m generate docs
