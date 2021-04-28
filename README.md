@@ -10,7 +10,7 @@ For detailed, step by step demonstration of the usage of the framework, please v
 
 ## Documentation
 
-You can find in-depth documentation for the package [here](https://3db.github.io/3db/), including a
+You can find in-depth documentation for the package [here](https://3db.github.io/3db), including a
 quickstart guide, an explanation on the internal layout of the package, as well
 as guides for extending 3DB to new modalities, tasks, and output formats.
 
