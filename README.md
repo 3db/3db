@@ -14,6 +14,16 @@ You can find in-depth documentation for the package [here](LINK), including a
 quickstart guide, an explanation on the internal layout of the package, as well
 as guides for extending 3DB to new modalities, tasks, and output formats.
 
+## Starting data
+
+We offer data for users to try out 3DB (and reproduce the results of the paper mentioned below). It is available on dropbox at this link: https://www.dropbox.com/s/w86n9ouxdxamfka/threedb_starting_kit.tar.gz?dl=0. (One can use `wget` to download it).
+
+It contains:
+
+- 3D models
+- Environments (Our studio and HDRI backgrounds)
+- Replacement textures
+
 ## Citation
 
 If you find 3DB helpful, please cite it as:
