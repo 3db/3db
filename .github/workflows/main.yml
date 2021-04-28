@@ -32,6 +32,8 @@ jobs:
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
           cd ..
+          git config --global user.email "leclerc@mit.edu"
+          git config --global user.name "Guillaume Leclerc"
           git add --force docs
           git commit -m generate docs
           git push --force -u origin ghpages
