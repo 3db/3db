@@ -1,15 +1,14 @@
 base_config: base.yaml
-render_args:
-  samples: 32
 policy:
-  samples_per_dim: 8
+  module: threedb.policies.grid_search
+  samples_per_dim: 15
 controls:
-  - module: "denoiser"
-  - module: "background"
+  - module: threedb.controls.blender.denoiser
+  - module: threedb.controls.blender.background
     H: 0
     S: 0
     V: 1
-  - module: "camera"
+  - module: threedb.controls.blender.camera
     view_point_x: (-0.5, 0.5)
     view_point_y: (-0.5, 0.5)
     view_point_z: (-0.5, 0.5)

@@ -1,18 +1,19 @@
 base_config: base.yaml
 policy:
-  samples_per_dim: 8
+  module: threedb.policies.grid_search
+  samples_per_dim: 15
 controls:
-  - module: "mug_liquid"
-  - module: "denoiser"
-  - module: "position"
+  - module: threedb.controls.blender.mug_liquid
+  - module: threedb.controls.blender.denoiser
+  - module: threedb.controls.blender.position
     offset_X: 0
     offset_Y: 0.3
     offset_Z: 0.26666
-  - module: "orientation"
+  - module: threedb.controls.blender.orientation
     rotation_X: 0
     rotation_Y: 0
     rotation_Z: (-3.14, 2.35) # (-pi, pi - 2*pi/7)
-  - module: "camera"
+  - module: threedb.controls.blender.camera
     view_point_x: 0
     view_point_y: -0.5
     view_point_z: (0.2, 2)
