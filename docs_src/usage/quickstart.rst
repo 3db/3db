@@ -8,36 +8,31 @@ Super-Quickstart
 ----------------
 
 To get started with sandbox, right away, 
-```
-0. Clone `https://github.com/3db/3db` and `https://github.com/3db/blog_demo`
-1. Setup 3DB by running `curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb`
-2. Activate 3db's conda env: `conda activate threedb`
-```
+.. code-block:: bash
+    0. Clone `https://github.com/3db/3db` and `https://github.com/3db/blog_demo`
+    1. Setup 3DB by running `curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb`
+    2. Activate 3db's conda env: `conda activate threedb`
 
 
 Each 3DB experiments requires a `BLENDER_DATA` folder that contains two subfolders: 
-```
- - `blender_models/` that containing 3D models (`.blend` files with a single object whose name matches the filename)
- - `blender_environments/` containing environments. We will provide you with these later.
-```
+.. code-block:: bash
+    - `blender_models/` that containing 3D models (`.blend` files with a single object whose name matches the filename)
+    - `blender_environments/` containing environments. We will provide you with these later.
 Here is an example demo that has this folder already setup
-```
-3. Clone `https://github.com/3db/blog_demo`
-4. Set `BLENDER_DATA=blog_demo/data/backgrounds`. 
-```
+.. code-block:: bash
+    3. Clone `https://github.com/3db/blog_demo`
+    4. Set `BLENDER_DATA=blog_demo/data/backgrounds`. 
 `${BLENDER_DATA}/blender_environments` contains several backgrounds and `${BLENDER_DATA}/blender_models` contain the 3D model of a mug.
 
 Now that we have the `BLENDER_DATA` directory setup we can proceed to run 3DB. We first need to define the output folder of 3DB:
-```
-5. Run `export RESULTS_FOLDER='results_backgrounds'`
-```
+.. code-block:: bash
+    5. Run `export RESULTS_FOLDER='results_backgrounds'`
 
 Next, let's run 3DB on a predefined config file which you can find at `blog_demo/backgrounds.yaml`. This can be documentation
 by running the following two commands:
-```
+.. code-block:: bash
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
     threedb_workers 1 $BLENDER_DATA 5555
-```
 The first runs the master node which schudles the rendering tasks for the clients which are run by the second command (here 1 client only).
 
 A few seconds later, you will have your first results in `results_backgrounds/`! You can explore them in a web interface by
