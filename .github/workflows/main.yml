@@ -28,6 +28,7 @@ jobs:
         run: |
           pip install -U sphinx sphinxcontrib-images sphinx_rtd_theme
           cd docs_src
+          pip install -U -r ../requirements.txt
           sh ./compile.sh
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages

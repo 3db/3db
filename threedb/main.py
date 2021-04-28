@@ -52,7 +52,7 @@ parser.add_argument('--max-concurrent-policies', '-m', type=int, default=10,
                     help='Maximum number of concurrent policies, can keep memory under control')
 
 DEFAULT_RENDER_ARGS = {
-    'engine': 'threedb.rendering.blender',
+    'engine': 'threedb.rendering.render_blender',
     'resolution': 256,
     'samples': 256,
     'with_uv': False,
