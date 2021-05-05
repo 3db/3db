@@ -161,6 +161,8 @@ class SimpleDetectionEvaluator(BaseEvaluator):
         out = ch.zeros(*output_shape) - 1
         keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
         num_boxes = keep_inds.shape[0]
+        if num_boxes == 0:
+            return out
         keys = ('boxes', 'scores', 'labels')
         kept_preds = [pred[s][keep_inds].view(num_boxes, -1).float() for s in keys]
         out[:num_boxes] = ch.cat(kept_preds, dim=1)

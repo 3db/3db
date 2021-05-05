@@ -70,6 +70,7 @@ class PolicyController(Process):
                 job_id, result_ix = self.result_queue.get(block=True)
                 c_result = self.result_buffer[result_ix]
                 descriptor = all_descriptors[job_id]
+
                 self.logger_manager.log({
                     **descriptor._asdict(),
                     'result_ix': result_ix
