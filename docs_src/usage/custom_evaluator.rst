@@ -24,6 +24,7 @@ Since each method is described in :mod:`threedb.evaluators.base_evaluator`, we w
 
 .. code-block:: python
 
+    from typing import Dict, List, Tuple, Any
     from threedb.evaluators.base_evaluator import BaseEvaluator
 
     class ImageSegmentation(BaseEvaluator):
@@ -37,7 +38,7 @@ Since each method is described in :mod:`threedb.evaluators.base_evaluator`, we w
             self.arg1 = arg1
             self.arg2 = arg2
 
-        def get_segmentation_label(model_uid: str) -> int:
+        def get_segmentation_label(self, model_uid: str) -> int:
             # The output of this function will be the value associated
             # to pixels that belongs to the object of interest.
             # If you don't plan on using segmentation you can output anything.
