@@ -24,7 +24,7 @@ Since each method is described in :mod:`threedb.evaluators.base_evaluator`, we w
 
 .. code-block:: python
 
-    from threedb.evaluators.evaluator import BaseEvaluator
+    from threedb.evaluators.base_evaluator import BaseEvaluator
 
     class ImageSegmentation(BaseEvaluator):
 
