@@ -55,7 +55,9 @@ class CyclicBuffer:
     def declare_buffers(self, buffers: Dict[str, Tuple[List[int], str]]) -> bool:
         if self.initialized and (buffers != self.declared_buffers):
             return False
-
+        elif self.initialized:
+            return True
+        
         self.initialized = True
         self.declared_buffers = buffers
         for buf_name, (buf_size, buf_dtype) in buffers.items():

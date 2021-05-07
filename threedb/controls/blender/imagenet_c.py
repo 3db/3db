@@ -65,9 +65,6 @@ class ImagenetCControl(PostProcessControl):
         no_err, msg = self.check_arguments(control_args)
         assert no_err, msg
 
-        print('HI 1')
-        # render = render[:3]
-        print('HI')
         sev, c_name = control_args['severity'], control_args['corruption_name']
         img = render.numpy()
         img = img.transpose(1, 2, 0)
