@@ -7,40 +7,159 @@ out-of-the-box.
 Super-Quickstart
 ----------------
 
-To get started with sandbox, right away, 
+To get started with 3DB, clone the repository:
+
+.. code-block:: bash
+    
+    git clone https://github.com/3db/3db
+
+Setup 3DB by running this single command:
+
+.. code-block:: bash
+    
+    curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb
+
+Activate 3DB's conda env:
 
 .. code-block:: bash
 
-    0. Clone `https://github.com/3db/3db`
-    1. Setup 3DB by running `curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb`
-    2. Activate 3db's conda env: `conda activate threedb`
+    conda activate threedb
 
 
-Each 3DB experiments requires a `BLENDER_DATA` folder that contains two subfolders: 
+Each 3DB experiment requires a ``BLENDER_DATA`` folder that contains two subfolders:
 
-.. code-block:: bash
+    * ``blender_models/``, which contains 3D models of objects (each 3D model is a ``.blend`` file with a single object)
+    * ``blender_environments/``, which contains environments or backgrounds on which we want to render the objects.
 
-    - `blender_models/` containing 3D models (each 3D model is a `.blend` file with a single object)
-    - `blender_environments/` containing environments
-
-Here, we provide an example demo that has this folder already setup:
+Where will you get these 3D models and environments from? We got your back! We provide an `example repository <https://github.com/3db/blog_demo>`_ that has all what you need. First, clone this repository:
 
 .. code-block:: bash
 
-    3. Clone `https://github.com/3db/blog_demo`
-    4. `cd blog_demo`
-    5. Set `BLENDER_DATA=data/backgrounds`. 
+    git clone https://github.com/3db/blog_demo
 
-Now, `${BLENDER_DATA}/blender_environments` contains several environments and `${BLENDER_DATA}/blender_models` contains the 3D model of a mug.
+Next, create a link to the 3D models and environments for one of the examples in ``blog_demo/data``. There are three available experiments there 
+
+    * ``backgrounds``: render 3D models on various backgrounds.
+    * ``texture_swap``: render a 3D model with various textures.
+    * ``part_of_object``: render a 3D model in various poses and create an attribution heatmap. 
+    
+Here, we focus on the ``backgrounds`` experiment. Check out `this README <https://github.com/3db/blog_demo#running-this-demo>_ for steps on how to run any of these experiments.
+ 
+
+
+
+.. code-block:: bash
+
+    export BLENDER_DATA=data/backgrounds 
+    export RESULTS_FOLDER=results
+
+
+Now, ``${BLENDER_DATA}/blender_environments`` contains several environments and `${BLENDER_DATA}/blender_models` contains the 3D model of a mug.
 
 Now that we have the `BLENDER_DATA` directory setup we can proceed to run 3DB. We first need to define the output folder of 3DB:
 
+6. Run 
+
 .. code-block:: bash
 
-    6. Run `export RESULTS_FOLDER='results_backgrounds'`
+    export RESULTS_FOLDER=results_backgrounds
 
-Next, let's run 3DB on a predefined config file, which you can find at `backgrounds.yaml`. This can be done
-by running the following two commands separately (e.g., in two separate terminal windows):
+
+.. tabs::
+
+    .. tab:: base.yaml
+
+        .. code-block:: yaml
+
+            inference:
+            module: 'torchvision.models'
+            label_map: '/path/to/3db/resources/imagenet_mapping.json'
+            class: 'resnet18'
+            output_shape: [1000]
+            normalization:
+                mean: [0.485, 0.456, 0.406]
+                std: [0.229, 0.224, 0.225]
+            resolution: [224, 224]
+            args:
+                pretrained: True
+            evaluation:
+            module: 'threedb.evaluators.classification'
+            args:
+                classmap_path: '/path/to/3db/resources/ycb_to_IN.json'
+                topk: 1
+            render_args:
+            engine: 'threedb.rendering.render_blender'
+            resolution: 256
+            samples: 16
+            policy:
+            module: "threedb.policies.random_search"
+            samples: 100
+            logging:
+            logger_modules:
+                - "threedb.result_logging.image_logger"
+                - "threedb.result_logging.json_logger"
+
+    .. tab:: backgrounds.yaml
+
+        .. code-block:: yaml
+
+            base_config: "base.yaml"
+            policy:
+            module: "threedb.policies.random_search"
+            samples: 20
+            controls:
+            - module: "threedb.controls.blender.orientation"
+            - module: "threedb.controls.blender.camera"
+                zoom_factor: [0.7, 1.3]
+                aperture: 8.
+                focal_length: 50.
+            - module: "threedb.controls.blender.denoiser"
+
+    .. tab:: texture_swaps.yaml
+
+        .. code-block:: yaml
+
+            base_config: "base.yaml"
+            controls:
+            - module: "threedb.controls.blender.orientation"
+                rotation_x: -1.57
+                rotation_y: 0.
+                rotation_z: [-3.14, 3.14]
+            - module: "threedb.controls.blender.position"
+                offset_x: 0.
+                offset_y: 0.5
+                offset_z: 0.
+            - module: "threedb.controls.blender.pin_to_ground"
+                z_ground: 0.25
+            - module: "threedb.controls.blender.camera"
+                zoom_factor: [0.7, 1.3]
+                view_point_x: 1.
+                view_point_y: 1.
+                view_point_z: [0., 1.]
+                aperture: 8.
+                focal_length: 50.
+            - module: "threedb.controls.blender.material"
+                replacement_material: ["cow.blend", "elephant.blend", "zebra.blend", "crocodile.blend", "keep_original"]
+            - module: "threedb.controls.blender.denoiser"
+
+    .. tab:: part_of_object.yaml
+
+        .. code-block:: yaml
+
+            base_config: "base.yaml"
+            policy:
+            module: "threedb.policies.random_search"
+            samples: 20
+            controls:
+            - module: "threedb.controls.blender.orientation"
+            - module: "threedb.controls.blender.camera"
+                zoom_factor: [0.7, 1.3]
+                aperture: 8.
+                focal_length: 50.
+            - module: "threedb.controls.blender.denoiser"
+
+
+Next, let's run 3DB on a predefined config file, which you can find at `backgrounds.yaml`. This can be done by running the following two commands separately (e.g., in two separate terminal windows):
 
 .. code-block:: python
 
@@ -66,6 +185,7 @@ and other ways to view your results. For advanced users, the `Extending 3DB <ext
 section of the documentation will help you customize and exploit the
 modularity of 3DB.
 
+=========
 
 Writing a configuration file
 ----------------------------
