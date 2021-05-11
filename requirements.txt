@@ -21,3 +21,4 @@ typeguard
 sphinx_rtd_theme
 pyyaml
 flask-compress
+sphinx_copybutton
