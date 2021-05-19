@@ -64,3 +64,7 @@ html_static_path = ['_static']
 
 autodoc_member_order = 'bysource'
 autodoc_mock_imports = ['bpy', 'imagenet_c', 'cv2']
+
+
+# Style
+pygments_style = 'sphinx'

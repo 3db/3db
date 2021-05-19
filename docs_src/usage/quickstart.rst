@@ -9,7 +9,7 @@ Quickstart
 Requirements
 """""""""""""
 
-You will need a working python 3.x installation. To follow the rest of the Quickstart, you will also need Anaconda.
+You will need a working Python 3.x installation. To follow the rest of the Quickstart, you will also need `Anaconda <https://docs.anaconda.com/anaconda/install/>`_.
 
 Installation
 """""""""""""
@@ -26,7 +26,7 @@ Next, run the following command to setup 3DB:
     
     curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb
 
-Finally, activate 3DB's conda env:
+Finally, activate 3DB's conda environment:
 
 .. code-block:: bash
 
@@ -37,8 +37,8 @@ You are now ready to start running 3DB experiments!
 ----
 
 Run a simple experiment
-""""""""""""""""""""""
-Now, we will demonstrate how, in only few minutes, you can setup an experiment and generate the following images of a cup rendered with random orientations on various backgrounds.
+"""""""""""""""""""""""
+Now we will demonstrate how, in only few minutes, you can setup an experiment and generate the following images of a cup rendered with random orientations on various backgrounds.
 
 .. thumbnail:: /_static/backgrounds_example.png
     :width: 700
@@ -48,28 +48,29 @@ Now, we will demonstrate how, in only few minutes, you can setup an experiment a
 Each 3DB experiment requires a ``BLENDER_DATA`` folder that contains two subfolders:
 
     * ``blender_models/``, containing 3D models of objects (each 3D model is a ``.blend`` file with a single object)
-    * ``blender_environments/``, containing environments (backgrounds) on which we want to render the objects
+    * ``blender_environments/``, containing environments (backgrounds) on which we will render the objects
 
 For this simple experiment, we provide an `example repository <https://github.com/3db/blog_demo>`_ that contains all the 3D models and environments you need.
-First, clone the example repository and navigate to that folder:
+Clone the example repository and navigate to that folder:
 
 .. code-block:: bash
 
     git clone https://github.com/3db/blog_demo
-    cd ../blog_demo
+    cd blog_demo
 
-Then, update the ``BLENDER_DATA`` variable to point to the location of the 3D models and environments. For now, set it as follows: 
+Then, update the ``BLENDER_DATA`` variable to point to the location of the 3D models and environments. In our case, set it as follows: 
 
 .. code-block:: bash
 
-    export BLENDER_DATA=blog_demo/data/backgrounds 
+    export BLENDER_DATA=data/backgrounds 
 
 .. note::
     There are three available experiments in ``blog_demo``:
         * ``backgrounds``: renders a 3D models on various backgrounds.
         * ``texture_swap``: renders a 3D model with various textures.
-        * ``part_of_object``: renders a 3D model in various poses, then creates an attribution heatmap. 
-    Here, we focus on the ``backgrounds`` experiment. Check out `this README <https://github.com/3db/blog_demo#running-this-demo>`_ for steps on how to run the other experiments.
+        * ``part_of_object``: renders a 3D model in various poses, then creates an attribution heatmap.
+
+    Here, we focus on the ``backgrounds`` experiment. Refer to `this README <https://github.com/3db/blog_demo#running-this-demo>`_ for steps on how to run the other experiments.
  
 Next, define the output directory where 3DB will output the results.
 
@@ -77,9 +78,11 @@ Next, define the output directory where 3DB will output the results.
 
     export RESULTS_FOLDER=results
 
-The next step is to tell 3DB what configurations of 3D objects to render, how to evaluate the rendered images, and what data to log. These should all be specified inside a ``YAML configuration file``. 
+The next step is to tell 3DB what configurations of 3D objects to render, how to evaluate the rendered images, and what data to log.
+These should all be specified inside a ``YAML configuration file``. 
 
-Here, we provide example YAML files, which are also in the same `example repository <https://github.com/3db/blog_demo>`_ that you already cloned. Later on we will walk you through how to write your own configuration file. 
+Here, we provide example YAML files, which are also in the same `example repository <https://github.com/3db/blog_demo>`_ that you already cloned.
+Later on we will walk you through how to write your own configuration files.
 
 .. tabs::
 
@@ -186,9 +189,11 @@ Here, we provide example YAML files, which are also in the same `example reposit
                     S: 0.
                     V: 1.
 
-The first file, ``base.yaml`` contains common configurations that are used by the three other YAML files.
+The first file, ``base.yaml``, contains common configurations that are used by the three other YAML files.
 Each of the other YAML files corresponds to one of the aformentioned experiments.
 We will use the ``backgrounds.yaml`` already present in the example repository.
+
+----
 
 You are now ready to run 3DB! First, run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete:
 
@@ -197,17 +202,20 @@ You are now ready to run 3DB! First, run the ``master node``, which schedules th
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
 
 In a separate terminal window, run the ``client``, which performs the rendering.
-To do so, first make sure that the threedb conda environment is activated and that the ``BLENDER_DATA`` variable is properly set
+To do so, first make sure that 3DB's conda environment is activated and that the ``BLENDER_DATA`` variable is properly set.
 
 .. code-block:: bash
+
     conda activate threedb
-    export BLENDER_DATA=blog_demo/data/backgrounds
+    cd blog_demo
+    export BLENDER_DATA=data/backgrounds
 
-Then run 1 client using the following line of code: 
+Then run 1 client (you can run multiple clients in parallel to speed up the rendering) using the following line of code:
+ 
 .. code-block:: bash
+
     threedb_workers 1 $BLENDER_DATA 5555
 
-In general, you can run multiple clients in parallel if you want to perform the renders more quickly.
 
 A few seconds later, you will have your first results in ``results/``! You can explore the results in a web interface by running: 
 
@@ -217,13 +225,14 @@ A few seconds later, you will have your first results in ``results/``! You can e
 
 This page will display the results as a large .json string.
 
-To view the results using the full dashboard, simply paste the URL of the page displaying the .json string into the top of the page: https://3db.github.io/dashboard/. Below are examples of rendered images that you will get!
+To view the results using the full dashboard, simply paste the URL of the page displaying the .json string into the top of this page: https://3db.github.io/dashboard/.
+Below are examples of rendered images that you will see in the dashboard!
 
 .. thumbnail:: /_static/dashboard_example.png
     :width: 700
     :group: background
 
-You can also read the .json log file into ``pandas``, and analyze the results, e.g.: 
+You can also read the .json log file into ``pandas``, and analyze the results. For example, you can run the following python script, which is also in the demo repository: 
 
 .. tabs::
 
@@ -235,8 +244,8 @@ You can also read the .json log file into ``pandas``, and analyze the results, e
             import numpy as np
             import json
 
-            log_lines = open('results_backgrounds/details.log').readlines()
-            class_map = json.load(open('results_backgrounds/class_maps.json'))
+            log_lines = open('results/details.log').readlines()
+            class_map = json.load(open('results/class_maps.json'))
             df = pd.DataFrame.from_records(list(map(json.loads, log_lines)))
             df['prediction'] = df['prediction'].apply(lambda x: class_map[x[0]])
             df['is_correct'] = (df['is_correct'] == 'True')
@@ -260,7 +269,7 @@ There are six key parts of a 3DB configuration file. These are:
     
     * ``inference``: defines some inference model to predict the rendered images.
     * ``evaluation``: defines what evaluation metrics to compute given the output from the inference model.
-    * ``rendering``: defines rendering-specific settings and arguments 
+    * ``rendering``: defines rendering-specific settings and arguments.
     * ``controls``: defines the set of transformations to apply to the 3D model/environment before rendering the scene.
     * ``policy``: defines how to search through the various controls configurations.
     * ``logging``: defines how the results of 3DB will be dumped (e.g. JSON, Images, TensorBoard).
@@ -274,7 +283,7 @@ Inference settings
 The first step is to declare the inference model that will be evaluated by 3DB
 by filling in a configuration under the ``inference`` keyword. The ``module``,
 ``class`` and ``args`` keywords tell 3DB how to instantiate the prediction
-model. Below are examples how to instantiate a pre-trained ResNet-50 classifier and a pretrained object detection model respectively:
+model. Below are examples showing how to instantiate a pre-trained ResNet-50 classifier and a pretrained object detection model, respectively:
 
 .. tabs::
 
@@ -316,13 +325,13 @@ which are used to pre-process inputs before they are fed to the inference model:
         resolution: [500, 500]
         ## --- /END NEW STUFF ---
 
-Finally, the remaining arguments are for ``output_shape`` and ``class_mapping``.
+Finally, the remaining arguments are for ``output_shape`` and ``label_map``.
 The former tells 3DB how much space to allocate to save the model output:
     
     * for classifiers, this is just ``[NUM_CLASSES]``
     * for detection models, we will use ``[N, 6]`` where ``N`` is an upper bound on the number of bounding boxes we will save for a given image (the 6 is because bounding boxes are typically stored as ``(x1, y1, x2, y2, score, class)``. 
     
-The ``class_mapping`` argument is optional and only used by some loggers---you can provide the path to a JSON array containing class names, so that the output is more human-readable.
+The ``label_map`` argument is optional and only used by some loggers---you can provide the path to a JSON array containing class names, so that the output is more human-readable.
 
 An example of a final inference configuration for an object detection experiment
 is thus:
@@ -344,7 +353,7 @@ is thus:
 Evaluation settings
 """""""""""""""""""
 The evaluator module is responsible for taking the output of the inference
-model, and returning some metrics. 
+model, and returning some evaluation metrics. 
 
 By default, 3DB provides evaluators for both classification and object
 detection models: 
@@ -375,7 +384,7 @@ detection models:
 
 
 Different modalities/tasks (e.g., segmentation or regression)
-will require implementation of a custom evaluator, which we outline in
+will require implementing custom evaluators, which we outline in
 the `Customizing 3DB <custom_evaluator.html>`_ section of the documentation.
 
 
