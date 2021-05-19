@@ -4,8 +4,13 @@ Getting started with 3DB
 In this page, we'll go through all the steps to run a 3DB experiment
 out-of-the-box.
 
-Super-Quickstart
+Quickstart
 ----------------
+Requirements
+"""""""""""""
+
+You will need a working python 3.x installation. To follow the rest of the Quickstart, you will also need Anaconda.
+
 Installation
 """""""""""""
 
@@ -27,13 +32,13 @@ Finally, activate 3DB's conda env:
 
     conda activate threedb
 
-You are all set to start running 3DB experiments!
+You are now ready to start running 3DB experiments!
 
 ----
 
 Run a simple experiment
 """"""""""""""""""""""
-Now, we will demonstrate how, in only few minutes, you can setup an experiment and generate the following images of a cup rendered with random orientation on various backgrounds.
+Now, we will demonstrate how, in only few minutes, you can setup an experiment and generate the following images of a cup rendered with random orientations on various backgrounds.
 
 .. thumbnail:: /_static/backgrounds_example.png
     :width: 700
@@ -43,15 +48,17 @@ Now, we will demonstrate how, in only few minutes, you can setup an experiment a
 Each 3DB experiment requires a ``BLENDER_DATA`` folder that contains two subfolders:
 
     * ``blender_models/``, containing 3D models of objects (each 3D model is a ``.blend`` file with a single object)
-    * ``blender_environments/``, containing environments or backgrounds on which we want to render the objects.
+    * ``blender_environments/``, containing environments (backgrounds) on which we want to render the objects
 
-Wondering where to get these 3D models and environments from? We got your back! We provide an `example repository <https://github.com/3db/blog_demo>`_ that contains all what you need. First, clone this repository:
+For this simple experiment, we provide an `example repository <https://github.com/3db/blog_demo>`_ that contains all the 3D models and environments you need.
+First, clone the example repository and navigate to that folder:
 
 .. code-block:: bash
 
     git clone https://github.com/3db/blog_demo
+    cd ../blog_demo
 
-Then, create a link to the 3D models and environments of one of the examples in provided in ``blog_demo/data``, e.g.: 
+Then, update the ``BLENDER_DATA`` variable to point to the location of the 3D models and environments. For now, set it as follows: 
 
 .. code-block:: bash
 
@@ -62,17 +69,17 @@ Then, create a link to the 3D models and environments of one of the examples in 
         * ``backgrounds``: renders a 3D models on various backgrounds.
         * ``texture_swap``: renders a 3D model with various textures.
         * ``part_of_object``: renders a 3D model in various poses, then creates an attribution heatmap. 
-    Here, we focus on the ``backgrounds`` experiment. Check out `this README <https://github.com/3db/blog_demo#running-this-demo>`_ for steps on how to run any of these experiments.
+    Here, we focus on the ``backgrounds`` experiment. Check out `this README <https://github.com/3db/blog_demo#running-this-demo>`_ for steps on how to run the other experiments.
  
-You also need to define the output directory in which 3DB dumps the results.
+Next, define the output directory where 3DB will output the results.
 
 .. code-block:: bash
 
     export RESULTS_FOLDER=results
 
-The next step is telling 3DB what configurations of 3D objects to render, how to evaluate the rendered images, and what to log. These should all be specified inside a ``YAML configuration file``. 
+The next step is to tell 3DB what configurations of 3D objects to render, how to evaluate the rendered images, and what data to log. These should all be specified inside a ``YAML configuration file``. 
 
-Here we provide some example YAML files from the same `example repository <https://github.com/3db/blog_demo>`_ as above. Later on we will walk you through how to write your own config file. 
+Here, we provide example YAML files, which are also in the same `example repository <https://github.com/3db/blog_demo>`_ that you already cloned. Later on we will walk you through how to write your own configuration file. 
 
 .. tabs::
 
@@ -179,20 +186,28 @@ Here we provide some example YAML files from the same `example repository <https
                     S: 0.
                     V: 1.
 
-The first file, ``base.yaml`` contains common configurations that are used by the three other YAML files. Each of the other YAML files corresponds to one of the aformentioned experiments. In what follows, we use ``backgrounds.yaml``. Copy ``backgrounds.yaml`` from the above box and save it in a file.
+The first file, ``base.yaml`` contains common configurations that are used by the three other YAML files.
+Each of the other YAML files corresponds to one of the aformentioned experiments.
+We will use the ``backgrounds.yaml`` already present in the example repository.
 
-You are now ready to run 3DB! Run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete:
+You are now ready to run 3DB! First, run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete:
 
 .. code-block:: bash
 
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
 
-In a separate terminal, run the ``clients`` (here, it runs 1 client only), which perform the rendering.
+In a separate terminal window, run the ``client``, which performs the rendering.
+To do so, first make sure that the threedb conda environment is activated and that the ``BLENDER_DATA`` variable is properly set
 
 .. code-block:: bash
-    
+    conda activate threedb
+    export BLENDER_DATA=blog_demo/data/backgrounds
+
+Then run 1 client using the following line of code: 
+.. code-block:: bash
     threedb_workers 1 $BLENDER_DATA 5555
 
+In general, you can run multiple clients in parallel if you want to perform the renders more quickly.
 
 A few seconds later, you will have your first results in ``results/``! You can explore the results in a web interface by running: 
 
@@ -232,9 +247,9 @@ You can also read the .json log file into ``pandas``, and analyze the results, e
 
 *Congratulations! You have successfully completed your first 3DB experiment!*
 
-In the sections below, we'll break down how to write your own config files,
+In the sections below, we'll break down how to write your own configuration files,
 and other ways to view your results. For advanced users, the `Extending 3DB <extending.html>`_
-section of the documentation will help you customize and exploit the
+section of this documentation will help you customize and exploit the
 modularity of 3DB.
 
 =========
