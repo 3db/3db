@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 import distutils.cmd
 import os
 import distutils.log
@@ -44,7 +44,7 @@ class BuildDashboardCommand(distutils.cmd.Command):
 
 
 setup(name='threedb-preview',
-      version='0.0.5',
+      version='0.0.6',
       description='A framework for analyzing computer vision models with simulated data ',
       url='https://github.com/3db/3db',
       author='3DB authors',
@@ -74,7 +74,7 @@ setup(name='threedb-preview',
         'typeguard',
         'pyyaml',
         'flask-compress'],
-      packages=['threedb'],
+      packages=find_packages(),
       cmdclass={
           'build_dashboard': BuildDashboardCommand
       },
