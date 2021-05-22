@@ -44,7 +44,7 @@ class BuildDashboardCommand(distutils.cmd.Command):
 
 
 setup(name='threedb-preview',
-      version='0.0.4',
+      version='0.0.5',
       description='A framework for analyzing computer vision models with simulated data ',
       url='https://github.com/3db/3db',
       author='3DB authors',
@@ -71,7 +71,6 @@ setup(name='threedb-preview',
         'flask',
         'flask_cors',
         'tensorboard',
-        'mathutils',
         'typeguard',
         'pyyaml',
         'flask-compress'],
