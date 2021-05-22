@@ -16,6 +16,11 @@ from flask import send_from_directory
 from flask_compress import Compress
 from .data_reader import DataReader
 
+import threedb
+
+THREEDB_FOLDER = path.abspath(path.dirname(threedb.__file__))
+DASHBOARD_UI = path.join(THREEDB_FOLDER, 'dashboard_html')
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='3DB dashboard API')
@@ -40,12 +45,20 @@ if __name__ == '__main__':
     def send_js(imid):
         return send_from_directory(path.join(path.realpath(args.logdir), 'images'), imid + '_rgb.png')
 
-    @app.route('/')
+    @app.route('/log.json')
     def return_data():
         reader.update_data()
         return Response(reader.answer, mimetype='application/json')
 
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def catch_all(path):
+        print("PATH", path)
+        if not path:
+            path = 'index.html'
+        return send_from_directory(DASHBOARD_UI, path)
 
     if not args.no_browser:
-        webbrowser.open(f'https://3db.github.io/dashboard/?url=127.0.0.1:{args.port}', new=2)
+        webbrowser.open(f'http://localhost:{args.port}?url=localhost:{args.port}', new=2)
+        pass
     app.run(host='0.0.0.0', port=args.port, debug=False)

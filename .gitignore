@@ -1,5 +1,7 @@
 logs/
 
+threedb/dashboard_html/
+
 # Model files
 *.pth
 
@@ -134,3 +136,4 @@ dmypy.json
 .pyre/
 
 .vscode/
+
