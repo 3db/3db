@@ -53,7 +53,7 @@ class BuildPyCommand(setuptools.command.build_py.build_py):
 
 
 setup(name='threedb-preview',
-      version='0.1',
+      version='0.0.1',
       description='A framework for analyzing computer vision models with simulated data ',
       url='https://github.com/3db/3db',
       author='3DB authors',
