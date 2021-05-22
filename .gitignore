@@ -1,6 +1,7 @@
 logs/
 
 threedb/dashboard_html/
+dashboard_source/
 
 # Model files
 *.pth

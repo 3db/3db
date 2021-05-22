@@ -44,14 +44,6 @@ class BuildDashboardCommand(distutils.cmd.Command):
     print("r",r)
 
 
-class BuildPyCommand(setuptools.command.build_py.build_py):
-  """Custom build command."""
-
-  def run(self):
-    self.run_command('build_dashboard')
-    setuptools.command.build_py.build_py.run(self)
-
-
 setup(name='threedb-preview',
       version='0.0.2',
       description='A framework for analyzing computer vision models with simulated data ',
@@ -59,11 +51,32 @@ setup(name='threedb-preview',
       author='3DB authors',
       author_email='leclerc@mit.edu',
       license='MIT',
-      install_requires=requirements,
+      install_requires=[
+        'torch>=1.7.0',
+        'torchvision',
+        'cox',
+        'robustness',
+        'kornia',
+        'scikit-image',
+        'orjson',
+        'opencv-python',
+        'zmq',
+        'tensorboard',
+        'ipdb',
+        'flatten-dict',
+        'tqdm',
+        'pytest',
+        'pytest-xdist',
+        'flask',
+        'flask_cors',
+        'tensorboard',
+        'mathutils',
+        'typeguard',
+        'pyyaml',
+        'flask-compress'],
       packages=['threedb'],
       cmdclass={
-          'build_dashboard': BuildDashboardCommand,
-          'build_py': BuildPyCommand,
+          'build_dashboard': BuildDashboardCommand
       },
       include_package_data=True,
       zip_safe=False)
