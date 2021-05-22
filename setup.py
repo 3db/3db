@@ -10,10 +10,9 @@ from subprocess import check_output
 
 DASHBOARD_REPO = "https://github.com/3db/dashboard.git"
 
-folder = path.dirname(path.abspath(__file__))
-with open(path.join(folder, 'requirements.txt'), 'r') as handle:
-    requirements = handle.readlines()
-
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 class BuildDashboardCommand(distutils.cmd.Command):
 
@@ -49,6 +48,8 @@ setup(name='threedb-preview',
       description='A framework for analyzing computer vision models with simulated data ',
       url='https://github.com/3db/3db',
       author='3DB authors',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       author_email='leclerc@mit.edu',
       license='MIT',
       install_requires=[
