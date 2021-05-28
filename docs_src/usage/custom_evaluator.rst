@@ -78,8 +78,6 @@ Each method is described in :mod:`threedb.evaluators.base_evaluator`. Your final
                 # You can add as many metrics as you want
             }
 
-            pass
-
     # IMPORTANT! Needed so that threedb is able to import your custom evaluator
     # (since it can't know how you named your class).
     Evaluator = ImageSegmentation
