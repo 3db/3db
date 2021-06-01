@@ -386,13 +386,13 @@ detection models:
 
 Different modalities/tasks (e.g., segmentation or regression)
 will require implementing custom evaluators, which we outline in
-the `Customizing 3DB <custom_evaluator.html>`_ section of the documentation.
+the `Customizing 3DB <custom_evaluator.html>`__ section of the documentation.
 
 
 Rendering settings
 """""""""""""""""""
 This part of the config file is responsible for declaring rendering-specific parameters and configurations, e.g., which renderer to choose, what image sizes to render, how many ray-tracing samples to use and so forth. The currently supported keywords for this section of the config file are:
-    * `engine`: which renderer to use. 3DB supports Blender by default, :class:`threedb.rendering.render_blender.Blender`. See `Customizing 3DB <custom_renderer.html>`_ for how to add custom renderers.
+    * `engine`: which renderer to use. 3DB supports Blender by default, :class:`threedb.rendering.render_blender.Blender`. See `Customizing 3DB <custom_renderer.html>`__ for how to add custom renderers.
     * `resolution`: the resolution of the rendered images.
     * `samples`: number of sample used for ray-tracing.
 

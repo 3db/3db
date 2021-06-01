@@ -27,7 +27,7 @@ modularized as follows:
     :alt: Diagram of the server-side workflow of 3DB
 
 While the server side of 3DB *is* modularizable, users should seldom have to
-customize anything other than the loggers (shown `here <custom_logger.html>`_). The other components,
+customize anything other than the loggers (shown `here <custom_logger.html>`__). The other components,
 e.g., the scheduler, the search strategy, the policy controller, and the buffer are already rather general
 and should capture the vast majority of use cases.
 
@@ -50,14 +50,14 @@ Step 2: Client renders and applies controls
 
 These parameters are passed to the rendering module, along with the rendering
 parameters from the config file. The default renderer is Blender, but as shown
-`here <custom_renderer.html>`_, users can implement their own rendering module,
+`here <custom_renderer.html>`__, users can implement their own rendering module,
 as long as it provides concrete implementations of a few simple abstract functions.
 The renderer outputs a list of renderings (both a standard RGB render as well as
 any others that were requested, such as a UV map or segmentation map).
 
 As part of step 2, the renderer applies a set of "controls," or structured scene
 transformations. Users can also implement their own controls, as shown
-`here <custom_controls.html>`_.
+`here <custom_controls.html>`__.
 
 Step 3: Client predicts and evaluates
 ''''''''''''''''''''''''''''''''''''''
@@ -73,7 +73,7 @@ inference model to a tensor, and (b) computing the desired performance metrics
 for the inference model (e.g., correctness, loss, etc.). 3DB provides evaluators
 for both classification and object detection; for other modalities or tasks,
 users will have to customize the evaluation model as illustrated
-`here <custom_evaluator.html>`_.
+`here <custom_evaluator.html>`__
 
 Step 4: Results sent back to server
 '''''''''''''''''''''''''''''''''''
