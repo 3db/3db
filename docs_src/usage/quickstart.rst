@@ -65,7 +65,8 @@ Then, update the ``BLENDER_DATA`` variable to point to the location of the 3D mo
     export BLENDER_DATA=data/backgrounds 
 
 .. note::
-    There are three available experiments in ``blog_demo``:
+
+    There are _`in-line targets` three available experiments in ``blog_demo``:
         * ``backgrounds``: renders a 3D models on various backgrounds.
         * ``texture_swap``: renders a 3D model with various textures.
         * ``part_of_object``: renders a 3D model in various poses, then creates an attribution heatmap.
@@ -265,14 +266,14 @@ modularity of 3DB.
 
 Writing a configuration file
 ----------------------------
-There are six key parts of a 3DB configuration file. These are:
+There are six key parts of a 3DB configuration file:
     
-    * ``inference``: defines some inference model to predict the rendered images.
+    * ``inference``: defines some inference model to predict on the rendered images.
     * ``evaluation``: defines what evaluation metrics to compute given the output from the inference model.
-    * ``rendering``: defines rendering-specific settings and arguments.
+    * ``rendering``: defines rendering-specific settings and arguments. 
     * ``controls``: defines the set of transformations to apply to the 3D model/environment before rendering the scene.
     * ``policy``: defines how to search through the various controls configurations.
-    * ``logging``: defines how the results of 3DB will be dumped (e.g. JSON, Images, TensorBoard).
+    * ``logging``: defines how the results of 3DB are saved (e.g. JSON, Images, TensorBoard).
 
 An example of each can be found in the YAML files of the above simple experiment. We will now go through each of these sections individually and
 explain the required keywords, possible settings, and customization options for
@@ -390,10 +391,32 @@ the `Customizing 3DB <custom_evaluator.html>`_ section of the documentation.
 
 Rendering settings
 """""""""""""""""""
+This part of the config file is responsible for declaring rendering-specific parameters and configurations, e.g., which renderer to choose, what image sizes to render, how many ray-tracing samples to use and so forth. The currently supported keywords for this section of the config file are:
+    * `engine`: which renderer to use. 3DB supports Blender by default, :class:`threedb.rendering.render_blender.Blender`. See `Customizing 3DB <custom_renderer.html>`_ for how to add custom renderers.
+    * `resolution`: the resolution of the rendered images.
+    * `samples`: number of sample used for ray-tracing.
 
+Here is an example of these settings:
+
+.. code-block:: yaml
+
+    render_args:
+        engine: 'threedb.rendering.render_blender'
+        resolution: 256
+        samples: 16
+
+which specify blender as the renderer, a resolution of 256x256 of the rendered images, and 16 as the number of samples for ray-tracing in Blender.  
 
 Controls settings
 """""""""""""""""""
+Every experiment requires the user to define how they want to reconstruct/manipulate the scene, e.g.
+
+    * where will the object be placed
+    * what is the orientation of the object
+    * what is the background of the object
+    * is there anything occluding the object
+
+and the list goes on. In order to do these and control the scene, a list of ``controls`` has to be defined in the YAML file.
 
 Policy settings
 """""""""""""""""""
