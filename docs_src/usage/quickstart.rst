@@ -66,7 +66,7 @@ Then, update the ``BLENDER_DATA`` variable to point to the location of the 3D mo
 
 .. note::
 
-    There are _`in-line targets` three available experiments in ``blog_demo``:
+    There are three available experiments in ``blog_demo``:
         * ``backgrounds``: renders a 3D models on various backgrounds.
         * ``texture_swap``: renders a 3D model with various textures.
         * ``part_of_object``: renders a 3D model in various poses, then creates an attribution heatmap.
@@ -166,7 +166,7 @@ Later on we will walk you through how to write your own configuration files.
 
         .. code-block:: yaml
 
-            base_config: "./base.yaml"
+            base_config: "base.yaml"
             render_args:
                 engine: 'threedb.rendering.render_blender'
                 resolution: 256
@@ -230,7 +230,8 @@ This page will display the results via our dashboard. Below are examples of rend
     :width: 700
     :group: background
 
-You can also read the .json log file into ``pandas``, and analyze the results. For example, you can run the following python script, which is also in the demo repository: 
+You can also read the .json log file in $RESULTS_FOLDER into ``pandas``, and analyze the results.
+For example, you can run the following python script, which is also in the demo repository: 
 
 .. tabs::
 
@@ -265,8 +266,8 @@ Writing a configuration file
 ----------------------------
 There are six key parts of a 3DB configuration file:
     
-    * ``inference``: defines some inference model to predict on the rendered images.
-    * ``evaluation``: defines what evaluation metrics to compute given the output from the inference model.
+    * ``inference``: defines the model that is used to make predictions on the rendered images.
+    * ``evaluation``: defines what evaluation metrics to compute from the output from the inference model.
     * ``rendering``: defines rendering-specific settings and arguments. 
     * ``controls``: defines the set of transformations to apply to the 3D model/environment before rendering the scene.
     * ``policy``: defines how to search through the various controls configurations.
@@ -278,10 +279,10 @@ each.
 
 Inference settings
 """"""""""""""""""
-The first step is to declare the inference model that will be evaluated by 3DB
+The first step is to declare the inference model that 3DB will use to make predictions
 by filling in a configuration under the ``inference`` keyword. The ``module``,
-``class`` and ``args`` keywords tell 3DB how to instantiate the prediction
-model. Below are examples showing how to instantiate a pre-trained ResNet-50 classifier and a pretrained object detection model, respectively:
+``class``, and ``args`` keywords tell 3DB how to instantiate the prediction
+model. Below are examples showing how to instantiate a pre-trained ResNet-50 classifier and a pre-trained object detection model, respectively:
 
 .. tabs::
 
@@ -323,16 +324,16 @@ which are used to pre-process inputs before they are fed to the inference model:
         resolution: [500, 500]
         ## --- /END NEW STUFF ---
 
-Finally, the remaining arguments are for ``output_shape`` and ``label_map``.
+Finally, the remaining arguments to specify are ``output_shape`` and ``label_map``.
 The former tells 3DB how much space to allocate to save the model output:
     
-    * for classifiers, this is just ``[NUM_CLASSES]``
-    * for detection models, we will use ``[N, 6]`` where ``N`` is an upper bound on the number of bounding boxes we will save for a given image (the 6 is because bounding boxes are typically stored as ``(x1, y1, x2, y2, score, class)``. 
+    * For classifiers, this is just ``[NUM_CLASSES]``
+    * For detection models, we will use ``[N, 6]`` where ``N`` is an upper bound on the number of bounding boxes we will save for a given image.
+      The 6 is because bounding boxes are typically stored as 6-tuples ``(x1, y1, x2, y2, score, class)``. 
     
 The ``label_map`` argument is optional and only used by some loggers---you can provide the path to a JSON array containing class names, so that the output is more human-readable.
 
-An example of a final inference configuration for an object detection experiment
-is thus:
+An example of a complete inference configuration for an object detection experiment is the following:
 
 .. code-block:: yaml
 
@@ -351,7 +352,7 @@ is thus:
 Evaluation settings
 """""""""""""""""""
 The evaluator module is responsible for taking the output of the inference
-model, and returning some evaluation metrics. 
+model and returning evaluation metrics. 
 
 By default, 3DB provides evaluators for both classification and object
 detection models: 
@@ -403,24 +404,24 @@ Here is an example of these settings:
         resolution: 256
         samples: 16
 
-which specify blender as the renderer, a resolution of 256x256 of the rendered images, and 16 as the number of samples for ray-tracing in Blender.  
-
 Controls settings
 """""""""""""""""""
-Every experiment requires the user to define how they want to reconstruct/manipulate the scene, e.g.
+Every experiment requires the user to define how they want to control/manipulate the scene, e.g.,
 
-    * where will the object be placed
-    * what is the orientation of the object
-    * what is the background of the object
-    * is there anything occluding the object
+    * where will the object be placed?
+    * what is the orientation of the object?
+    * what is the background of the object?
+    * is there anything occluding the object?
 
-and the list goes on. In order to do these and control the scene, a list of ``controls`` has to be defined in the YAML file.
+In order to control/manipulate the scene, a list of ``controls`` has to be defined in the YAML file.
 
 Policy settings
 """""""""""""""""""
-After specifying the controls you want to apply to specific objects/scenes, the user have to specify how they want to search over the control space. This should be done in the configuration file under policy settings. We provide a number of search policies that the user can directly use in :mod:`threedb.policies`. 
+After specifying the controls to apply to specific objects/scenes, the user must specify how they want to search over the control space.
+This should be done in the configuration file under policy settings.
+We provide a number of default search policies that the user can directly use in :mod:`threedb.policies`. 
 
-For example, a user might want to randomly search in the space of poses of objects, or maybe do a grid search over specific object poses. We provide example configuration files for each case in the code block below:
+For example, a user might want to randomly search in the space of poses of objects, or do a grid search over specific object poses. We provide example configuration files for each case in the code block below:
 
 
 .. tabs::
@@ -469,9 +470,11 @@ The currently supported keywords for ``policy`` in the config file are:
 
 Logging settings
 """""""""""""""""""
-Finally, the user has to specify how to log or dump the result logs generated by 3DB. The output returned by each 3DB rendering consists of the rendered image(s), the prediction (based on the evaluation module), the control parameters of the current render, in addition to several other meta-data (object ID, image ID, etc). Part of these info can be dumped as JSON files, others as images and so forth. 
+Finally, the user has to specify how to log or dump the result logs generated by 3DB.
+The output returned by each 3DB rendering consists of the rendered image(s), the prediction (based on the evaluation module), the control parameters of the current render, in addition to several other pieces of meta-data (object ID, image ID, etc).
+Parts of this information can be dumped into JSON files, parts can be saved as image files, and other parts can be saved via other loggers as well.
 
-3DB thus comes with a number of default ``loggers`` that allow the user to easily read the data. These can be found in :mod:`threedb.result_logging`. Here are snippets of how to add each logger type to your yaml file.
+3DB thus comes with a number of default ``loggers`` that allow the user to easily read the data. These can be found in :mod:`threedb.result_logging`. Here are snippets of how to add each logger type to your YAML file.
 
 .. tabs::
 
@@ -509,4 +512,5 @@ Finally, the user has to specify how to log or dump the result logs generated by
                     threedb.result_logging.json_logger
 
 
-The user can also use any of these loggers simultaneously by adding them under each other (as done in ``Dashboard Loggers``. For adding custom loggers, see `Customizing 3DB <custom_logger.html>`__.
+The user can also use any of these loggers simultaneously by adding them under each other (as done in ``Dashboard Loggers``).
+For adding custom loggers, see `Customizing 3DB <custom_logger.html>`__.
