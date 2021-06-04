@@ -57,13 +57,13 @@ class Scheduler:
 
     def start(self, declared_outputs):
         """
-        Inputs:
+        Parameters
+        ----------
         - declared_outputs: map of key -> shape for what outputs the client will
           relay back to the server.
         
-        Outputs:
-        - None
-
+        Note
+        ----
         Side effects: will create the buffer using the specified shapes, start
         the policy controllers, and also the loggers.
         """

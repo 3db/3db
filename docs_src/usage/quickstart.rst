@@ -47,8 +47,8 @@ Now we will demonstrate how, in only few minutes, you can setup an experiment an
 
 Each 3DB experiment requires a ``BLENDER_DATA`` folder that contains two subfolders:
 
-    * ``blender_models/``, containing 3D models of objects (each 3D model is a ``.blend`` file with a single object)
-    * ``blender_environments/``, containing environments (backgrounds) on which we will render the objects
+    + ``blender_models/``, containing 3D models of objects (each 3D model is a ``.blend`` file with a single object)
+    + ``blender_environments/``, containing environments (backgrounds) on which we will render the objects
 
 For this simple experiment, we provide an `example repository <https://github.com/3db/blog_demo>`_ that contains all the 3D models and environments you need.
 Clone the example repository and navigate to that folder:
