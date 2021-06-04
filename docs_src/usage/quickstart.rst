@@ -19,8 +19,9 @@ To get started with 3DB, first clone the repository:
 .. code-block:: bash
     
     git clone https://github.com/3db/3db
+    pip install threedb-preview
 
-Next, run the following command to setup 3DB:
+Next, run the following command to install BLender and setup 3DB:
 
 .. code-block:: bash
     
