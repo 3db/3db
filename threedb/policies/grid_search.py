@@ -25,7 +25,7 @@ class GridSearchPolicy:
         total_queries *= np.prod(self.discrete_sizes)
         return 1, int(total_queries)
 
-    def run(self, render):
+    def run(self, render_and_send):
         continuous_values = np.linspace(0, 1, self.samples_per_dim)
 
         discrete_spaces = []
@@ -39,6 +39,6 @@ class GridSearchPolicy:
                 result.append((continuous_instance, discrete_instance))
 
         for r in chunks(result, 1000):
-            images, outputs, is_correct = render(r)
+            render_and_send(r)
 
 Policy = GridSearchPolicy

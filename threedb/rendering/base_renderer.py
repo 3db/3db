@@ -96,7 +96,7 @@ class BaseRenderer(ABC):
     @abstractmethod
     def get_context_dict(self, model_uid: str, object_class: int) -> Dict[str, Any]:
         """Returns, for a given model id, a "context" dictionary; this context
-        will be passed to the controls (see [TODO] for more info).
+        will be passed to the controls (see :class::class:`threedb.controls.base_control.PreProcessControl` for more info).
 
         Parameters
         ----------

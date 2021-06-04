@@ -73,7 +73,7 @@ class BaseEvaluator(ABC):
         Parameters
         ----------
         pred : Any
-            The output of the model being inspected with 3DB. [TODO]
+            The output of the model being inspected with 3DB.
         label : Any
             The label corresponding to the rendered image.
 
