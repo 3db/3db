@@ -14,7 +14,7 @@ You will need a working Python 3.x installation. To follow the rest of the Quick
 Installation
 """""""""""""
 
-To get started with 3DB, run the following command to install BLender and setup 3DB:
+To get started with 3DB, run the following command to install Blender and setup 3DB:
 
 .. code-block:: bash
     
