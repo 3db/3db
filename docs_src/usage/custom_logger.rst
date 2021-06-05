@@ -104,4 +104,3 @@ any way you see fit, for instance:
 * Make a pip package
 * Add the proper folder to ``$PYTHON_PATH``
 * Create and install a local package
-* ...
