@@ -423,7 +423,49 @@ Every experiment requires the user to define how they want to control/manipulate
     * what is the background of the object?
     * is there anything occluding the object?
 
-In order to control/manipulate the scene, a list of ``controls`` has to be defined in the YAML file.
+In order to control/manipulate the scene, a list of ``controls`` has to be defined in the YAML file. A number of example controls are shown below.
+
+.. tabs::
+
+    .. tab:: Orientation
+
+        .. code-block:: yaml
+
+            controls:
+                module: threedb.controls.blender.orientation
+                    rotation_x: [-3.14, 3.14]
+                    rotation_y: [-3.14, 3.14]
+                    rotation_z: [-3.14, 3.14]
+
+    .. tab:: Background
+
+        .. code-block:: yaml
+        
+            controls:
+                module: threedb.controls.blender.background
+                    H: [0.0, 1.0]
+                    S: [0.0, 1.0]
+                    V: [0.0, 1.0]
+
+    .. tab:: Denoiser
+
+        .. code-block:: yaml
+        
+            controls:
+                module: threedb.controls.blender.denoiser
+
+
+    .. tab:: Position
+
+        .. code-block:: yaml
+        
+            controls:
+                module: threedb.controls.blender.position
+                    offset_x: [-0.02, 0.02]
+                    offset_y: [-0.02, 0.02]
+                    offset_z: [-0.02, 0.02]
+
+3DB comes with a set of predefined controls that the user can use. These can be found in :mod:`threedb.controls`. The user can also add custom controls if desired, see `Customizing 3DB <custom_controls.html>`__ for how to add new controls.
 
 Policy settings
 """""""""""""""""""
