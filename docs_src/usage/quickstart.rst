@@ -274,7 +274,7 @@ modularity of 3DB.
 
 Writing a configuration file
 ----------------------------
-There are six key parts of a 3DB configuration file:
+There are six key parts/modules of a 3DB configuration file:
     
     * ``inference``: defines the model that is used to make predictions on the rendered images.
     * ``evaluation``: defines what evaluation metrics to compute from the output from the inference model.
@@ -362,7 +362,7 @@ An example of a complete inference configuration for an object detection experim
 Evaluation settings
 """""""""""""""""""
 The evaluator module is responsible for taking the output of the inference
-model and returning evaluation metrics. 
+module and returning evaluation metrics. 
 
 By default, 3DB provides evaluators for both classification and object
 detection models: 
@@ -404,8 +404,12 @@ This part of the config file is responsible for declaring rendering-specific par
     * ``engine``: which renderer to use. 3DB supports Blender by default, :class:`threedb.rendering.render_blender.Blender`. See `Customizing 3DB <custom_renderer.html>`__ for how to add custom renderers.
     * ``resolution``: the resolution of the rendered images.
     * ``samples``: number of sample used for ray-tracing.
+    * ``with_segmentation``: if ``True``, returns a segmentation map along with an RGB image. Defaults to ``False``.
+    * ``with_depth``: if ``True``, returns a depth map along with an RGB image. Defaults to ``False``.
+    * ``with_uv``: if ``True``, returns a UV map along with an RGB image. Defaults to ``False``.
 
-Here is an example of these settings:
+
+Here is an example of these settings, where only RGB and segmentation images are returned by 3DB:
 
 .. code-block:: yaml
 
@@ -413,6 +417,9 @@ Here is an example of these settings:
         engine: 'threedb.rendering.render_blender'
         resolution: 256
         samples: 16
+        with_segmentation: True
+        with_depth: False
+        with_uv: False
 
 Controls settings
 """""""""""""""""""
