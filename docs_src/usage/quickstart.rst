@@ -356,7 +356,7 @@ An example of a complete inference configuration for an object detection experim
             mean: [0., 0., 0.]
             std: [1., 1., 1.]
         resolution: [500, 500]
-        label_map: './resources/coco_mapping.json'
+        label_map: '/path/to/3db/resources/coco_mapping.json'
         output_shape: [100, 6]
 
 Evaluation settings
@@ -388,7 +388,7 @@ detection models:
                 module: "threedb.evaluators.detection"
                 args:
                     iou_threshold: 0.5
-                    classmap_path: './resources/uid_to_COCO.json'
+                    classmap_path: '/path/to/3db/resources/uid_to_COCO.json'
 
 
 
