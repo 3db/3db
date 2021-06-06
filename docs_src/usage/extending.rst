@@ -48,13 +48,13 @@ path to a 3D model and environment to load.
 Step 2: Client renders and applies controls
 ''''''''''''''''''''''''''''''''''''''''''''
 
-These job metdata are passed to the rendering module, along with the rendering
+The job metadata is passed to the rendering module, along with the rendering
 parameters from the config file. The default renderer is Blender, but as shown
 `here <custom_renderer.html>`__, users can implement their own rendering module,
 as long as it provides concrete implementations of a few simple abstract functions.
 The renderer outputs a list of renderings---both a standard RGB render as well as
 any others that were requested inside the config file (see 
-`here <quickstart.html#rendering-settings>`__ ), such as a UV map or segmentation map.
+`here <quickstart.html#rendering-settings>`__), such as a UV map or segmentation map.
 
 As part of step 2, the renderer applies a set of ``controls``, or structured scene
 transformations, described `here <quickstart.html#controls-settings>`__. Users can also implement their own controls, as shown
@@ -93,7 +93,7 @@ As mentioned in the section on `setting up a configuration file
 the previously mentioned modules can be substituted for a user-defined module,
 as long as the correct functions are implemented. In the guides below, we'll
 walk you through how to add custom controls, evaluators,
-loggers, renderers:
+loggers, and renderers:
 
 .. _guides:
 
