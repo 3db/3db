@@ -7,10 +7,9 @@ An example config file using this control can be found here:
 `<https://github.com/3db/3db/tree/main/examples/unit_tests/obj_loc_in_frame.yaml>`_. 
 """
 
-from ...try_bpy import bpy
+from ...try_bpy import bpy, mathutils
 # from bpy import context as C
 from math import tan
-from mathutils import Vector
 from typing import Any, Dict
 import numpy as np
 from ..base_control import BaseControl, PreProcessControl
@@ -96,7 +95,7 @@ class ObjLocInFrameControl(PreProcessControl):
                   y_limit * control_args['y_shift'],
                   - z_obj_wrt_camera, 1]
         shift = np.matmul(camera_matrix, np.array([coords]).T)
-        post_translate(obj, Vector(list(shift[:3])))
+        post_translate(obj, mathutils.Vector(list(shift[:3])))
 
     def unapply(self, context):
         cleanup_translate_containers(context['object'])

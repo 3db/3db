@@ -7,8 +7,7 @@ config file using this control can be found here:
 `<https://github.com/3db/3db/tree/main/examples/unit_tests/pin_to_ground.yaml>`_.
 """
 from typing import Any, Dict
-from ...try_bpy import bpy
-from mathutils import Vector
+from ...try_bpy import bpy, mathutils
 from threedb.controls.base_control import PreProcessControl
 from .utils import cleanup_translate_containers, post_translate
 
@@ -76,7 +75,7 @@ class PinToGroundControl(PreProcessControl):
         obj = context["object"]
         bpy.context.view_layer.update()
         obj_min_z = min((obj.matrix_world @ x.co)[2] for x in obj.data.vertices)
-        post_translate(obj, Vector([0, 0, control_args['z_ground'] - obj_min_z]))
+        post_translate(obj, mathutils.Vector([0, 0, control_args['z_ground'] - obj_min_z]))
 
     def unapply(self, context):
         cleanup_translate_containers(context['object'])

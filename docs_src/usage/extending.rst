@@ -92,7 +92,7 @@ As mentioned in the section on `setting up a configuration file
 <quickstart.html#writing-a-configuration-file>`_, any of
 the previously mentioned modules can be substituted for a user-defined module,
 as long as the correct functions are implemented. In the guides below, we'll
-walk you through how to add custom controls, evaluators,
+walk you through how to add custom controls, inference modules,  evaluators,
 loggers, and renderers:
 
 .. _guides:
@@ -104,6 +104,7 @@ Guides
    :maxdepth: 2
 
    custom_controls
+   custom_inference
    custom_evaluator
    custom_logger
    custom_renderer

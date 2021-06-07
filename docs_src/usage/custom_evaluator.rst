@@ -1,15 +1,15 @@
 Using a Custom Evaluator (for custom tasks)
 ===========================================
 
-Even though ``threedb`` focuses on computer vision, it can also be used to solve a myriad of possible tasks.
-We enable users to describe their own evaluation tasks in ``threedb``.
+Even though 3DB focuses on computer vision, it can also be used to solve a myriad of possible tasks.
+We enable users to describe their own evaluation tasks in 3DB.
 
 Out of the box, the frameworks supports:
 
 * Classification (:mod:`threedb.evaluators.classification`)
 * Object Detection (:mod:`threedb.evaluators.detection`)
 
-The procedure for extending evaluators in ``threedb`` is as follows:
+The procedure for extending evaluators in 3DB is as follows:
 
 #. Implement a subclass of the base class. For evaluators, it is: :mod:`threedb.evaluators.base_evaluator`.
 #. Have your file export the class under the name expected by the framework. For evaluators, it is: ``Evaluator``.

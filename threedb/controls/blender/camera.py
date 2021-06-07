@@ -9,8 +9,7 @@ Control the camera. An example config file using this control can be found here:
 from typing import Any, Dict
 
 import copy
-from ...try_bpy import bpy
-from mathutils import Vector
+from ...try_bpy import bpy, mathutils 
 from ..base_control import PreProcessControl
 from ...rendering.utils import lookat_viewport
 
@@ -114,7 +113,7 @@ class CameraControl(PreProcessControl):
                 reg.view_distance = 2
                 previous_lens = space.lens
                 space.lens = camera.data.lens * zoomout_factor
-                v_dir = Vector((args['view_point_x'], args['view_point_y'], args['view_point_z']))
+                v_dir = mathutils.Vector((args['view_point_x'], args['view_point_y'], args['view_point_z']))
                 reg.view_rotation = lookat_viewport(reg.view_location,
                                                     reg.view_location + v_dir)
                 bpy.ops.view3d.view_selected(ctx)
