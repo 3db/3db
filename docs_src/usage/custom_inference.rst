@@ -1,14 +1,18 @@
-Using a Custom Infernce Model
+Using a Custom Inference Model
 ===========================================
 
-A key element of 3DB is the inference model that is being debugged. Although 3DB comes with default inference modules, users can use their own infernece models. Here we show you how to do that.
+A key element of 3DB is the inference model that is being debugged.
+That is, what model do you want to use to make inferences on the images rendered by 3DB?
+3DB comes with two default inference modules, which use pre-trained models from torchvision.
+Here, we further show how you can use your own custom inference models.
 
-Out of the box, the 3DB supports:
+Out of the box, 3DB supports pre-trained models for:
 
 * Classification (:mod:`torchvision.models`)
 * Object Detection (:mod:`torchvision.models.detection`)
 
-These modules can be used as we previously shown `here <quickstart.html#inference-settings>`__. For example, to use a pretrained ``ResNet-18`` torchvision model, the user shall add the following to the YAML configuration file:
+We `previously discussed <quickstart.html#inference-settings>`__ how to use the default modules with pre-trained models.
+For example, to use a pre-trained ``ResNet-18`` model from torchvision, the user can simply add the following to their YAML configuration file:
 
 .. code-block:: yaml
 
@@ -19,7 +23,8 @@ These modules can be used as we previously shown `here <quickstart.html#inferenc
             pretrained: True
 
 
-Now in order to use your own inference (PyTorch) model, the first step is to create a pytorch module that defines your model. For example, create a folder with an empty file ``__init__.py``, and another file ``my_3db_inference_module.py`` that contains the following code:
+Now in order to use your own (PyTorch) inference model, the first step is to create a PyTorch module that defines your model.
+For example, first create a folder ``myinference``. Inside the folder, create an empty file ``__init__.py``, and another file ``my_3db_inference_module.py`` that contains the following code:
 
 .. code-block:: python 
 
@@ -27,45 +32,74 @@ Now in order to use your own inference (PyTorch) model, the first step is to cre
     import torch.nn as nn
     import torch.nn.functional as F
 
-    class MyClassifier(torch.nn.modules):
-        def __init__(self):
+    class MyClassifier(nn.Module):
+        def __init__(self, output_dim):
             super().__init__()
-            self.conv1 = nn.Conv2d(3, 6, 5)
-            self.pool = nn.MaxPool2d(2, 2)
-            self.conv2 = nn.Conv2d(6, 16, 5)
-            self.fc1 = nn.Linear(16 * 5 * 5, 120)
-            self.fc2 = nn.Linear(120, 84)
-            self.fc3 = nn.Linear(84, 10)
+            
+            self.features = nn.Sequential(
+                nn.Conv2d(3, 64, 3, 2, 1), #in_channels, out_channels, kernel_size, stride, padding
+                nn.MaxPool2d(2), #kernel_size
+                nn.ReLU(inplace = True),
+                nn.Conv2d(64, 192, 3, padding = 1),
+                nn.MaxPool2d(2),
+                nn.ReLU(inplace = True),
+                nn.Conv2d(192, 384, 3, padding = 1),
+                nn.ReLU(inplace = True),
+                nn.Conv2d(384, 256, 3, padding = 1),
+                nn.ReLU(inplace = True),
+                nn.Conv2d(256, 256, 3, padding = 1),
+                nn.MaxPool2d(2),
+                nn.ReLU(inplace = True),
+                nn.Conv2d(256, 256, 3, padding = 1),
+                nn.MaxPool2d(2),
+                nn.ReLU(inplace = True)
+            )
+            
+            self.classifier = nn.Sequential(
+                nn.Dropout(0.5),
+                nn.Linear(256 * 7 * 7, 4096),
+                nn.ReLU(inplace = True),
+                nn.Dropout(0.5),
+                nn.Linear(4096, 4096),
+                nn.ReLU(inplace = True),
+                nn.Linear(4096, output_dim),
+            )
 
         def forward(self, x):
-            x = self.pool(F.relu(self.conv1(x)))
-            x = self.pool(F.relu(self.conv2(x)))
-            x = torch.flatten(x, 1)
-            x = F.relu(self.fc1(x))
-            x = F.relu(self.fc2(x))
-            x = self.fc3(x)
-            return x
+            x = self.features(x)
+            h = x.view(x.shape[0], -1)
+            x = self.classifier(h)
+            x = x.squeeze(0)
+            return x, h
 
 
-Then the only thing left to do is to add this new module
-to your configuration file in the ``inference`` section:
+Next, simply point to the location of this new module in the ``inference`` section of your YAML file:
 
 .. code-block:: yaml
 
-  logging:
+  inference:
     module: path.to.my.module
     class: MyClassifier
     args:
-        arg1: "value for arg1"
-        arg2: "value for arg2"
+        output_dim: 1000
+    # You will need to re-define the following parameters even if they are in the base.yaml file that you import from
+    normalization:
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+    output_shape: [1000]
+    resolution: [224, 224]
 
 Here, ``path.to.my.module`` should point to the file containing your custom
-inference class (i.e. ``my_3db_inference_module`` from the above example). 
+inference class (i.e., ``my_3db_inference_module`` in the above example). 
 In general, you can make your custom inference module available in 
 any way you see fit, for instance:
 
-* Make a pip package.
-* Add the proper folder to ``$PYTHON_PATH``.
-* Create and install a local package.
+* Make a pip package
+* Add the proper folder to ``$PYTHON_PATH``
+* Create and install a local package
 
-Note that if you add a module for solving a task different than image classification or object detection, you will need to also add a custom evaluator as we describe in `here <custom_evaluator.html>`__. Otherwise, you can use the 3DB builtin evaluators found in :mod:`threedb.evaluators`.
+In this particular example, the model we load has randomly initialized weights.
+To load a model with pre-trained weights, you can modify the module's ``__init__`` function to load those weights (e.g. by passing in the path to a checkpoint as a parameter to ``__init__``).
+
+Finally, note that if you add a module for solving a task other than image classification and object detection, you will also need to add a custom evaluator, which we describe `here <custom_evaluator.html>`__.
+Otherwise, you can use the 3DB's built-in evaluators found in :mod:`threedb.evaluators`.
