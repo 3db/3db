@@ -169,7 +169,6 @@ if __name__ == '__main__':
     declared_outputs = {
         **image_shapes,
         **eval_shapes,
-        'output': (inference_args['output_shape'], 'float32'),
     }
     query(socket, 'decl', WORKER_ID, declared_outputs=declared_outputs)
 
@@ -224,14 +223,12 @@ if __name__ == '__main__':
                     prediction, input_shape = inference_model(result['rgb'])
 
                 lab = evaluator.get_target(model_uid, result)
-                evaluation = evaluator.summary_stats(prediction, lab)
+                evaluation = evaluator.summary_stats(prediction, lab, input_shape)
                 assert evaluation.keys() == eval_shapes.keys(), \
                     'Outputs do not match declared outputs' \
                    f'{list(evaluation.keys())}, {list(eval_shapes.keys())}'
-                out_shape =  inference_args['output_shape']
-                prediction_tens = evaluator.to_tensor(prediction, out_shape, input_shape)
+
                 data = {
-                    'output': prediction_tens,
                     **result,
                     **evaluation
                 }

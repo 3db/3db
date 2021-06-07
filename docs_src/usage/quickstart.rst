@@ -211,7 +211,7 @@ First, run the ``master node``, which schedules the rendering tasks (for clients
 
 .. code-block:: bash
 
-    # Run the following command to spawn the master node, then go to the next section to run the clients. 
+    # Run the following command to spawn the master node, then go to the next section to (concurrently) run the clients. 
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
 
 
@@ -280,7 +280,7 @@ For example, you can run the following python script, which is also in the demo 
 *Congratulations! You have successfully completed your first 3DB experiment!*
 
 Next, we'll break down how to `write your own configuration files <writing_config_file.html>`__,
-and other ways to view your results. For advanced users, the `Extending 3DB <extending.html>`_
+and other ways to view your results. For advanced users, the `Customizing 3DB <customizing.html>`_
 section of this documentation will help you customize and exploit the
 modularity of 3DB.
 

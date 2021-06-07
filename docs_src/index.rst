@@ -12,5 +12,5 @@ Welcome to 3DB's documentation!
 
    usage/quickstart
    usage/writing_config_file
-   usage/extending
+   usage/customizing
    api_doc
