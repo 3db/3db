@@ -7,7 +7,7 @@ out-of-the-box.
 Requirements
 """""""""""""
 
-You will need a working Python 3.x installation. To follow the rest of the Quickstart, you will also need `Anaconda <https://docs.anaconda.com/anaconda/install/>`_.
+You will need a working Python 3.x installation. To follow the rest of this page, you will also need `Anaconda <https://docs.anaconda.com/anaconda/install/>`_.
 
 Installation
 """""""""""""
@@ -204,7 +204,7 @@ We will use the ``backgrounds.yaml`` already present in the example repository.
 
 ----
 
-You are now ready to run 3DB! First, run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete:
+You are now ready to run 3DB! First, run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete. But before the master node starts doing anything, you need to also spawn some clients/workers as we show you in the next steps.
 
 .. code-block:: bash
 
