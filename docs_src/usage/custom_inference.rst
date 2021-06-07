@@ -8,7 +8,7 @@ Out of the box, the 3DB supports:
 * Classification (:mod:`torchvision.models`)
 * Object Detection (:mod:`torchvision.models.detection`)
 
-These modules can be used as we previously shown `here <quickstart.html#inference-settings>`__. For example, to use a pretrained ``ResNet-18`` torchvision model, the user shall add the following to the YAML configuration file:
+These modules can be used as we previously shown `here <writing_config_file.html#inference-settings>`__. For example, to use a pretrained ``ResNet-18`` torchvision model, the user shall add the following to the YAML configuration file:
 
 .. code-block:: yaml
 

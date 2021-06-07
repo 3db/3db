@@ -85,6 +85,10 @@ An example of a complete inference configuration for an object detection experim
         label_map: '/path/to/3db/resources/coco_mapping.json'
         output_shape: [100, 6]
 
+
+The user might want to use a custom inference model that goes beyond what 3DB comes with. We outline how to do that in
+the `Customizing 3DB <custom_inference.html>`__ section of the documentation.
+
 Evaluation settings
 """""""""""""""""""
 The evaluator module is responsible for taking the output of the inference

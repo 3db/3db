@@ -91,7 +91,7 @@ The next step is to tell 3DB what configurations of 3D objects to render, how to
 These should all be specified inside a ``YAML configuration file``. 
 
 Here, we provide example YAML files, which are also in the same `example repository <https://github.com/3db/blog_demo>`_ that you already cloned.
-Later on we will walk you through how to write your own configuration files.
+Later on we will walk you through `how to write your own configuration files <writing_config_file.html>`__.
 
 .. tabs::
 
