@@ -11,5 +11,6 @@ Welcome to 3DB's documentation!
    :caption: Contents:
 
    usage/quickstart
+   usage/writing_config_file
    usage/extending
    api_doc
