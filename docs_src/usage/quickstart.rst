@@ -278,7 +278,7 @@ For example, you can run the following python script, which is also in the demo 
 *Congratulations! You have successfully completed your first 3DB experiment!*
 
 Next, we'll break down how to `write your own configuration files <writing_config_file.html>`__,
-and other ways to view your results. For advanced users, the `Extending 3DB <extending.html>`_
+and other ways to view your results. For advanced users, the `Customizing 3DB <customizing.html>`_
 section of this documentation will help you customize and exploit the
 modularity of 3DB.
 

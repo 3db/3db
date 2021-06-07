@@ -1,7 +1,7 @@
-Extending 3DB
+Customizing 3DB
 =============
 
-We will now outline the different ways in which 3DB can be modified and extended
+We will now outline the different ways in which 3DB can be modified and customized
 to capture a large set of use cases. 
 
 
@@ -16,7 +16,7 @@ first we will briefly describe the structure of 3DB and the role
 that each module plays. 
 
 3DB is structured as a client-server application: the server loads the
-`configuration file <writing_config_file.html#writing-a-configuration-file>`_, and uses it to load the 3D models, the
+`configuration file <writing_config_file.html>`_, and uses it to load the 3D models, the
 environments, and the search space. From then on, the responsibility of the
 server is to send jobs to the client(s), receive the corresponding results, save
 them in a buffer, and then (concurrently on a separate process) log results from
@@ -97,7 +97,7 @@ loggers, and renderers:
 
 .. _guides:
 
-Guides
+Customization Guides
 ------
 
 .. toctree::
