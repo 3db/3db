@@ -27,7 +27,7 @@ Each method is described in :mod:`threedb.evaluators.base_evaluator`. Your final
     from typing import Dict, List, Tuple, Any
     from threedb.evaluators.base_evaluator import BaseEvaluator
 
-    class ImageSegmentation(BaseEvaluator):
+    class ExampleEvaluator(BaseEvaluator):
 
         # The output_type variable needs to be defined; it can be any string.
         output_type = 'YourOutputType'
@@ -52,7 +52,7 @@ Each method is described in :mod:`threedb.evaluators.base_evaluator`. Your final
 
 
         def declare_outputs(self) -> Dict[str, Tuple[List[int], str]]:
-            # The goal of this method is to declare what kind of metrics
+            # The goal of this method is to declare what kinds of metrics
             # the evaluator will generate.
             return {
                 'is_correct': ([], 'bool'),
@@ -80,7 +80,7 @@ Each method is described in :mod:`threedb.evaluators.base_evaluator`. Your final
 
     # IMPORTANT! Needed so that threedb is able to import your custom evaluator
     # (since it can't know how you named your class).
-    Evaluator = ImageSegmentation
+    Evaluator = ExampleEvaluator
 
 Updating the configuration file
 -------------------------------
