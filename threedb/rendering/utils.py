@@ -9,7 +9,10 @@ from typing import Any, Dict, List, Tuple
 import numpy as np
 from collections import defaultdict
 import importlib
-r
+try:
+    import mathutils
+except:
+    pass
 from ..controls.base_control import PreProcessControl, PostProcessControl
 
 def sample_upper_sphere() -> mathutils.Vector:

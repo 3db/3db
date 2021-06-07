@@ -32,7 +32,7 @@ Install the PyPI package (`recommended`):
     
     pip install threedb-preview
 
-Alternatively, clone the 3DB repository and manually setup and build it manually 
+Alternatively, clone the 3DB repository and manually setup and build it manually (but you will need to have ``node`` and ``npm`` installed on your machine):
 
 .. code-block:: bash
     
