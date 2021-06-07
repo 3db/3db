@@ -17,7 +17,7 @@ The procedure for extending evaluators in 3DB is as follows:
 #. Update the configuration file to use the newly defined evaluator.
 
 
-Subclassing
+Implementation
 -----------
 
 Each method is described in :mod:`threedb.evaluators.base_evaluator`. Your final file should look like this:

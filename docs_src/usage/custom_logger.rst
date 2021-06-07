@@ -84,7 +84,7 @@ Our custom logger is now fully functional.
     will reuse the memory for an upcoming render. Failure to do so will result in the
     system hanging when the buffer is full of unreleased entries.
 
-Utilization
+Updating the configuration file
 -----------
 
 Once your custom logger is defined, the only thing you have left to do is to add it

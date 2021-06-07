@@ -18,27 +18,21 @@ To get started with 3DB, run the following command to install Blender and setup 
     
     curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb
 
-Finally, activate 3DB's conda environment:
+Next, activate 3DB's conda environment:
 
 .. code-block:: bash
 
     conda activate threedb
 
-Install the PyPI package (`recommended`):
+Finally, clone the 3DB repository (or install the PyPI package):
 
 .. code-block:: bash
-    
-    pip install threedb-preview
 
-Alternatively, clone the 3DB repository and manually setup and build it manually (but you will need to have ``node`` and ``npm`` installed on your machine):
-
-.. code-block:: bash
-    
     git clone https://github.com/3db/3db
-    cd 3db
-    python setup.py build_dashboard
-    pip install -e .
-
+    pip install 3db/
+    
+    # or 
+    pip install threedb-preview
 
 You are now ready to start running 3DB experiments!
 
@@ -91,7 +85,7 @@ The next step is to tell 3DB what configurations of 3D objects to render, how to
 These should all be specified inside a ``YAML configuration file``. 
 
 Here, we provide example YAML files, which are also in the same `example repository <https://github.com/3db/blog_demo>`_ that you already cloned.
-Later on we will walk you through how to write your own configuration files.
+Later on we will walk you through `how to write your own configuration files <writing_config_file.html>`__.
 
 .. tabs::
 
@@ -202,16 +196,28 @@ The first file, ``base.yaml``, contains common configurations that are used by t
 Each of the other YAML files corresponds to one of the aformentioned experiments.
 We will use the ``backgrounds.yaml`` already present in the example repository.
 
+
+You are now ready to run 3DB! 
+
 ----
 
-You are now ready to run 3DB! First, run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete. But before the master node starts doing anything, you need to also spawn some clients/workers as we show you in the next steps.
+
+Running the master node
+........................
+
+First, run the ``master node``, which schedules the rendering tasks (for clients). This will keep running until all the rendering tasks are complete. No rendering will start before you run at least one client (as we will show you below). 
 
 .. code-block:: bash
 
+    # Run the following command to spawn the master node, then go to the next section to run the clients. 
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
 
+
+Running the clients
+........................
+
 In a separate terminal window, run the ``client``, which performs the rendering.
-To do so, first make sure that 3DB's conda environment is activated and that the ``BLENDER_DATA`` variable is properly set.
+To do so, make sure that 3DB's conda environment is activated and that the ``BLENDER_DATA`` variable is properly set.
 
 .. code-block:: bash
 
@@ -226,17 +232,25 @@ Then run 1 client (you can run multiple clients in parallel to speed up the rend
     threedb_workers 1 $BLENDER_DATA 5555
 
 
-A few seconds later, you will have your first results in ``results/``! You can explore the results in a web interface by running: 
+Running the dashboard
+........................
 
-.. code-block:: bash
+A few seconds later, you will have your first results in ``results/``! You can explore the results in a web interface by installing and running our threedb dashboard (``threedboard``): 
 
-    python -m threedb.dashboard $RESULTS_FOLDER
+.. code-block:: bash    
 
-This page will display the results via our dashboard. Below are examples of rendered images that you will see in the dashboard!
+    pip install threedboard
+    python -m threedboard $RESULTS_FOLDER
+
+This page will display the results via ``threedboard``. Below are examples of rendered images that you will see in the dashboard!
 
 .. thumbnail:: /_static/dashboard_example.png
     :width: 700
     :group: background
+
+
+Analyzing the results
+........................
 
 You can also read the .json log file in $RESULTS_FOLDER into ``pandas``, and analyze the results.
 For example, you can run the following python script, which is also in the demo repository: 
@@ -264,7 +278,7 @@ For example, you can run the following python script, which is also in the demo 
 *Congratulations! You have successfully completed your first 3DB experiment!*
 
 Next, we'll break down how to `write your own configuration files <writing_config_file.html>`__,
-and other ways to view your results. For advanced users, the `Extending 3DB <extending.html>`_
+and other ways to view your results. For advanced users, the `Customizing 3DB <customizing.html>`_
 section of this documentation will help you customize and exploit the
 modularity of 3DB.
 
