@@ -50,15 +50,15 @@ if __name__ == '__main__':
         reader.update_data()
         return Response(reader.answer, mimetype='application/json')
 
-    @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
-    def catch_all(path):
-        print("PATH", path)
-        if not path:
-            path = 'index.html'
-        return send_from_directory(DASHBOARD_UI, path)
+    @app.route('/', defaults={'c_path': ''})
+    @app.route('/<path:c_path>')
+    def catch_all(c_path):
+        print("PATH", c_path)
+        if not c_path:
+            c_path = 'index.html'
+        return send_from_directory(DASHBOARD_UI, c_path)
 
-    if not args.no_browser:
+    if not args.no_browser: 
         webbrowser.open(f'http://localhost:{args.port}?url=localhost:{args.port}', new=2)
-        pass
-    app.run(host='0.0.0.0', port=args.port, debug=False)
+        
+    app.run(host='0.0.0.0', port=args.port, debug=True)

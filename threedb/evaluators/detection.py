@@ -28,17 +28,17 @@ class SimpleDetectionEvaluator(BaseEvaluator):
     """
 
     output_type = 'bboxes'
-    output_shape = [100, 6]
     KEYS = ['is_correct_nolabel', 'precision_nolabel', 'recall_nolabel',
-            'is_correct', 'precision', 'recall', 'is_valid']
+            'is_correct', 'precision', 'recall', 'is_valid', 'boxes']
 
-    def __init__(self, iou_threshold: float, classmap_path: str,
+    def __init__(self, iou_threshold: float, max_num_boxes: int, classmap_path: str,
                  min_recall: float = 1.0, min_precision: float = 0.0):
         super().__init__()
         self.iou_threshold = iou_threshold
         self.min_rec = min_recall
         self.min_prec = min_precision
         self.uid_to_targets: Dict[str, LabelType] = json.load(open(classmap_path))
+        self.output_shape = [max_num_boxes, 6]
         check_type('uid_to_targets', self.uid_to_targets, Dict[str, LabelType])
 
     def get_segmentation_label(self, model_uid: str) -> int:
@@ -53,7 +53,8 @@ class SimpleDetectionEvaluator(BaseEvaluator):
             'is_correct_nolabel': ([], 'bool'),
             'precision_nolabel': ([], 'float32'),
             'recall_nolabel': ([], 'float32'),
-            'is_valid': ([], 'bool')
+            'is_valid': ([], 'bool'),
+            'boxes': (self.output_shape, 'float32')
         }
 
     def get_target(self,
@@ -97,7 +98,8 @@ class SimpleDetectionEvaluator(BaseEvaluator):
 
     def summary_stats(self,
                       pred: Dict[str, ch.Tensor],
-                      label: ch.Tensor) -> Dict[str, Output]:
+                      label: ch.Tensor,
+                      input_shape: List[int]) -> Dict[str, Output]:
         """Concrete implementation of
         :meth:`threedb.evaluators.base_evaluator.BaseEvaluator.summary_stats`
 
@@ -146,26 +148,37 @@ class SimpleDetectionEvaluator(BaseEvaluator):
             'is_correct': (prec >= self.min_prec) and (rec >= self.min_rec),
             'precision': prec,
             'recall': rec,
-            'is_valid': (int(label[:, 4]) != -1)
+            'is_valid': (int(label[:, 4]) != -1),
+            'boxes': self.to_tensor(pred, input_shape)
         }
 
-    def to_tensor(self, pred: Any, output_shape: List[int], input_shape: List[int]) -> Tensor:
-        """Concrete implementation of
-        :meth:`threedb.evaluators.base_evaluator.BaseEvaluator.to_tensor`.
-
+    def to_tensor(self, pred: Any, input_shape: List[int]) -> Tensor:
+        """
         Turns a prediction dictionary into a tensor with the given output_shape
         (N x 6). To do this, we concatenate the prediction into the form ``[(x1,
         y1, x2, y2, score, label)]``.
+
+        Parameters
+        ----------
+        pred : Any
+            The output of the inference model.
+        input_shape : List[int]
+            The shape of the image inputted into the inference model.
+
+        Returns
+        -------
+        Tensor
+            a Tensor representation of the model output
         """
         _, height, width = input_shape
-        out = ch.zeros(*output_shape) - 1
+        out = ch.zeros(*self.output_shape) - 1
         keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
         num_boxes = keep_inds.shape[0]
         if num_boxes == 0:
             return out
         keys = ('boxes', 'scores', 'labels')
         kept_preds = [pred[s][keep_inds].view(num_boxes, -1).float() for s in keys]
-        out[:num_boxes] = ch.cat(kept_preds, dim=1)
+        out[:num_boxes] = ch.cat(kept_preds, dim=1)[:out.shape[0]]
         out[:, [0, 2]] /= width
         out[:, [1, 3]] /= height
         return out

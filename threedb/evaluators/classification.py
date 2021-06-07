@@ -99,7 +99,7 @@ class SimpleClassificationEvaluator(BaseEvaluator):
             'prediction': topk_inds
         }
 
-    def to_tensor(self, pred: Any, *_) -> Tensor:
-        return pred
+    # def to_tensor(self, pred: Any, *_) -> Tensor:
+        # return pred
 
 Evaluator = SimpleClassificationEvaluator
