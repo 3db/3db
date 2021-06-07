@@ -11,7 +11,6 @@ threedb package
    :maxdepth: 4
 
    threedb.controls
-   threedb.dashboard
    threedb.evaluators
    threedb.policies
    threedb.rendering
