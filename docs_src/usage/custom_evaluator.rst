@@ -1,13 +1,13 @@
 Using a Custom Evaluator (for custom tasks)
 ===========================================
 
-Even if ``threedb`` focuses on computer vision, there might be a myriad of possible tasks one might want to solve.
+Even though ``threedb`` focuses on computer vision, it can also be used to solve a myriad of possible tasks.
+We enable users to describe their own evaluation tasks in ``threedb``.
+
 Out of the box, the frameworks supports:
 
 * Classification (:mod:`threedb.evaluators.classification`)
 * Object Detection (:mod:`threedb.evaluators.detection`)
-
-Furthermore, we enable users to describe their task, whatever it is, and to debug/evaluate their models with ``threedb``.
 
 The procedure for extending evaluators in ``threedb`` is as follows:
 
@@ -20,7 +20,7 @@ The procedure for extending evaluators in ``threedb`` is as follows:
 Subclassing
 -----------
 
-Since each method is described in :mod:`threedb.evaluators.base_evaluator`, we won't repeat ourselves here. However, your file should look like this:
+Each method is described in :mod:`threedb.evaluators.base_evaluator`. Your final file should look like this:
 
 .. code-block:: python
 
@@ -29,9 +29,15 @@ Since each method is described in :mod:`threedb.evaluators.base_evaluator`, we w
 
     class ImageSegmentation(BaseEvaluator):
 
+        # The output_type variable needs to be defined; it can be any string.
+        output_type = 'YourOutputType'
+        # The KEYS variable need to match the keys in declare_outputs
+        # and summary_stats.
+        KEYS = ['is_correct', 'loss']
+
         def __init__(self, arg1, arg2):
             # In order to implement methods in this class you probably
-            # will need some metadata, feel free to accept any argument
+            # will need some metadata. Feel free to accept any argument
             # you need in your constructor. You will be able to populate
             # them in your config file.
 
@@ -50,25 +56,27 @@ Since each method is described in :mod:`threedb.evaluators.base_evaluator`, we w
             # the evaluator will generate.
             return {
                 'is_correct': ([], 'bool'),
-                'loss': ([], 'float32'),
-                'F1': ([], 'float32'),
-                'AUC': ([], 'float32')
+                'loss': ([], 'float32')
                 # You can add as many metrics as you want
             }
 
         def get_target(self, model_uid: str, render_output: Dict[str, Tensor]) -> LabelType:
-            # returns the expected label (whatever label is for this specific task)
+            # returns the expected label (whatever label means for this specific task)
             pass
 
         def to_tensor(self, pred: Any, *_) -> Tensor:
-            # In 3DB we only work with Tensors, so the goal of this method is to convert
-            # whatever the output of the model is into a tensor.
+            # In 3DB we only work with Tensors, so this method is used to convert
+            # the model output into a tensor.
             return pred
 
         def summary_stats(self, pred: ch.Tensor, label: LabelType) -> Dict[str, Output]:
-            # The goal of this method is to generate the metrics declared in
+            # This method is used to generate the metrics declared in
             # declare_outputs() using the output of to_tensor() and get_target().
-            pass
+            return {
+                'is_correct': False,
+                'loss': 0
+                # You can add as many metrics as you want
+            }
 
     # IMPORTANT! Needed so that threedb is able to import your custom evaluator
     # (since it can't know how you named your class).

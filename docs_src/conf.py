@@ -34,6 +34,7 @@ extensions = [
     'sphinxcontrib.images',
     'sphinx_copybutton',
     'sphinx_tabs.tabs',
+    'sphinx_rtd_theme',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -68,3 +69,11 @@ autodoc_mock_imports = ['bpy', 'imagenet_c', 'cv2']
 
 # Style
 pygments_style = 'sphinx'
+
+def skip(app, what, name, obj, would_skip, options):
+    if name == "__init__":
+        return False
+    return would_skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)

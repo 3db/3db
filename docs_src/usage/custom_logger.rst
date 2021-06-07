@@ -2,7 +2,7 @@ Creating a Custom Logger
 ========================
 
 3DB provides logging functionality for storing data that might be relevant for model debugging. 
-Although the library comes with a base set of Loggers (TODO LINK to API), we provide an overview
+Although the library comes with a base set of Loggers (:mod:`threedb.result_logging`), we provide an overview
 of the steps for customizing them based on problem-specific needs. We will illustrate this by  
 implementing a custom ``CSVLogger`` that outputs basic informations about a render 
 to a CSV file.
@@ -104,4 +104,3 @@ any way you see fit, for instance:
 * Make a pip package
 * Add the proper folder to ``$PYTHON_PATH``
 * Create and install a local package
-* ...

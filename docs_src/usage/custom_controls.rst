@@ -17,13 +17,15 @@ PreProcessControl
 
 These type of controls are implemented to change/control the scene before an
 image of the scene is rendered, e.g., move objects around, add occlusion,
-change camera properties, change scale of the object, etc. All it takes to
+change camera properties, change the scale of the object, etc. All it takes to
 implement a new preprocess control is to subclass the provided base class,
 :class:`threedb.controls.base_control.PreProcessControl`:
 
 .. code-block:: python
 
     from threedb.controls.base_control import PreProcessControl
+    from typing import Any, Dict, Tuple
+    import numpy as np
 
     class OrientationControl(PreProcessControl):
         pass
@@ -75,8 +77,56 @@ Finally, assign the name of the control to a variable ``Control``:
     
     Control = OrientationControl
 
-Note that for some controls, the user might also need to implement an ``unapply()`` function, which reverses the effects of the control after an image is rendered. After this function is called, the scene is reset for subsequent renders and controls applications. See :class:`threedb.controls.blender.position.PositionControl`.
+Note that for some controls, the user might also need to implement an ``unapply()`` function, which reverses the effects of the control after an image is rendered.
+After this function is called, the scene is reset for subsequent renders and controls applications.
+See :class:`threedb.controls.blender.position.PositionControl` for an example.
+In the case of ``PositionControl``, the ``apply`` function translates the position by a specific vector.
+Thus, implementing ``unapply`` ensures that all calls to ``apply`` begin from the same original position.
 
+.. note::
+
+    How do we know what code to write in ``apply`` (and ``unapply``)?
+
+    To find out, you will first need to download Blender and modify the object's `.blend` file yourself in Blender.
+    Then, the corresponding line of code will appear in the **Scripting** tab.
+
+    Here, we include step-by-step pictures showing how to find the code for ``OrientationControl``, using the `025_mug.blend` file from the https://github.com/3db/blog_demo repo and Blender version 2.92.0.
+
+    1. First, open Blender.
+
+    .. thumbnail:: /_static/blender_controls_custom/blender_controls_1.png
+        :width: 700
+        :group: blender_controls
+
+
+    2. Click on **File** >> **Open** and select `025_mug.blend`.
+    You can optionally zoom in and click on "Viewport Shading" in the upper right corner to make the mug look like it does in the picture below.
+
+    .. thumbnail:: /_static/blender_controls_custom/blender_controls_2.png
+        :width: 700
+        :group: blender_controls
+
+
+    3. Select the mug object, then select **Object Properties** in the middle right sidebar.
+
+    .. thumbnail:: /_static/blender_controls_custom/blender_controls_3.png
+        :width: 700
+        :group: blender_controls
+
+
+    4. Change the **Mode** to `XYZ Euler`, and update the **Rotation X, Y, Z** values to `180`, `90`, and `45`, respectively.
+
+    .. thumbnail:: /_static/blender_controls_custom/blender_controls_4.png
+        :width: 700
+        :group: blender_controls
+
+
+    5. Finally, click on the **Scripting** tab in the upper right. The code you need to write will appear in the bottom left panel!
+    (The variable ``bpy.context.object`` in the panel corresponds to ``context['object']`` in the code for ``OrientationControl``)
+
+    .. thumbnail:: /_static/blender_controls_custom/blender_controls_5.png
+        :width: 700
+        :group: blender_controls
 
 PostProcessControl
 ------------------
@@ -88,6 +138,7 @@ All it takes to implement a new postprocess control is to subclass the provided 
 .. code-block:: python
 
     from threedb.controls.base_control import PostProcessControl
+    from typing import Any, Dict, Tuple
 
     class CorruptionControl(PostProcessControl):
         pass

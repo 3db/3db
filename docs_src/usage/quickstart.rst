@@ -14,13 +14,7 @@ You will need a working Python 3.x installation. To follow the rest of the Quick
 Installation
 """""""""""""
 
-To get started with 3DB, first clone the repository:
-
-.. code-block:: bash
-    
-    git clone https://github.com/3db/3db
-
-Next, run the following command to setup 3DB:
+To get started with 3DB, run the following command to install Blender and setup 3DB:
 
 .. code-block:: bash
     
@@ -31,6 +25,22 @@ Finally, activate 3DB's conda environment:
 .. code-block:: bash
 
     conda activate threedb
+
+Install the PyPI package (`recommended`):
+
+.. code-block:: bash
+    
+    pip install threedb-preview
+
+Alternatively, clone the 3DB repository and manually setup and build it manually 
+
+.. code-block:: bash
+    
+    git clone https://github.com/3db/3db
+    cd 3db
+    python setup.py build_dashboard
+    pip install -e .
+
 
 You are now ready to start running 3DB experiments!
 
@@ -47,8 +57,8 @@ Now we will demonstrate how, in only few minutes, you can setup an experiment an
 
 Each 3DB experiment requires a ``BLENDER_DATA`` folder that contains two subfolders:
 
-    * ``blender_models/``, containing 3D models of objects (each 3D model is a ``.blend`` file with a single object)
-    * ``blender_environments/``, containing environments (backgrounds) on which we will render the objects
+    + ``blender_models/``, containing 3D models of objects (each 3D model is a ``.blend`` file with a single object)
+    + ``blender_environments/``, containing environments (backgrounds) on which we will render the objects
 
 For this simple experiment, we provide an `example repository <https://github.com/3db/blog_demo>`_ that contains all the 3D models and environments you need.
 Clone the example repository and navigate to that folder:
@@ -65,6 +75,7 @@ Then, update the ``BLENDER_DATA`` variable to point to the location of the 3D mo
     export BLENDER_DATA=data/backgrounds 
 
 .. note::
+
     There are three available experiments in ``blog_demo``:
         * ``backgrounds``: renders a 3D models on various backgrounds.
         * ``texture_swap``: renders a 3D model with various textures.
@@ -165,7 +176,7 @@ Later on we will walk you through how to write your own configuration files.
 
         .. code-block:: yaml
 
-            base_config: "./base.yaml"
+            base_config: "base.yaml"
             render_args:
                 engine: 'threedb.rendering.render_blender'
                 resolution: 256
@@ -223,16 +234,14 @@ A few seconds later, you will have your first results in ``results/``! You can e
 
     python -m threedb.dashboard $RESULTS_FOLDER
 
-This page will display the results as a large .json string.
-
-To view the results using the full dashboard, simply paste the URL of the page displaying the .json string into the top of this page: https://3db.github.io/dashboard/.
-Below are examples of rendered images that you will see in the dashboard!
+This page will display the results via our dashboard. Below are examples of rendered images that you will see in the dashboard!
 
 .. thumbnail:: /_static/dashboard_example.png
     :width: 700
     :group: background
 
-You can also read the .json log file into ``pandas``, and analyze the results. For example, you can run the following python script, which is also in the demo repository: 
+You can also read the .json log file in $RESULTS_FOLDER into ``pandas``, and analyze the results.
+For example, you can run the following python script, which is also in the demo repository: 
 
 .. tabs::
 
@@ -265,14 +274,14 @@ modularity of 3DB.
 
 Writing a configuration file
 ----------------------------
-There are six key parts of a 3DB configuration file. These are:
+There are six key parts/modules of a 3DB configuration file:
     
-    * ``inference``: defines some inference model to predict the rendered images.
-    * ``evaluation``: defines what evaluation metrics to compute given the output from the inference model.
-    * ``rendering``: defines rendering-specific settings and arguments.
+    * ``inference``: defines the model that is used to make predictions on the rendered images.
+    * ``evaluation``: defines what evaluation metrics to compute from the output from the inference model.
+    * ``rendering``: defines rendering-specific settings and arguments. 
     * ``controls``: defines the set of transformations to apply to the 3D model/environment before rendering the scene.
     * ``policy``: defines how to search through the various controls configurations.
-    * ``logging``: defines how the results of 3DB will be dumped (e.g. JSON, Images, TensorBoard).
+    * ``logging``: defines how the results of 3DB are saved (e.g. JSON, Images, TensorBoard).
 
 An example of each can be found in the YAML files of the above simple experiment. We will now go through each of these sections individually and
 explain the required keywords, possible settings, and customization options for
@@ -280,10 +289,10 @@ each.
 
 Inference settings
 """"""""""""""""""
-The first step is to declare the inference model that will be evaluated by 3DB
+The first step is to declare the inference model that 3DB will use to make predictions
 by filling in a configuration under the ``inference`` keyword. The ``module``,
-``class`` and ``args`` keywords tell 3DB how to instantiate the prediction
-model. Below are examples showing how to instantiate a pre-trained ResNet-50 classifier and a pretrained object detection model, respectively:
+``class``, and ``args`` keywords tell 3DB how to instantiate the prediction
+model. Below are examples showing how to instantiate a pre-trained ResNet-50 classifier and a pre-trained object detection model, respectively:
 
 .. tabs::
 
@@ -325,16 +334,16 @@ which are used to pre-process inputs before they are fed to the inference model:
         resolution: [500, 500]
         ## --- /END NEW STUFF ---
 
-Finally, the remaining arguments are for ``output_shape`` and ``label_map``.
+Finally, the remaining arguments to specify are ``output_shape`` and ``label_map``.
 The former tells 3DB how much space to allocate to save the model output:
     
-    * for classifiers, this is just ``[NUM_CLASSES]``
-    * for detection models, we will use ``[N, 6]`` where ``N`` is an upper bound on the number of bounding boxes we will save for a given image (the 6 is because bounding boxes are typically stored as ``(x1, y1, x2, y2, score, class)``. 
+    * For classifiers, this is just ``[NUM_CLASSES]``
+    * For detection models, we will use ``[N, 6]`` where ``N`` is an upper bound on the number of bounding boxes we will save for a given image.
+      The 6 is because bounding boxes are typically stored as 6-tuples ``(x1, y1, x2, y2, score, class)``. 
     
 The ``label_map`` argument is optional and only used by some loggers---you can provide the path to a JSON array containing class names, so that the output is more human-readable.
 
-An example of a final inference configuration for an object detection experiment
-is thus:
+An example of a complete inference configuration for an object detection experiment is the following:
 
 .. code-block:: yaml
 
@@ -347,13 +356,13 @@ is thus:
             mean: [0., 0., 0.]
             std: [1., 1., 1.]
         resolution: [500, 500]
-        label_map: './resources/coco_mapping.json'
+        label_map: '/path/to/3db/resources/coco_mapping.json'
         output_shape: [100, 6]
 
 Evaluation settings
 """""""""""""""""""
 The evaluator module is responsible for taking the output of the inference
-model, and returning some evaluation metrics. 
+module and returning evaluation metrics. 
 
 By default, 3DB provides evaluators for both classification and object
 detection models: 
@@ -379,24 +388,188 @@ detection models:
                 module: "threedb.evaluators.detection"
                 args:
                     iou_threshold: 0.5
-                    classmap_path: './resources/uid_to_COCO.json'
+                    classmap_path: '/path/to/3db/resources/uid_to_COCO.json'
 
 
 
 Different modalities/tasks (e.g., segmentation or regression)
 will require implementing custom evaluators, which we outline in
-the `Customizing 3DB <custom_evaluator.html>`_ section of the documentation.
+the `Customizing 3DB <custom_evaluator.html>`__ section of the documentation.
 
 
 Rendering settings
 """""""""""""""""""
+This part of the config file is responsible for declaring rendering-specific parameters and configurations, e.g., which renderer to choose, what image sizes to render, how many ray-tracing samples to use and so forth. The currently supported keywords for this section of the config file are:
 
+    * ``engine``: which renderer to use. 3DB supports Blender by default, :class:`threedb.rendering.render_blender.Blender`. See `Customizing 3DB <custom_renderer.html>`__ for how to add custom renderers.
+    * ``resolution``: the resolution of the rendered images.
+    * ``samples``: number of sample used for ray-tracing.
+    * ``with_segmentation``: if ``True``, returns a segmentation map along with an RGB image. Defaults to ``False``.
+    * ``with_depth``: if ``True``, returns a depth map along with an RGB image. Defaults to ``False``.
+    * ``with_uv``: if ``True``, returns a UV map along with an RGB image. Defaults to ``False``.
+
+
+Here is an example of these settings, where only RGB and segmentation images are returned by 3DB:
+
+.. code-block:: yaml
+
+    render_args:
+        engine: 'threedb.rendering.render_blender'
+        resolution: 256
+        samples: 16
+        with_segmentation: True
+        with_depth: False
+        with_uv: False
 
 Controls settings
 """""""""""""""""""
+Every experiment requires the user to define how they want to control/manipulate the scene, e.g.,
+
+    * where will the object be placed?
+    * what is the orientation of the object?
+    * what is the background of the object?
+    * is there anything occluding the object?
+
+In order to control/manipulate the scene, a list of ``controls`` has to be defined in the YAML file. A number of example controls are shown below.
+
+.. tabs::
+
+    .. tab:: Orientation
+
+        .. code-block:: yaml
+
+            controls:
+                module: threedb.controls.blender.orientation
+                    rotation_x: [-3.14, 3.14]
+                    rotation_y: [-3.14, 3.14]
+                    rotation_z: [-3.14, 3.14]
+
+    .. tab:: Background
+
+        .. code-block:: yaml
+        
+            controls:
+                module: threedb.controls.blender.background
+                    H: [0.0, 1.0]
+                    S: [0.0, 1.0]
+                    V: [0.0, 1.0]
+
+    .. tab:: Denoiser
+
+        .. code-block:: yaml
+        
+            controls:
+                module: threedb.controls.blender.denoiser
+
+
+    .. tab:: Position
+
+        .. code-block:: yaml
+        
+            controls:
+                module: threedb.controls.blender.position
+                    offset_x: [-0.02, 0.02]
+                    offset_y: [-0.02, 0.02]
+                    offset_z: [-0.02, 0.02]
+
+3DB comes with a set of predefined controls that the user can use. These can be found in :mod:`threedb.controls`. The user can also add custom controls if desired, see `Customizing 3DB <custom_controls.html>`__ for how to add new controls.
 
 Policy settings
 """""""""""""""""""
+After specifying the controls to apply to specific objects/scenes, the user must specify how they want to search over the control space.
+This should be done in the configuration file under policy settings.
+We provide a number of default search policies that the user can directly use in :mod:`threedb.policies`. 
+
+For example, a user might want to randomly search in the space of poses of objects, or do a grid search over specific object poses. We provide example configuration files for each case in the code block below:
+
+
+.. tabs::
+
+    .. tab:: Random Search
+
+        .. code-block:: yaml
+
+            base_config: base.yaml
+            controls:
+                module: threedb.controls.blender.camera
+                    zoom_factor: 1.
+                    aperture: 8.
+                    focal_length: 50.
+                module: threedb.controls.blender.orientation
+                    rotation_x: [-3.14, 3.14]
+                    rotation_y: [-3.14, 3.14]
+                    rotation_z: [-3.14, 3.14]
+            policy:
+                module: "threedb.policies.random_search"
+                samples: 5
+
+    .. tab:: Grid Search
+
+        .. code-block:: yaml
+        
+            base_config: base.yaml
+            controls:
+                module: threedb.controls.blender.camera
+                    zoom_factor: 1.
+                    aperture: 8.
+                    focal_length: 50.
+                module: threedb.controls.blender.orientation
+                    rotation_x: [-3.14, 3.14]
+                    rotation_y: [-3.14, 3.14]
+                    rotation_z: [-3.14, 3.14]
+            policy:
+                module: "threedb.policies.grid_search"
+                samples: 5
+
+The currently supported keywords for ``policy`` in the config file are:
+
+    + ``module``: which policy to use from :mod:`threedb.policies`.
+    + ``samples``: number of samples to search according to a given policy. For random search, this will be the number of random samples. For grid search, this will be the number of vertices on the grid.
+
 
 Logging settings
 """""""""""""""""""
+Finally, the user has to specify how to log or dump the result logs generated by 3DB.
+The output returned by each 3DB rendering consists of the rendered image(s), the prediction (based on the evaluation module), the control parameters of the current render, in addition to several other pieces of meta-data (object ID, image ID, etc).
+Parts of this information can be dumped into JSON files, parts can be saved as image files, and other parts can be saved via other loggers as well.
+
+3DB thus comes with a number of default ``loggers`` that allow the user to easily read the data. These can be found in :mod:`threedb.result_logging`. Here are snippets of how to add each logger type to your YAML file.
+
+.. tabs::
+
+    .. tab:: Image Logger
+
+        .. code-block:: yaml
+
+            logging:
+                logger_modules: 
+                    threedb.result_logging.image_logger
+
+    .. tab:: JSON Logger
+
+        .. code-block:: yaml
+        
+            logging:
+                logger_modules: 
+                    threedb.result_logging.json_logger
+
+    .. tab:: TensorBoard Logger
+
+        .. code-block:: yaml
+        
+            logging:
+                logger_modules: 
+                    threedb.result_logging.tb_logger
+
+    .. tab:: Dashboard Loggers
+
+        .. code-block:: yaml
+        
+            logging:
+                logger_modules: 
+                    threedb.result_logging.image_logger
+                    threedb.result_logging.json_logger
+
+
+The user can also use any of these loggers simultaneously by adding them under each other (as done in ``Dashboard Loggers``).
+For adding custom loggers, see `Customizing 3DB <custom_logger.html>`__.
