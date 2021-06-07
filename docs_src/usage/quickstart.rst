@@ -18,23 +18,25 @@ To get started with 3DB, run the following command to install Blender and setup 
     
     curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb
 
-Next, activate 3DB's conda environment:
+This creates a conda env that has ``threedb-preview``, ``threedboard``, and all other dependencies for 3DB.
+
+Then, activate 3DB's conda environment:
 
 .. code-block:: bash
 
     conda activate threedb
 
-Finally, clone the 3DB repository (or install the PyPI package):
-
-.. code-block:: bash
-
-    git clone https://github.com/3db/3db
-    pip install 3db/
-    
-    # or 
-    pip install threedb-preview
-
 You are now ready to start running 3DB experiments!
+
+.. note::
+
+    If you would like to contribute to 3DB, you can clone our repo and install it manually as follows: 
+
+    .. code-block:: bash
+
+        git clone https://github.com/3db/3db
+        pip install -e 3db/
+        
 
 ----
 
