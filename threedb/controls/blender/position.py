@@ -9,7 +9,7 @@ Control the object location. An example config file using this control can be fo
 from typing import Any, Dict
 from threedb.controls.base_control import PreProcessControl
 from .utils import post_translate, cleanup_translate_containers
-from mathutils import Vector
+from ...try_bpy import mathutils
 
 class PositionControl(PreProcessControl):
     """This control changes the position of the object (i.e. translates it)
@@ -60,7 +60,7 @@ class PositionControl(PreProcessControl):
         assert no_err, msg
 
         obj = context['object']
-        post_translate(obj, Vector([control_args['offset_x'],
+        post_translate(obj, mathutils.Vector([control_args['offset_x'],
                                    control_args['offset_y'],
                                    control_args['offset_z']]))
 

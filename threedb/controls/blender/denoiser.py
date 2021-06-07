@@ -9,7 +9,7 @@ this control as well for more realistic renderings).
 
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 from ...try_bpy import bpy
 from threedb.controls.base_control import PreProcessControl
 
