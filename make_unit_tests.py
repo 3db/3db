@@ -91,9 +91,9 @@ control_to_yaml = {
     },
     'orientation': {
         'module': 'threedb.controls.blender.orientation',
-        'rotation_X': (-3.14, 3.14),
-        'rotation_Y': (-3.14, 3.14),
-        'rotation_Z': (-3.14, 3.14)
+        'rotation_x': (-3.14, 3.14),
+        'rotation_y': (-3.14, 3.14),
+        'rotation_z': (-3.14, 3.14)
     },
     'pin_to_ground': {
         'module': 'threedb.controls.blender.pin_to_ground',

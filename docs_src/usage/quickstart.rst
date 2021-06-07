@@ -209,7 +209,7 @@ First, run the ``master node``, which schedules the rendering tasks (for clients
 
 .. code-block:: bash
 
-    # Run the following command to spawn the master node, then go to the next section to run the clients. 
+    # Run the following command to spawn the master node, then go to the next section to (concurrently) run the clients. 
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
 
 
