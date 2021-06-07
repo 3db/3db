@@ -11,7 +11,7 @@ from typing import Dict, List, Tuple, Union, Any
 
 from torch import Tensor
 
-Output = Union[bool, int, float, str]
+Output = Union[bool, int, float, str, Tensor]
 LabelType = Union[List[int], int]
 
 class BaseEvaluator(ABC):
@@ -64,7 +64,7 @@ class BaseEvaluator(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def summary_stats(self, pred: Any, label: Any) -> Dict[str, Output]:
+    def summary_stats(self, pred: Any, label: Any, input_shape: List[int]) -> Dict[str, Output]:
         """Given a tensor corresponding to a model prediction on a single
         rendered image, and a tensor containing the label for that image, return
         a dictionary of summary statistics. The keys of the dictionary should
@@ -96,28 +96,5 @@ class BaseEvaluator(ABC):
 
         A basic implementation which suffices for most applications is provided
         in the abstract class :class:`threedb.rendering.base_renderer.BaseRenderer`.
-        """
-        raise NotImplementedError
-
-    @staticmethod
-    @abstractmethod
-    def to_tensor(pred: Any, output_shape: List[int], input_shape: List[int]) -> Tensor:
-        """Turns the output of the inference model into a PyTorch tensor. Useful
-        for, e.g., detection models, where the model typically outputs a
-        dictionary.
-
-        Parameters
-        ----------
-        pred : Any
-            The output of the inference model.
-        output_shape : List[int]
-            The desired shape of the output tensor
-        input_shape : List[int]
-            The shape of the image inputted into the inference model.
-
-        Returns
-        -------
-        Tensor
-            a Tensor representation of the model output
         """
         raise NotImplementedError
