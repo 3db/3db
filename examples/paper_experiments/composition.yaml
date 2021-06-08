@@ -1,0 +1,22 @@
+base_config: base.yaml
+controls:
+  - module: threedb.controls.blender.denoiser
+  - module: threedb.controls.blender.position
+    offset_x: 0
+    offset_y: 0.3
+    offset_z: 0.26666
+  - module: threedb.controls.blender.material
+  - module: threedb.controls.blender.orientation
+    rotation_x: (-3.14, 2.35) # (-pi, pi - 2*pi/7)
+    rotation_y: (0.14, 3.35) # (-pi, pi - 2*pi/7)
+    rotation_z: (-3.14, 2.35) # (-pi, pi - 2*pi/7)
+  - module: threedb.controls.blender.camera
+    view_point_x: 0
+    view_point_y: -0.5
+    view_point_z: (0.2, 2)
+    zoom_factor: (0.9)
+    aperture: 8
+    focal_length: 50
+  - module: threedb.controls.blender.imagenet_c_corruption
+    corruption_name: ['shot_noise', 'impulse_noise', 'defocus_blur', 'glass_blur']
+    severity: 1

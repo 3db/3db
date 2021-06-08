@@ -1,0 +1,9 @@
+base_config: base.yaml
+controls:
+  - module: "threedb.controls.blender.camera"
+    view_point_x: 0.
+    view_point_y: 0.
+    view_point_z: 0.
+    zoom_factor: 1.
+    aperture: (1, 10)
+    focal_length: (10, 20)

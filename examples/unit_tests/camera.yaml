@@ -1,0 +1,10 @@
+base_config: base.yaml
+controls:
+- {module: threedb.controls.blender.denoiser}
+- aperture: [1.0, 32.0]
+  focal_length: [10, 400]
+  module: threedb.controls.blender.camera
+  view_point_x: [-1.0, 1.0]
+  view_point_y: [-1.0, 1.0]
+  view_point_z: [0.0, 1.0]
+  zoom_factor: [0.5, 2.0]

@@ -1,0 +1,15 @@
+#!/bin/sh
+
+folder=$CONDA_PREFIX/lib/python3.7/site-packages/threedb
+export PYTHONPATH=$(pwd):$PYTHONPATH
+
+NUM=$1
+BLENDER_DATA=$2
+PORT=$3
+
+for i in $(seq $NUM); do
+    blender --python-use-system-env -b -P $folder/client.py \
+        -- $BLENDER_DATA --master-address "localhost:$PORT" &
+
+done;
+wait

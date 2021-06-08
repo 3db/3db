@@ -1,0 +1,29 @@
+base_config: base.yaml
+render_args:
+  engine: 'threedb.rendering.render_blender'
+  resolution: 256
+  samples: 16
+  with_uv: True
+  with_segmentation: True
+policy:
+  module: 'threedb.policies.grid_search'
+  samples_per_dim: 15
+controls:
+  - module: threedb.controls.blender.denoiser
+  - module: threedb.controls.blender.position
+    offset_x: 0
+    offset_y: 0.3
+    offset_z: 0.4
+  - module: threedb.controls.blender.orientation
+    rotation_x: 0
+    rotation_y: 0
+    rotation_z: (-3.14, 2.93) # (-pi, pi - 2*pi/15)
+  - module: threedb.controls.blender.pin_to_ground
+    z_ground: 0.23
+  - module: threedb.controls.blender.camera
+    view_point_x: 0
+    view_point_y: -0.5
+    view_point_z: (0, 2)
+    zoom_factor: (0.7, 1.3)
+    aperture: 8
+    focal_length: 50
