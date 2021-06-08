@@ -47,8 +47,7 @@ class BaseLogger(Process, ABC):
         self.queue: Queue = Queue()
 
     def enqueue(self, item: Dict[str, Any]) -> None:
-        """Add an item in the queue to be logged. See `here`:TODO: for
-        documentation on how the log item is structured.
+        """Add an item in the queue to be logged. 
 
         Parameters
         ----------
@@ -65,8 +64,7 @@ class BaseLogger(Process, ABC):
         ----------
         item : Dict[str, Any]
             A dictionary containing the results of a single rendering (as
-            returned by :mod:`threedb.client`): see
-            [TODO] for more detailed information on what this will contiain.
+            returned by :mod:`threedb.client`).
         """
         raise NotImplementedError
 

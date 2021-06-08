@@ -31,10 +31,12 @@ class SimpleDetectionEvaluator(BaseEvaluator):
     KEYS = ['is_correct_nolabel', 'precision_nolabel', 'recall_nolabel',
             'is_correct', 'precision', 'recall', 'is_valid', 'boxes']
 
-    def __init__(self, iou_threshold: float, max_num_boxes: int, classmap_path: str,
+    def __init__(self, iou_threshold: float, max_num_boxes: int, 
+                 nms_threshold: float, classmap_path: str,
                  min_recall: float = 1.0, min_precision: float = 0.0):
         super().__init__()
         self.iou_threshold = iou_threshold
+        self.nms_threshold = nms_threshold
         self.min_rec = min_recall
         self.min_prec = min_precision
         self.uid_to_targets: Dict[str, LabelType] = json.load(open(classmap_path))
@@ -133,8 +135,9 @@ class SimpleDetectionEvaluator(BaseEvaluator):
             the label corresponding to the image is actually a valid class
             label.
         """
-        keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
+        keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.nms_threshold)
         all_ious = boxes.box_iou(pred['boxes'][keep_inds], label[:, :4])
+        # import ipdb; ipdb.set_trace();
         iou_hits = (all_ious > self.iou_threshold)
         label_hits = label[:, 4][None].eq(pred['labels'][keep_inds][:, None])
         assert label_hits.shape == iou_hits.shape
@@ -172,7 +175,7 @@ class SimpleDetectionEvaluator(BaseEvaluator):
         """
         _, height, width = input_shape
         out = ch.zeros(*self.output_shape) - 1
-        keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.iou_threshold)
+        keep_inds = boxes.nms(pred['boxes'], pred['scores'], self.nms_threshold)
         num_boxes = keep_inds.shape[0]
         if num_boxes == 0:
             return out

@@ -22,6 +22,7 @@ class BaseEvaluator(ABC):
     correctness for classification, IoU for detection, MSE for segmentation,
     etc.)
     """
+    output_type : str = ""
     KEYS: List[str] = ['is_correct', 'loss']
 
     @abstractmethod
@@ -52,8 +53,11 @@ class BaseEvaluator(ABC):
         Parameters
         ----------
         model_uid : str
-            The unique id of the model, as returned by (:meth:`threedb.rendering.base_renderer.BaseRenderer.render_and_apply`)
+            The unique id of the model, as returned by :meth:`threedb.rendering.base_renderer.BaseRenderer.get_model`
             (for blender, this will be the object ID)
+        render_output : Dict[str, Tensor]
+            The dictionary containing the results of the renderer (as returned
+            by :meth:`threedb.rendering.base_renderer.BaseRenderer.render`)
 
         Returns
         -------
