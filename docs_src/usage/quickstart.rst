@@ -241,7 +241,6 @@ A few seconds later, you will have your first results in ``results/``! You can e
 
 .. code-block:: bash    
 
-    pip install threedboard
     python -m threedboard $RESULTS_FOLDER
 
 This page will display the results via ``threedboard``. Below are examples of rendered images that you will see in the dashboard!
