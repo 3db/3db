@@ -18,23 +18,25 @@ To get started with 3DB, run the following command to install Blender and setup 
     
     curl https://raw.githubusercontent.com/3db/installers/main/linux_x86_64.sh | bash /dev/stdin threedb
 
-Next, activate 3DB's conda environment:
+This creates a conda env that has ``threedb-preview``, ``threedboard``, and all other dependencies for 3DB.
+
+Then, activate 3DB's conda environment:
 
 .. code-block:: bash
 
     conda activate threedb
 
-Finally, clone the 3DB repository (or install the PyPI package):
-
-.. code-block:: bash
-
-    git clone https://github.com/3db/3db
-    pip install 3db/
-    
-    # or 
-    pip install threedb-preview
-
 You are now ready to start running 3DB experiments!
+
+.. note::
+
+    If you would like to contribute to 3DB, you can clone our repo and install it manually as follows: 
+
+    .. code-block:: bash
+
+        git clone https://github.com/3db/3db
+        pip install -e 3db/
+        
 
 ----
 
@@ -209,7 +211,7 @@ First, run the ``master node``, which schedules the rendering tasks (for clients
 
 .. code-block:: bash
 
-    # Run the following command to spawn the master node, then go to the next section to run the clients. 
+    # Run the following command to spawn the master node, then go to the next section to (concurrently) run the clients. 
     threedb_master $BLENDER_DATA backgrounds.yaml $RESULTS_FOLDER 5555
 
 
@@ -239,7 +241,6 @@ A few seconds later, you will have your first results in ``results/``! You can e
 
 .. code-block:: bash    
 
-    pip install threedboard
     python -m threedboard $RESULTS_FOLDER
 
 This page will display the results via ``threedboard``. Below are examples of rendered images that you will see in the dashboard!
@@ -264,9 +265,10 @@ For example, you can run the following python script, which is also in the demo 
             import pandas as pd
             import numpy as np
             import json
-
-            log_lines = open('results/details.log').readlines()
-            class_map = json.load(open('results/class_maps.json'))
+            with open('results/details.log') as file_pointer:
+                log_lines = file_pointer.readlines()
+            with open('results/class_maps.json') as file_pointer:
+                class_map = json.load(file_pointer)
             df = pd.DataFrame.from_records(list(map(json.loads, log_lines)))
             df['prediction'] = df['prediction'].apply(lambda x: class_map[x[0]])
             df['is_correct'] = (df['is_correct'] == 'True')

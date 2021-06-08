@@ -30,8 +30,8 @@ It contains:
 If you find 3DB helpful, please cite it as:
 ```
 @inproceedings{leclerc2021three,
-    title={3DB: A Framework for Chungus Chungus},
-    author={Guillaume Leclerc, Hadi Salman, Andrew Ilyas, Sai Vemprala, ..., Ashish Kapoor, Aleksander Madry},
+    title={3DB: A Framework for Debugging Computer Vision Models},
+    author={Guillaume Leclerc, Hadi Salman, Andrew Ilyas, Sai Vemprala, Logan Engstrom, Vibhav Vineet, Kai Xiao, Pengchuan Zhang, Shibani Santurkar, Greg Yang, Ashish Kapoor, Aleksander Madry},
     year={2021},
     booktitle={Arxiv preprint arXiv:TODO}
 }

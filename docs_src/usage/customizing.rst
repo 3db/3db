@@ -1,5 +1,5 @@
 Customizing 3DB
-=============
+===============
 
 We will now outline the different ways in which 3DB can be modified and customized
 to capture a large set of use cases. 
@@ -98,7 +98,7 @@ loggers, and renderers:
 .. _guides:
 
 Customization Guides
-------
+--------------------
 
 .. toctree::
    :maxdepth: 2

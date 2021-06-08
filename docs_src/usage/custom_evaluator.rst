@@ -95,7 +95,7 @@ more detailed documentation of each abstract function, see the
     .. code-block:: python
 
         def declare_outputs(self) -> Dict[str, Tuple[List[int], str]]:
-            # The goal of this method is to declare what kind of metrics
+            # The goal of this method is to declare what kinds of metrics
             # the evaluator will generate.
             return {
                 'is_correct': ([], 'bool'),

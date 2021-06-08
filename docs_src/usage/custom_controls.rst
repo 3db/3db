@@ -41,9 +41,9 @@ The ``__init__()`` is the place to define the arguments needed by the control:
 
     def __init__(self, root_folder: str):
         continuous_dims = {
-            'rotation_X': (-np.pi, np.pi),
-            'rotation_Y': (-np.pi, np.pi),
-            'rotation_Z': (-np.pi, np.pi),
+            'rotation_x': (-np.pi, np.pi),
+            'rotation_y': (-np.pi, np.pi),
+            'rotation_z': (-np.pi, np.pi),
         }
         super().__init__(root_folder, continuous_dims=continuous_dims)
 
@@ -59,17 +59,17 @@ Next, we need to implement the ``apply()`` function, which is called whenever a 
         context : Dict[str, Any]
             The scene context object
         control_args : Dict[str, Any]
-            The parameters for this control, ``rotation_X``, ``rotation_Y``, and
-            ``rotation_Z``. See the class docstring for their documentation.
+            The parameters for this control, ``rotation_x``, ``rotation_y``, and
+            ``rotation_z``. See the class docstring for their documentation.
         """
         no_err, msg = self.check_arguments(control_args)
         assert no_err, msg
 
         obj = context['object']
         obj.rotation_mode = 'XYZ'
-        obj.rotation_euler = (control_args['rotation_X'],
-                              control_args['rotation_Y'],
-                              control_args['rotation_Z'])
+        obj.rotation_euler = (control_args['rotation_x'],
+                              control_args['rotation_y'],
+                              control_args['rotation_z'])
 
 Finally, assign the name of the control to a variable ``Control``:
 
