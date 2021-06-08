@@ -1,7 +1,9 @@
 # 3DB: A framework for analyzing computer vision models with simulated data
 
 [Paper](https://arxiv.org/abs/2106.03805)
+
 [Quickstart guide](https://3db.github.io/3db/usage/quickstart.html)
+
 [Blog post](http://gradientscience.org/3db)
 
 ## Installation
