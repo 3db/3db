@@ -24,7 +24,7 @@ For example, to use a pre-trained ``ResNet-18`` model from torchvision, the user
 
 
 Implementation
------------
+--------------
 
 In order to use your own (PyTorch) inference model, the first step is to create a PyTorch module that defines your model.
 For example, first create a folder ``myinference``. Inside the folder, create an empty file ``__init__.py``, and another file ``my_3db_inference_module.py`` that contains the following code:
@@ -77,7 +77,7 @@ For example, first create a folder ``myinference``. Inside the folder, create an
 
 
 Updating the configuration file
------------
+---------------------------------
 
 Next, simply point to the location of this new module in the ``inference`` section of your YAML file:
 
@@ -92,7 +92,6 @@ Next, simply point to the location of this new module in the ``inference`` secti
     normalization:
         mean: [0.485, 0.456, 0.406]
         std: [0.229, 0.224, 0.225]
-    output_shape: [1000]
     resolution: [224, 224]
 
 Here, ``path.to.my.module`` should point to the file containing your custom
