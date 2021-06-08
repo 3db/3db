@@ -67,7 +67,7 @@ class SimpleClassificationEvaluator(BaseEvaluator):
             'prediction': ([self.topk], 'int32')
         }
 
-    def summary_stats(self, pred: ch.Tensor, label: LabelType) -> Dict[str, Output]:
+    def summary_stats(self, pred: ch.Tensor, label: LabelType, input_shape: List[int]) -> Dict[str, Output]:
         """Concrete implementation of
         :meth:`threedb.evaluators.base_evaluator.BaseEvaluator.summary_stats`
         (see that docstring for information on the abstract function). Returns

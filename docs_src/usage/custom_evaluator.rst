@@ -126,7 +126,7 @@ more detailed documentation of each abstract function, see the
 
     .. code-block:: python
 
-        def summary_stats(self, pred: ch.Tensor, label: LabelType) -> Dict[str, Output]:
+        def summary_stats(self, pred: ch.Tensor, label: LabelType, input_shape: List[int]) -> Dict[str, Output]:
             # This method is used to generate the metrics declared in
             # declare_outputs() using the output of to_tensor() and
             # get_target().
