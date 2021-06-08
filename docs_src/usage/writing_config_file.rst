@@ -60,14 +60,7 @@ which are used to pre-process inputs before they are fed to the inference model:
         resolution: [500, 500]
         ## --- /END NEW STUFF ---
 
-Finally, the remaining arguments to specify are ``output_shape`` and ``label_map``.
-The former tells 3DB how much space to allocate to save the model output:
-    
-    * For classifiers, this is just ``[NUM_CLASSES]``
-    * For detection models, we will use ``[N, 6]`` where ``N`` is an upper bound on the number of bounding boxes we will save for a given image.
-      The 6 is because bounding boxes are typically stored as 6-tuples ``(x1, y1, x2, y2, score, class)``. 
-    
-The ``label_map`` argument is optional and only used by some loggers---you can provide the path to a JSON array containing class names, so that the output is more human-readable.
+Finally, the remaining argument to specify is ``label_map``. This argument is optional and only used by some loggers---you can provide the path to a JSON array containing class names, so that the output is more human-readable.
 
 An example of a complete inference configuration for an object detection experiment is the following:
 
@@ -83,7 +76,6 @@ An example of a complete inference configuration for an object detection experim
             std: [1., 1., 1.]
         resolution: [500, 500]
         label_map: '/path/to/3db/resources/coco_mapping.json'
-        output_shape: [100, 6]
 
 
 The user might want to use a custom inference model that goes beyond what 3DB comes with. We outline how to do that in

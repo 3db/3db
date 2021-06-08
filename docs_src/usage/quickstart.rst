@@ -99,7 +99,6 @@ Later on we will walk you through `how to write your own configuration files <wr
                 module: 'torchvision.models'
                 label_map: '/path/to/3db/resources/imagenet_mapping.json'
                 class: 'resnet18'
-                output_shape: [1000]
                 normalization:
                     mean: [0.485, 0.456, 0.406]
                     std: [0.229, 0.224, 0.225]
