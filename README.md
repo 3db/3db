@@ -1,5 +1,9 @@
 # 3DB: A framework for analyzing computer vision models with simulated data
 
+[Paper](https://arxiv.org/abs/2106.03805)
+[Quickstart guide](https://3db.github.io/3db/usage/quickstart.html)
+[Blog post](http://gradientscience.org/3db)
+
 ## Installation
 
 Follow instructions on: https://github.com/3db/installers
@@ -33,6 +37,6 @@ If you find 3DB helpful, please cite it as:
     title={3DB: A Framework for Debugging Computer Vision Models},
     author={Guillaume Leclerc, Hadi Salman, Andrew Ilyas, Sai Vemprala, Logan Engstrom, Vibhav Vineet, Kai Xiao, Pengchuan Zhang, Shibani Santurkar, Greg Yang, Ashish Kapoor, Aleksander Madry},
     year={2021},
-    booktitle={Arxiv preprint arXiv:TODO}
+    booktitle={Arxiv preprint arXiv:2106.03805}
 }
 ```
