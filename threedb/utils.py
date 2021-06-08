@@ -29,7 +29,7 @@ class CyclicBuffer:
 
     """
     def __init__(self, buffers: Optional[Dict[str, Tuple[List[int], str]]] = None,
-                 size: int = 11, with_tqdm: bool = True) -> None:
+                 size: int = 1001, with_tqdm: bool = True) -> None:
         self.buffers = {}
         if buffers is None:
             buffers = {}
