@@ -35,7 +35,7 @@ You are now ready to start running 3DB experiments!
     .. code-block:: bash
 
         git clone https://github.com/3db/3db
-        pip install -e 3db/
+        pip install 3db/
         
 
 ----
