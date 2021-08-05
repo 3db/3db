@@ -1,0 +1,495 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>threedb.controls.blender.denoiser &mdash; 3DB  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="threedb.controls.blender.imagenet_c" href="threedb.controls.blender.imagenet_c.html" />
+    <link rel="prev" title="threedb.controls.blender.camera" href="threedb.controls.blender.camera.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> 3DB
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/quickstart.html">Getting started with 3DB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../usage/quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/quickstart.html#run-a-simple-experiment">Run a simple experiment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../usage/quickstart.html#running-the-master-node">Running the master node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/quickstart.html#running-the-clients">Running the clients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/quickstart.html#running-the-dashboard">Running the dashboard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/quickstart.html#analyzing-the-results">Analyzing the results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/writing_config_file.html">Writing a configuration file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../usage/writing_config_file.html#inference-settings">Inference settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/writing_config_file.html#evaluation-settings">Evaluation settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/writing_config_file.html#rendering-settings">Rendering settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/writing_config_file.html#controls-settings">Controls settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/writing_config_file.html#policy-settings">Policy settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/writing_config_file.html#logging-settings">Logging settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/customizing.html">Customizing 3DB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../usage/customizing.html#the-3db-workflow">The 3DB Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../usage/customizing.html#step-1-scheduler-prioritizes-a-job-server-sends-to-client">Step 1: Scheduler prioritizes a job, server sends to client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/customizing.html#step-2-client-renders-and-applies-controls">Step 2: Client renders and applies controls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/customizing.html#step-3-client-predicts-and-evaluates">Step 3: Client predicts and evaluates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/customizing.html#step-4-results-sent-back-to-server">Step 4: Results sent back to server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/customizing.html#customization">Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../usage/customizing.html#customization-guides">Customization Guides</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../usage/custom_controls.html">Adding Custom Controls</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_controls.html#preprocesscontrol">PreProcessControl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_controls.html#postprocesscontrol">PostProcessControl</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/custom_inference.html">Using a Custom Inference Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_inference.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_inference.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/custom_evaluator.html">Using a Custom Evaluator (for custom tasks)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_evaluator.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_evaluator.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/custom_logger.html">Creating a Custom Logger</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_logger.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../usage/custom_logger.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../usage/custom_renderer.html">Customizing Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api_doc.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="threedb.controls.html">threedb.controls package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="threedb.controls.blender.html">threedb.controls.blender package</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.background.html">threedb.controls.blender.background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.camera.html">threedb.controls.blender.camera</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">threedb.controls.blender.denoiser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.imagenet_c.html">threedb.controls.blender.imagenet_c</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.material.html">threedb.controls.blender.material</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.mug_liquid.html">threedb.controls.blender.mug_liquid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.obj_loc_in_frame.html">threedb.controls.blender.obj_loc_in_frame</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.occlusion.html">threedb.controls.blender.occlusion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.orientation.html">threedb.controls.blender.orientation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.pin_to_ground.html">threedb.controls.blender.pin_to_ground</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.pointlight.html">threedb.controls.blender.pointlight</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.position.html">threedb.controls.blender.position</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.scale.html">threedb.controls.blender.scale</a></li>
+<li class="toctree-l4"><a class="reference internal" href="threedb.controls.blender.utils.html">Rendering utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.controls.base_control.html">threedb.controls.base_control</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.evaluators.html">threedb.evaluators package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="threedb.evaluators.base_evaluator.html">threedb.evaluators.base_evaluator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.evaluators.classification.html">threedb.evaluators.classification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.policies.html">threedb.policies package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="threedb.policies.grid_search.html">threedb.policies.grid_search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.policies.random_search.html">threedb.policies.random_search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.rendering.html">threedb.rendering package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="threedb.rendering.base_renderer.html">threedb.rendering.base_renderer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.rendering.render_blender.html">threedb.rendering.render_blender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.rendering.utils.html">Rendering Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.result_logging.html">threedb.result_logging package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="threedb.result_logging.base_logger.html">threedb.result_logging.base_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.result_logging.image_logger.html">threedb.result_logging.image_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.result_logging.json_logger.html">threedb.result_logging.json_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.result_logging.logger_manager.html">threedb.result_logging.logger_manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.result_logging.tb_logger.html">threedb.result_logging.tb_logger</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.scheduling.html">threedb.scheduling package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="threedb.scheduling.base_scheduler.html">threedb.scheduling.base_scheduler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.scheduling.policy_controller.html">threedb.scheduling.policy_controller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.scheduling.search_space.html">threedb.scheduling.search_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="threedb.scheduling.utils.html">Scheduling utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.client.html">threedb.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.main.html">threedb.main</a></li>
+<li class="toctree-l2"><a class="reference internal" href="threedb.utils.html">threedb.utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">3DB</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../api_doc.html">API Reference</a> &raquo;</li>
+        
+          <li><a href="threedb.controls.html">threedb.controls package</a> &raquo;</li>
+        
+          <li><a href="threedb.controls.blender.html">threedb.controls.blender package</a> &raquo;</li>
+        
+      <li>threedb.controls.blender.denoiser</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/threedb.controls.blender.denoiser.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-threedb.controls.blender.denoiser"></span><div class="section" id="threedb-controls-blender-denoiser">
+<h1>threedb.controls.blender.denoiser<a class="headerlink" href="#threedb-controls-blender-denoiser" title="Permalink to this headline">¶</a></h1>
+<p>Denoise renderings. An example config file using this control can be found here:
+<a class="reference external" href="https://github.com/3db/3db/tree/main/examples/unit_tests/denoiser.yaml">https://github.com/3db/3db/tree/main/examples/unit_tests/denoiser.yaml</a>. (And
+of the other controls in the <code class="docutils literal notranslate"><span class="pre">unit_tests</span></code> folder, this files parent folder, use
+this control as well for more realistic renderings).</p>
+<dl class="py class">
+<dt id="threedb.controls.blender.denoiser.DenoiseControl">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">threedb.controls.blender.denoiser.</span></code><code class="sig-name descname"><span class="pre">DenoiseControl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root_folder</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">continuous_dims</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discrete_dims</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#threedb.controls.blender.denoiser.DenoiseControl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="threedb.controls.base_control.html#threedb.controls.base_control.PreProcessControl" title="threedb.controls.base_control.PreProcessControl"><code class="xref py py-class docutils literal notranslate"><span class="pre">threedb.controls.base_control.PreProcessControl</span></code></a></p>
+<p>Enable the built-in Denoise feature in blender</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This control enables the blender feature for denoising renderings.
+It has no parameters.</p>
+<div class="admonition-example-images admonition">
+<p class="admonition-title">Example images</p>
+<a class=""
+               data-lightbox="group-denoiser"
+               href="../_images/image_16.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_16.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-denoiser"
+               href="../_images/image_26.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_26.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-denoiser"
+               href="../_images/image_36.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_36.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-denoiser"
+               href="../_images/image_46.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_46.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-denoiser"
+               href="../_images/image_56.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_56.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><p>With denoising.</p>
+</div>
+<div class="admonition-example-images admonition">
+<p class="admonition-title">Example images</p>
+<a class=""
+               data-lightbox="group-no_denoiser"
+               href="../_images/image_17.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_17.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-no_denoiser"
+               href="../_images/image_27.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_27.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-no_denoiser"
+               href="../_images/image_37.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_37.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-no_denoiser"
+               href="../_images/image_47.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_47.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><a class=""
+               data-lightbox="group-no_denoiser"
+               href="../_images/image_57.png"
+               title=""
+               data-title=""
+               ><img src="../_images/image_57.png"
+                     class=""
+                     width="100"
+                     height="auto"
+                     alt=""/>
+                </a><p>Without denoising.</p>
+</div>
+</div>
+<dl class="py method">
+<dt id="threedb.controls.blender.denoiser.DenoiseControl.apply">
+<code class="sig-name descname"><span class="pre">apply</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_args</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#threedb.controls.blender.denoiser.DenoiseControl.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable OPENIMAGEDENOISE denoiser</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>context</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The scene context</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="threedb.controls.blender.denoiser.DenoiseControl.unapply">
+<code class="sig-name descname"><span class="pre">unapply</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#threedb.controls.blender.denoiser.DenoiseControl.unapply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undo the modification on a scene</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Most of the time, recreating a scene is very expensive, therefore,
+controls are asked to implement a reverse operation to undo their
+changes. Controls that need to store state in order to undo their
+actions should add data to the <cite>target</cite> object they received.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>context</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The description of the scene to render</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="threedb.controls.blender.denoiser.Control">
+<code class="sig-prename descclassname"><span class="pre">threedb.controls.blender.denoiser.</span></code><code class="sig-name descname"><span class="pre">Control</span></code><a class="headerlink" href="#threedb.controls.blender.denoiser.Control" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#threedb.controls.blender.denoiser.DenoiseControl" title="threedb.controls.blender.denoiser.DenoiseControl"><code class="xref py py-class docutils literal notranslate"><span class="pre">threedb.controls.blender.denoiser.DenoiseControl</span></code></a></p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="threedb.controls.blender.imagenet_c.html" class="btn btn-neutral float-right" title="threedb.controls.blender.imagenet_c" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="threedb.controls.blender.camera.html" class="btn btn-neutral float-left" title="threedb.controls.blender.camera" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, 3DB Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

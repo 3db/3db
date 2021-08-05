@@ -1,0 +1,434 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Customizing 3DB &mdash; 3DB  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adding Custom Controls" href="custom_controls.html" />
+    <link rel="prev" title="Writing a configuration file" href="writing_config_file.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> 3DB
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting started with 3DB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#run-a-simple-experiment">Run a simple experiment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-master-node">Running the master node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-clients">Running the clients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-dashboard">Running the dashboard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#analyzing-the-results">Analyzing the results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="writing_config_file.html">Writing a configuration file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#inference-settings">Inference settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#evaluation-settings">Evaluation settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#rendering-settings">Rendering settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#controls-settings">Controls settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#policy-settings">Policy settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#logging-settings">Logging settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Customizing 3DB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-3db-workflow">The 3DB Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-scheduler-prioritizes-a-job-server-sends-to-client">Step 1: Scheduler prioritizes a job, server sends to client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-client-renders-and-applies-controls">Step 2: Client renders and applies controls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-client-predicts-and-evaluates">Step 3: Client predicts and evaluates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-results-sent-back-to-server">Step 4: Results sent back to server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#customization">Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#customization-guides">Customization Guides</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="custom_controls.html">Adding Custom Controls</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_controls.html#preprocesscontrol">PreProcessControl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_controls.html#postprocesscontrol">PostProcessControl</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_inference.html">Using a Custom Inference Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_inference.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_inference.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_evaluator.html">Using a Custom Evaluator (for custom tasks)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_evaluator.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_evaluator.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_logger.html">Creating a Custom Logger</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_logger.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_logger.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_renderer.html">Customizing Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.controls.html">threedb.controls package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.controls.blender.html">threedb.controls.blender package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.background.html">threedb.controls.blender.background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.camera.html">threedb.controls.blender.camera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.denoiser.html">threedb.controls.blender.denoiser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.imagenet_c.html">threedb.controls.blender.imagenet_c</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.material.html">threedb.controls.blender.material</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.mug_liquid.html">threedb.controls.blender.mug_liquid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.obj_loc_in_frame.html">threedb.controls.blender.obj_loc_in_frame</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.occlusion.html">threedb.controls.blender.occlusion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.orientation.html">threedb.controls.blender.orientation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.pin_to_ground.html">threedb.controls.blender.pin_to_ground</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.pointlight.html">threedb.controls.blender.pointlight</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.position.html">threedb.controls.blender.position</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.scale.html">threedb.controls.blender.scale</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.utils.html">Rendering utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.controls.base_control.html">threedb.controls.base_control</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.evaluators.html">threedb.evaluators package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html">threedb.evaluators.base_evaluator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.evaluators.classification.html">threedb.evaluators.classification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.policies.html">threedb.policies package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.policies.grid_search.html">threedb.policies.grid_search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.policies.random_search.html">threedb.policies.random_search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.rendering.html">threedb.rendering package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.rendering.base_renderer.html">threedb.rendering.base_renderer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.rendering.render_blender.html">threedb.rendering.render_blender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.rendering.utils.html">Rendering Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.result_logging.html">threedb.result_logging package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.base_logger.html">threedb.result_logging.base_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.image_logger.html">threedb.result_logging.image_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.json_logger.html">threedb.result_logging.json_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.logger_manager.html">threedb.result_logging.logger_manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.tb_logger.html">threedb.result_logging.tb_logger</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.scheduling.html">threedb.scheduling package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.base_scheduler.html">threedb.scheduling.base_scheduler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.policy_controller.html">threedb.scheduling.policy_controller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.search_space.html">threedb.scheduling.search_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.utils.html">Scheduling utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.client.html">threedb.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.main.html">threedb.main</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.utils.html">threedb.utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">3DB</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Customizing 3DB</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/usage/customizing.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="customizing-3db">
+<h1>Customizing 3DB<a class="headerlink" href="#customizing-3db" title="Permalink to this headline">¶</a></h1>
+<p>We will now outline the different ways in which 3DB can be modified and customized
+to capture a large set of use cases.</p>
+<div class="section" id="the-3db-workflow">
+<h2>The 3DB Workflow<a class="headerlink" href="#the-3db-workflow" title="Permalink to this headline">¶</a></h2>
+<p>3DB is designed to be extended without needing any modifications to the source
+codebase itself (and thus, it is fully extendable even when installed as a
+module). In particular, one can extend 3DB by replacing one or more of the modules
+with custom subclasses. The <a class="reference internal" href="#guides"><span class="std std-ref">Customization Guides</span></a> linked below illustrate how to do this, but
+first we will briefly describe the structure of 3DB and the role
+that each module plays.</p>
+<p>3DB is structured as a client-server application: the server loads the
+<a class="reference external" href="writing_config_file.html">configuration file</a>, and uses it to load the 3D models, the
+environments, and the search space. From then on, the responsibility of the
+server is to send jobs to the client(s), receive the corresponding results, save
+them in a buffer, and then (concurrently on a separate process) log results from
+the buffer onto disk. That is, the server side of the 3DB pipeline is
+modularized as follows:</p>
+<img alt="Diagram of the server-side workflow of 3DB" src="../_images/server_side_diagram.png" />
+<p>While the server side of 3DB <em>is</em> modularizable, users should seldom have to
+customize anything other than the loggers (shown <a class="reference external" href="custom_logger.html">here</a>). The other components,
+e.g., the scheduler, the search strategy, the policy controller, and the buffer are already rather general
+and should capture the vast majority of use cases.</p>
+<p>The client side of 3DB is where most of the customization happens. A diagram of
+the client-side workflow is shown below:</p>
+<img alt="Diagram of the client-side workflow of 3DB" src="../_images/client_side_diagram.png" />
+<p>Breaking this down piece by piece:</p>
+<div class="section" id="step-1-scheduler-prioritizes-a-job-server-sends-to-client">
+<h3>Step 1: Scheduler prioritizes a job, server sends to client<a class="headerlink" href="#step-1-scheduler-prioritizes-a-job-server-sends-to-client" title="Permalink to this headline">¶</a></h3>
+<p>The client receives a job from the server. The job metadata consists of a
+path to a 3D model and environment to load.</p>
+</div>
+<div class="section" id="step-2-client-renders-and-applies-controls">
+<h3>Step 2: Client renders and applies controls<a class="headerlink" href="#step-2-client-renders-and-applies-controls" title="Permalink to this headline">¶</a></h3>
+<p>The job metadata is passed to the rendering module, along with the rendering
+parameters from the config file. The default renderer is Blender, but as shown
+<a class="reference external" href="custom_renderer.html">here</a>, users can implement their own rendering module,
+as long as it provides concrete implementations of a few simple abstract functions.
+The renderer outputs a list of renderings—both a standard RGB render as well as
+any others that were requested inside the config file (see
+<a class="reference external" href="writing_config_file.html#rendering-settings">here</a>), such as a UV map or segmentation map.</p>
+<p>As part of step 2, the renderer applies a set of <code class="docutils literal notranslate"><span class="pre">controls</span></code>, or structured scene
+transformations, described <a class="reference external" href="writing_config_file.html#controls-settings">here</a>. Users can also implement their own controls, as shown
+<a class="reference external" href="custom_controls.html">here</a>.</p>
+</div>
+<div class="section" id="step-3-client-predicts-and-evaluates">
+<h3>Step 3: Client predicts and evaluates<a class="headerlink" href="#step-3-client-predicts-and-evaluates" title="Permalink to this headline">¶</a></h3>
+<p>The image (RGB) output of the renderer is sent to the <a class="reference external" href="writing_config_file.html#inference-settings">inference module</a>, which
+then outputs a prediction.</p>
+<p>This prediction, along with any auxiliary information generated by the
+renderer (e.g., UV maps, segmentation maps, or depth maps), as well as a unique
+identifier for the 3D model, is then passed to an <a class="reference external" href="writing_config_file.html#evaluation-settings">evaluation module</a>.</p>
+<p>The evaluator is responsible for two tasks:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>converting the output of the inference model to a tensor.</p></li>
+<li><p>computing the desired performance metrics for the inference model (e.g., correctness, loss, etc.).</p></li>
+</ul>
+</div></blockquote>
+<p>3DB provides evaluators for both <a class="reference external" href="writing_config_file.html#evaluation-settings">classification and object detection</a>; for other modalities or tasks,
+users will have to customize the evaluation model as illustrated <a class="reference external" href="custom_evaluator.html">here</a>.</p>
+</div>
+<div class="section" id="step-4-results-sent-back-to-server">
+<h3>Step 4: Results sent back to server<a class="headerlink" href="#step-4-results-sent-back-to-server" title="Permalink to this headline">¶</a></h3>
+<p>The output of the evaluator is sent back to the client. The client packages
+up the outputs of the evaluator and the renderer and sends them back to the
+server, where they are logged based on what <a class="reference external" href="writing_config_file.html#logging-settings">loggers the user specifies</a>.</p>
+</div>
+<div class="section" id="customization">
+<h3>Customization<a class="headerlink" href="#customization" title="Permalink to this headline">¶</a></h3>
+<p>As mentioned in the section on <a class="reference external" href="writing_config_file.html">setting up a configuration file</a>, any of
+the previously mentioned modules can be substituted for a user-defined module,
+as long as the correct functions are implemented. In the guides below, we’ll
+walk you through how to add custom controls, inference modules,  evaluators,
+loggers, and renderers:</p>
+</div>
+</div>
+<div class="section" id="customization-guides">
+<span id="guides"></span><h2>Customization Guides<a class="headerlink" href="#customization-guides" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="custom_controls.html">Adding Custom Controls</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_controls.html#preprocesscontrol">PreProcessControl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_controls.html#postprocesscontrol">PostProcessControl</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_inference.html">Using a Custom Inference Model</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_inference.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_inference.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_evaluator.html">Using a Custom Evaluator (for custom tasks)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_evaluator.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_evaluator.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_logger.html">Creating a Custom Logger</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="custom_logger.html#implementation">Implementation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_logger.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="custom_renderer.html">Customizing Rendering</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="custom_controls.html" class="btn btn-neutral float-right" title="Adding Custom Controls" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="writing_config_file.html" class="btn btn-neutral float-left" title="Writing a configuration file" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, 3DB Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

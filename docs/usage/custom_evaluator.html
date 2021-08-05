@@ -1,0 +1,504 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Using a Custom Evaluator (for custom tasks) &mdash; 3DB  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+        <script src="../_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Creating a Custom Logger" href="custom_logger.html" />
+    <link rel="prev" title="Using a Custom Inference Model" href="custom_inference.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> 3DB
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Getting started with 3DB</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#run-a-simple-experiment">Run a simple experiment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-master-node">Running the master node</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-clients">Running the clients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-the-dashboard">Running the dashboard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#analyzing-the-results">Analyzing the results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="writing_config_file.html">Writing a configuration file</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#inference-settings">Inference settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#evaluation-settings">Evaluation settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#rendering-settings">Rendering settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#controls-settings">Controls settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#policy-settings">Policy settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="writing_config_file.html#logging-settings">Logging settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="customizing.html">Customizing 3DB</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="customizing.html#the-3db-workflow">The 3DB Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="customizing.html#step-1-scheduler-prioritizes-a-job-server-sends-to-client">Step 1: Scheduler prioritizes a job, server sends to client</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizing.html#step-2-client-renders-and-applies-controls">Step 2: Client renders and applies controls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizing.html#step-3-client-predicts-and-evaluates">Step 3: Client predicts and evaluates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizing.html#step-4-results-sent-back-to-server">Step 4: Results sent back to server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customizing.html#customization">Customization</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="customizing.html#customization-guides">Customization Guides</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="custom_controls.html">Adding Custom Controls</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_controls.html#preprocesscontrol">PreProcessControl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_controls.html#postprocesscontrol">PostProcessControl</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_inference.html">Using a Custom Inference Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_inference.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_inference.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Using a Custom Evaluator (for custom tasks)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_logger.html">Creating a Custom Logger</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="custom_logger.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="custom_logger.html#updating-the-configuration-file">Updating the configuration file</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="custom_renderer.html">Customizing Rendering</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api_doc.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.controls.html">threedb.controls package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.controls.blender.html">threedb.controls.blender package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.background.html">threedb.controls.blender.background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.camera.html">threedb.controls.blender.camera</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.denoiser.html">threedb.controls.blender.denoiser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.imagenet_c.html">threedb.controls.blender.imagenet_c</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.material.html">threedb.controls.blender.material</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.mug_liquid.html">threedb.controls.blender.mug_liquid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.obj_loc_in_frame.html">threedb.controls.blender.obj_loc_in_frame</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.occlusion.html">threedb.controls.blender.occlusion</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.orientation.html">threedb.controls.blender.orientation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.pin_to_ground.html">threedb.controls.blender.pin_to_ground</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.pointlight.html">threedb.controls.blender.pointlight</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.position.html">threedb.controls.blender.position</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.scale.html">threedb.controls.blender.scale</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/threedb.controls.blender.utils.html">Rendering utils</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.controls.base_control.html">threedb.controls.base_control</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.evaluators.html">threedb.evaluators package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html">threedb.evaluators.base_evaluator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.evaluators.classification.html">threedb.evaluators.classification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.policies.html">threedb.policies package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.policies.grid_search.html">threedb.policies.grid_search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.policies.random_search.html">threedb.policies.random_search</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.rendering.html">threedb.rendering package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.rendering.base_renderer.html">threedb.rendering.base_renderer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.rendering.render_blender.html">threedb.rendering.render_blender</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.rendering.utils.html">Rendering Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.result_logging.html">threedb.result_logging package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.base_logger.html">threedb.result_logging.base_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.image_logger.html">threedb.result_logging.image_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.json_logger.html">threedb.result_logging.json_logger</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.logger_manager.html">threedb.result_logging.logger_manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.result_logging.tb_logger.html">threedb.result_logging.tb_logger</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.scheduling.html">threedb.scheduling package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.base_scheduler.html">threedb.scheduling.base_scheduler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.policy_controller.html">threedb.scheduling.policy_controller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.search_space.html">threedb.scheduling.search_space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/threedb.scheduling.utils.html">Scheduling utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.client.html">threedb.client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.main.html">threedb.main</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/threedb.utils.html">threedb.utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">3DB</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="customizing.html">Customizing 3DB</a> &raquo;</li>
+        
+      <li>Using a Custom Evaluator (for custom tasks)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/usage/custom_evaluator.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="using-a-custom-evaluator-for-custom-tasks">
+<h1>Using a Custom Evaluator (for custom tasks)<a class="headerlink" href="#using-a-custom-evaluator-for-custom-tasks" title="Permalink to this headline">¶</a></h1>
+<p>Even though 3DB focuses on computer vision, it can also be used to solve a myriad of possible tasks.
+We enable users to describe their own evaluation tasks in 3DB.</p>
+<p>Out of the box, the frameworks supports:</p>
+<ul class="simple">
+<li><p>Classification (<a class="reference internal" href="../api/threedb.evaluators.classification.html#module-threedb.evaluators.classification" title="threedb.evaluators.classification"><code class="xref py py-mod docutils literal notranslate"><span class="pre">threedb.evaluators.classification</span></code></a>)</p></li>
+<li><p>Object Detection (<code class="xref py py-mod docutils literal notranslate"><span class="pre">threedb.evaluators.detection</span></code>)</p></li>
+</ul>
+<p>The procedure for extending evaluators in 3DB is as follows:</p>
+<ol class="arabic simple">
+<li><p>Implement a subclass of the base class <a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html#module-threedb.evaluators.base_evaluator" title="threedb.evaluators.base_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">threedb.evaluators.base_evaluator</span></code></a>.</p></li>
+<li><p>Have your file export the class under the name <code class="docutils literal notranslate"><span class="pre">Evaluator</span></code>.</p></li>
+<li><p>Make sure it can be imported in your current environment (via <code class="docutils literal notranslate"><span class="pre">$PYTHONPATH</span></code>, <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">...</span></code>, …).</p></li>
+<li><p>Update the configuration file to use the newly defined evaluator.</p></li>
+</ol>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<p>Below, we provide an example implementation of custom evaluator for an image
+segmentation task. We’ll briefly outline each of the required steps below—for
+more detailed documentation of each abstract function, see the
+<a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html#module-threedb.evaluators.base_evaluator" title="threedb.evaluators.base_evaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">threedb.evaluators.base_evaluator</span></code></a> module.</p>
+<ol class="arabic">
+<li><p>We’ll start by importing the required modules and subclassing the
+<a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html#threedb.evaluators.base_evaluator.BaseEvaluator" title="threedb.evaluators.base_evaluator.BaseEvaluator"><code class="xref py py-mod docutils literal notranslate"><span class="pre">BaseEvaluator</span></code></a> class. In order for
+the subclass to be valid, we need to declare two variables, <code class="docutils literal notranslate"><span class="pre">KEYS</span></code> and
+<code class="docutils literal notranslate"><span class="pre">output_type</span></code>. At a high level, the purpose of any evaluator is to map from
+a (model prediction, label) pair to an arbitrary dictionary summarizing the
+results—the <code class="docutils literal notranslate"><span class="pre">KEYS</span></code> variable declares what the keys of this dictionary
+will be. The <code class="docutils literal notranslate"><span class="pre">output_type</span></code> variable is only used by the dashboard to
+visualize the results, and can be any string.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">import</span> <span class="nn">torch</span> <span class="kn">as</span> <span class="nn">ch</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">threedb.evaluators.base_evaluator</span> <span class="kn">import</span> <span class="n">BaseEvaluator</span>
+
+<span class="k">class</span> <span class="nc">ImageSegmentation</span><span class="p">(</span><span class="n">BaseEvaluator</span><span class="p">):</span>
+    <span class="c1"># The output_type variable needs to be defined; it can be any string and</span>
+    <span class="c1"># is only used by the dashboard to decide how the results are displayed.</span>
+    <span class="n">output_type</span> <span class="o">=</span> <span class="s1">&#39;segmentation&#39;</span>
+
+    <span class="c1"># The KEYS variable needs to match the keys in declare_outputs</span>
+    <span class="c1"># and summary_stats.</span>
+    <span class="n">KEYS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;is_correct&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="s1">&#39;seg_map&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Next, we implement the init function: this can take arbitrary arguments and
+should set up everything that the evaluator needs to generate metadata about
+model predictions. For our segmentation evaluator, we’ll need (a) a file
+mapping model UIDs to classes; (b) an error threshold at which to call a
+segmentation “correct;” and (c) the size of the segmentation maps produced.</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_uid_to_class_file</span><span class="p">,</span> <span class="n">l2_thresh</span><span class="p">,</span> <span class="n">im_size</span><span class="p">):</span>
+    <span class="c1"># In order to implement methods in this class you probably</span>
+    <span class="c1"># will need some metadata. Feel free to accept any argument</span>
+    <span class="c1"># you need in your constructor. You will be able to populate</span>
+    <span class="c1"># them in your config file.</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">model_to_class</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">model_uid_to_class_file</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">l2_thresh</span> <span class="o">=</span> <span class="n">l2_thresh</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">im_size</span> <span class="o">=</span> <span class="n">im_size</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>The next abstract function we have to implement is
+<a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html#threedb.evaluators.base_evaluator.BaseEvaluator.get_segmentation_label" title="threedb.evaluators.base_evaluator.BaseEvaluator.get_segmentation_label"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_segmentation_label()</span></code></a>,
+which takes in a model uid and should return a label to be used in the
+segmentation map (i.e., the segmentation map will be -1 wherever the
+backgroiunds visible, and X wherever the model is visible, where X is the
+output of this function). Below is a function that uses the provided JSON
+file to return this label:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_segmentation_label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># The output of this function will be the value associated</span>
+    <span class="c1"># to pixels that belongs to the object of interest.</span>
+
+    <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid_to_targets</span><span class="p">[</span><span class="n">model_uid</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">label</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">label</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Next, we implement the
+<a class="reference internal" href="../api/threedb.evaluators.base_evaluator.html#threedb.evaluators.base_evaluator.BaseEvaluator.declare_outputs" title="threedb.evaluators.base_evaluator.BaseEvaluator.declare_outputs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">declare_outputs()</span></code></a>
+function—this must return a dictionary with keys equal to the <code class="docutils literal notranslate"><span class="pre">KEYS</span></code>
+variable declared earlier, and values equal to tuples of the form <code class="docutils literal notranslate"><span class="pre">(shape,</span>
+<span class="pre">type)</span></code>. In particular, <code class="docutils literal notranslate"><span class="pre">shape</span></code> should be a list describing the shape of
+the tensor that will be returned, and <code class="docutils literal notranslate"><span class="pre">type</span></code> should be a PyTorch dtype:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">declare_outputs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="c1"># The goal of this method is to declare what kinds of metrics</span>
+    <span class="c1"># the evaluator will generate.</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;is_correct&#39;</span><span class="p">:</span> <span class="p">([],</span> <span class="s1">&#39;bool&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="p">([],</span> <span class="s1">&#39;float32&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;seg_map&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">im_size</span><span class="p">,</span> <span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+        <span class="c1"># Any other metrics you want to report!</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>The next step is to declare the <code class="docutils literal notranslate"><span class="pre">get_target</span></code> function, which takes in (a)
+the UID of the rendered 3D model and (b) the <code class="docutils literal notranslate"><span class="pre">render_output</span></code> dictionary
+consisting of the render output (for the built-in Blender engine, this
+thankfully already comes with a “segmentation” key!), and returns the
+desired ground-truth that our segmentation model’s output will be compared
+to:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_uid</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">render_output</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">LabelType</span><span class="p">:</span>
+    <span class="c1"># returns the expected label (whatever label means for this specific task)</span>
+    <span class="k">return</span> <span class="n">render_output</span><span class="p">[</span><span class="s1">&#39;segmentation&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>The last and most important step is the <code class="docutils literal notranslate"><span class="pre">summary_stats</span></code> function, which
+takes in a model prediction and a label (the output of <code class="docutils literal notranslate"><span class="pre">get_target</span></code>) and
+returns a dictionary that has the same keys as KEYS, and values that are
+PyTorch tensors with the declared shapes and types from <code class="docutils literal notranslate"><span class="pre">declare_outputs</span></code>.
+For example, assuming the model outputs a segmentation map, we might return
+something like the following:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">summary_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pred</span><span class="p">:</span> <span class="n">ch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="n">LabelType</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Output</span><span class="p">]:</span>
+    <span class="c1"># This method is used to generate the metrics declared in</span>
+    <span class="c1"># declare_outputs() using the output of to_tensor() and</span>
+    <span class="c1"># get_target().</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="p">(</span><span class="n">pred</span> <span class="o">-</span> <span class="n">label</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+    <span class="n">is_correct</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">loss</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">l2_thresh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;is_correct&#39;</span><span class="p">:</span> <span class="n">is_correct</span><span class="p">,</span>
+        <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span>
+        <span class="s1">&#39;seg_map&#39;</span><span class="p">:</span> <span class="n">pred</span>
+        <span class="c1"># You can add as many metrics as you want as long</span>
+        <span class="c1"># as you match declare_outputs</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>Finally, don’t forget to export your class under the <code class="docutils literal notranslate"><span class="pre">Evaluator</span></code> variable!</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># IMPORTANT! Needed so that threedb is able to import your custom evaluator</span>
+<span class="c1"># (since it can&#39;t know how you named your class).</span>
+<span class="n">Evaluator</span> <span class="o">=</span> <span class="n">ImageSegmentation</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+<p>That’s it! We’ve implemented all the functions needed to add a custom task to 3DB.</p>
+</div>
+<div class="section" id="updating-the-configuration-file">
+<h2>Updating the configuration file<a class="headerlink" href="#updating-the-configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>You should update the <code class="docutils literal notranslate"><span class="pre">evaluation</span></code> section of your configuration file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># ... rest of YAML file</span>
+<span class="nt">evaluation</span><span class="p">:</span>
+    <span class="nt">module</span><span class="p">:</span> <span class="s">&quot;path.to.your.newly.created.module&quot;</span>
+    <span class="nt">args</span><span class="p">:</span>
+        <span class="nt">model_uid_to_class_file</span><span class="p">:</span> <span class="s">&quot;/path/to/mapping/file&quot;</span>
+        <span class="nt">l2_thresh</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10.</span>
+        <span class="nt">im_size</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span> <span class="nv">224</span><span class="p p-Indicator">,</span> <span class="nv">224</span><span class="p p-Indicator">]</span>
+<span class="nt">render_args</span><span class="p">:</span>
+    <span class="nt">engine</span><span class="p">:</span> <span class="s">&#39;threedb.rendering.render_blender&#39;</span>
+    <span class="nt">resolution</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">256</span>
+    <span class="nt">samples</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">16</span>
+    <span class="nt">with_segmentation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="custom_logger.html" class="btn btn-neutral float-right" title="Creating a Custom Logger" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="custom_inference.html" class="btn btn-neutral float-left" title="Using a Custom Inference Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, 3DB Team.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
