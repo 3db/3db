@@ -19,9 +19,9 @@ class PositionControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - ``offset_x``: Translation compnonent along the world's x-axis (range: ``[-1, 1]``)
-    - ``offset_y``: Translation compnonent along the world's y-axis (range: ``[-1, 1]``)
-    - ``offset_z``: Translation compnonent along the world's z-axis (range: ``[-1, 1]``)
+    - ``offset_x``: Translation component along the world's x-axis (default range: ``[-1, 1]``)
+    - ``offset_y``: Translation component along the world's y-axis (default range: ``[-1, 1]``)
+    - ``offset_z``: Translation component along the world's z-axis (default range: ``[-1, 1]``)
 
     .. admonition:: Example images
 

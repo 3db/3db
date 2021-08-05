@@ -20,7 +20,7 @@ class BackgroundControl(PostProcessControl):
     Continuous parameters:
 
     - ``H``, ``S`` and ``V``: the hue, saturation, and value of the color to
-      fill the background with. (range: ``[0, 1]``)
+      fill the background with. (default range: ``[0, 1]``)
 
     .. admonition:: Example images
 

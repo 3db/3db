@@ -16,12 +16,12 @@ class PointLightControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - ``H``, ``S``, ``V``: The color of the light (range: ``[0, 1]`` for each)
+    - ``H``, ``S``, ``V``: The color of the light (default range: ``[0, 1]`` for each)
     - ``intensity``: The intensity of the light. Value depends on the environment.
-      (range: ``[1000, 10000]``)
+      (default range: ``[1000, 10000]``)
     - ``distance``: The distance away from the object of interest
     - ``dir_x``: relative (x, y, z)-coordinate of the point light w.r.t the object
-      of interest. (ranges: ``[-1, 1]``, ``[-1, 1]``, ``[0, 1]`` respectively for x, y, z).
+      of interest. (default ranges: ``[-1, 1]``, ``[-1, 1]``, ``[0, 1]`` respectively for x, y, z).
 
     .. note::
         1. You can add multiple point lights by using this control multiple

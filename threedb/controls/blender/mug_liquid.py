@@ -21,8 +21,8 @@ class MugLiquidControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - ``ratio_milk`` (float): The ratio of milk (range: ``[0, 1]``)
-    - ``ratio_coffee`` (float): The ratio of coffee (range: ``[0, 1]``)
+    - ``ratio_milk`` (float): The ratio of milk (default range: ``[0, 1]``)
+    - ``ratio_coffee`` (float): The ratio of coffee (default range: ``[0, 1]``)
     """
 
     def __init__(self, root_folder: str):

@@ -19,18 +19,18 @@ class CameraControl(PreProcessControl):
 
     Continuous Dimensions:
 
-    - ``view_point_x``: The original x coordinate of the camera (see the note
-      below). (range: ``[-1, 1]``)
-    - ``view_point_y``: The original y coordinate of the camera (see the note
-      below). (range: ``[-1, 1]``)
-    - ``view_point_z``: The original z coordinate of the camera (see the note
-      below). (range: ``[0, 1]``)
+    - ``view_point_x``: The relative x coordinate of the camera (see the note
+      below). (default range: ``[-1, 1]``)
+    - ``view_point_y``: The relative y coordinate of the camera (see the note
+      below). (default range: ``[-1, 1]``)
+    - ``view_point_z``: The relative z coordinate of the camera (see the note
+      below). (default range: ``[0, 1]``)
     - ``zoom_factor``: Defines how much should we see of the object. A
       ``zoom_factor`` of 1 means we completely see the object with a little
-      margin. above 1 we are close. 
-      below 1 we are further. (range: ``[0.5, 2]``)
-    - ``aperture``: The aperture of the camera. (range: ``[1, 32]``)
-    - ``focal_length``: The focal length of the camera. (range: ``[10, 400]``)
+      margin. Above 1 we are close. 
+      Below 1 we are further. (default range: ``[0.5, 2]``)
+    - ``aperture``: The aperture of the camera. (default range: ``[1, 32]``)
+    - ``focal_length``: The focal length of the camera. (default range: ``[10, 400]``)
 
     .. admonition:: Example images
 
@@ -61,7 +61,7 @@ class CameraControl(PreProcessControl):
 
         1. We set the ``aperture`` and ``focal_length``
         2. We move the camera according to ``view_point_{x,y,z}`` and look at
-           the object
+           the object. These are the camera's coordinates relative to the object.
         3. We move closer or further in order to satisfy the ``zoom_factor``
            constraint
 
