@@ -20,7 +20,7 @@ class PinToGroundControl(PreProcessControl):
     Continuous Dimensions:
 
     - ``z_ground``: the z-coordinate that the bottom of the object's bounding
-       moves to. Range: ``[0, 1]``.
+       moves to (default range: ``[0, 1]``)
 
     .. note::
         This control come after the ``PositionControl`` and

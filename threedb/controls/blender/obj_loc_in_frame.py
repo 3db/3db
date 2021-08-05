@@ -24,9 +24,10 @@ class ObjLocInFrameControl(PreProcessControl):
 
     - ``x_shift``: The normalized X-coordinate of the center of the object in the frame.
         A value of -1 is the left-most edge of the frame and 1 is the right-most
-        edge of the frame. (range: ``[-1, 1]``)
+        edge of the frame. (default range: ``[-1, 1]``)
     - ``y_shift``: The normalized Y-coordinate of the center of the object in the frame
         Takes any value between -1 (bottom of the frame) and 1 (top of the frame).
+        (default range: ``[-1, 1]``)
 
     .. note::
         Setting x_shift and y_shift to zeros keeps the object in the

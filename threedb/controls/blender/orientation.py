@@ -16,9 +16,9 @@ class OrientationControl(PreProcessControl):
 
     Continuous Parameters:
 
-    - ``rotation_x``: The x component of the Eulerian rotation (range: ``[-pi, pi]``)
-    - ``rotation_y``: The y component of the Eulerian rotation (range: ``[-pi, pi]``)
-    - ``rotation_z``: The z component of the Eulerian rotation (range: ``[-pi, pi]``)
+    - ``rotation_x``: The x component of the Eulerian rotation (default range: ``[-pi, pi]``)
+    - ``rotation_y``: The y component of the Eulerian rotation (default range: ``[-pi, pi]``)
+    - ``rotation_z``: The z component of the Eulerian rotation (default range: ``[-pi, pi]``)
 
     .. admonition:: Example images
 
